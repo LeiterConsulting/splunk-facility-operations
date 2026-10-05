@@ -13,3 +13,5 @@ artifacts/
 __pycache__/
 *.pyc
 playwright-report/
+splunk_facility_operations/local/
+splunk_facility_operations/metadata/local.meta

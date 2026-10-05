@@ -2,6 +2,9 @@
   "name": "splunk-facility-operations",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "preview": "python3 scripts/serve_preview.py",
@@ -9,7 +12,7 @@
     "test": "tsx --test tests/*.test.ts",
     "build": "npm run typecheck && tsx scripts/generate-lookups.ts && node scripts/build.mjs",
     "package": "npm run build && python3 scripts/package.py",
-    "verify": "npm run test && npm run package",
+    "verify": "npm run test && npm run test:backend && npm run package",
     "test:browser": "playwright test",
     "test:backend": "python3 -m unittest discover -s tests -p \"test_*.py\""
   },

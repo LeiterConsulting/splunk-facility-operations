@@ -1,6 +1,6 @@
 # Facility Operations architecture
 
-The app separates presentation context, observations, investigation tools, and action policy. This lets the same operational evidence support several audiences while keeping source, evidence limits, and permissions visible.
+The app separates presentation context, observations, investigation tools, and action policy. This lets the same operational evidence support several audiences while keeping source, evidence limits, and permissions visible. For the operational story, use [operations value](operations-value.md). For installation and development, use [getting started](getting-started.md) and [contributing](contributing.md).
 
 ## Runtime and compatibility
 
@@ -22,7 +22,7 @@ Persistent Python handlers declare 3.9/3.13 runtime requirements with a 3.9 fall
 
 | Field | Meaning |
 | --- | --- |
-| `_time`, `evidence_at` | Event time and observation/evidence time as epoch seconds |
+| `_time`, `evidence_at` | Splunk event time; evidence time as numeric epoch seconds. Search output normalization also accepts ISO `_time`. |
 | `entity_id`, `name` | Stable entity identifier and display name |
 | `vertical` | Supported catalogue vertical ID |
 | `layer` | `mission`, `shared`, `infrastructure`, or `facility` |
@@ -34,7 +34,7 @@ Persistent Python handlers declare 3.9/3.13 runtime requirements with a 3.9 fall
 | `control_id`, `control_state` | Reviewed control association and evidence description |
 | `origin` | `live` for the default live source |
 
-Searches use the latest event within 60 minutes, append expected enabled inventory, and expose missing or older-than-three-minute observations as unknown. Inventory can add entities absent from the source. It does not establish an asset's health. Inventory is configuration, not automatic dependency discovery; implement discovery connectors and reconciliation as a later stage.
+Searches aggregate latest fields per entity within 60 minutes, append expected enabled inventory, and expose missing or older-than-three-minute event observations as unknown. Inventory can add entities absent from the source. It does not establish an asset's health. Inventory is configuration, not automatic dependency discovery; implement discovery connectors and reconciliation as a later stage. The [live data guide](live-data.md) defines setup, field formats, sampling limits and verification. Live scope is vertical and time; the use case is illustrative runbook context rather than a live incident filter.
 
 The initial UI reads at most 1,000 entity results. Investigation tools return at most 100 rows and are bounded by the current vertical and last hour. Those caps must be revisited with explicit pagination and completeness indicators before large production inventories are supported.
 
@@ -63,6 +63,7 @@ The current action workspace is a simulation. Observe, supervised, and bounded a
 
 | Stage | Concrete additions |
 | --- | --- |
+| Broader commercial presentations | Reviewed business functions and language for ordinary commercial organizations, with relevant dependency, continuity, security and change stories; preserve generic organization labels |
 | Customer-specific evidence | Reviewed dependency inventory, source adapters, sampling contracts, completeness and pagination, baseline comparison, timeline overlays for actual changes |
 | Expanded investigation | Reviewed SPL/SPL2 search authoring with previews and cost limits, additional analysis tools, persisted investigations, confidence and evidence references, saved report creation with explicit authorization |
 | Operational collaboration | Case and ticket integration, owner handoff, maintenance windows, shared incident history, durable action audit, report publishing and retention rules |

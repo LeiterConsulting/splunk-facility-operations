@@ -2,6 +2,16 @@
 
 The initial release was checked on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Repository review on October 5, 2026
+
+The documentation now provides separate paths for presenters, evaluators, administrators and developers: [demo walkthrough](demo-guide.md), [operations value and measures](operations-value.md), [setup](getting-started.md), [live observations](live-data.md), [assistant setup](assistant-setup.md) and [troubleshooting](troubleshooting.md). Claims distinguish synthetic demonstration behavior, customer evaluation hypotheses and future integrations.
+
+Repository fixes add an explicit release asset list, insert an empty live inventory in distributed packages while preserving a populated local copy, exclude private local files, reject missing/linked release inputs, and explain the build step when preview assets are absent. The aggregate `npm run verify` now includes Python checks as well as the model tests and package build.
+
+Local verification passed 7 model/search tests and 14 Python tests, including three packaging/preview regressions, plus type checking and package creation. All three production-bundle browser workflows also passed. The build used Node 25.4.0 and Python 3.13.2; this is not a test matrix for every version above the documented minimum. Documentation file links and heading anchors were also checked.
+
+The rebuilt installer remains byte-for-byte identical to the October 4 native-tested package: SHA-256 `bf5c546d9fdfe7ea09cd28e2f4a1c0cdfc8fbf04c1c6f51d71ef5087e7e6df6f`. Those native and AppInspect receipts retain their original dates; no new lab installation or real-model inference result is implied by this repository review.
+
 ## Completed checks
 
 | Check | Result |
