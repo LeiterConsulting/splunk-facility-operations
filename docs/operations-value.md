@@ -65,7 +65,7 @@ Report observed results for the evaluated exercises and their limitations. Finan
 
 ## Use the conversation across sectors
 
-Ask about the business function before choosing a vertical. The same questions apply to a public benefits service, a commercial order process, internal workforce access, a distributed operating site, or an essential service operator. Those examples are discovery prompts; order processing and other new commercial functions are not yet named scenarios in the app.
+Ask about the business function before choosing a vertical. The same questions apply to a public benefits service, a commercial order process, internal workforce access, a distributed operating site, or an essential service operator. Retail checkout and fulfillment, workforce collaboration, logistics, manufacturing, financial services, technology, properties and hospitality are now represented in the [commercial catalogue](commercial-demo.md). Validate each fictional story against customer needs before proposing a live evaluation.
 
 | Discovery question | What the answer informs |
 | --- | --- |
@@ -77,4 +77,4 @@ Ask about the business function before choosing a vertical. The same questions a
 | Who can approve a change, and how is recovery confirmed? | Governance, rollback and verification requirements |
 | What would make an investigation draft usable in your incident process? | Export, retention and future collaboration requirements |
 
-Preserve [public sector research](customer-research.md) as dated discovery context. Next app work will extend the commercial catalogue and language after this documentation and repository review.
+Preserve [public sector research](customer-research.md) as dated discovery context. The commercial catalogue broadens those conversations with generic, fictional business context; it does not assert industry-specific vulnerabilities or measured outcomes.

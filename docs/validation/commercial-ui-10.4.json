@@ -1,0 +1,56 @@
+{
+  "target": "PULSE_HQ",
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "dashboard_selectors_hidden",
+      "passed": true
+    },
+    {
+      "name": "commercial_settings_and_native_search",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "commercial_investigation_export",
+      "passed": true
+    },
+    {
+      "name": "commercial_facility_sites",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": true,
+  "static_cache_bump_status": 200,
+  "entry_http_status": 200,
+  "served_bundle_sha256": "651c726e585941c2f205b02551a32fc4c1122b220149708a61c6c021ee8d96ae",
+  "local_bundle_sha256": "53f0bdfa3134eada7854beb1939364a151d1c9e99256edbcbc559bf4bcd149e2",
+  "candidate_bundle_in_served_asset": true,
+  "date": "2026-10-05",
+  "build": 5,
+  "package_sha256": "ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01"
+}

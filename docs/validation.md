@@ -2,7 +2,26 @@
 
 The initial release was checked on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
-## Repository review on October 5, 2026
+## Commercial catalogue and presentation settings on October 5, 2026 (build 5)
+
+The current catalogue has sixteen verticals, including seven new commercial contexts and neutral Enterprise Shared Services language. Each commercial context supplies appropriate functions, owners, sites and six fictional incident stories. Presentation selection is configured and applied together in Settings, remembered in the browser, and summarized on the dashboard. Shared URL context is validated, and applying preferences resets action approval and policy.
+
+| Check | Build 5 result |
+| --- | --- |
+| Type checking, generation and package | Passed; 7,680 synthetic observations |
+| Model/search/preferences | 9 tests passed; includes all vertical/scenario/phase combinations, commercial relationship and ownership consistency, validated saved settings and shared-link precedence |
+| Python backend and packaging | 14 tests passed |
+| Production browser workflows | 4 passed; includes clean dashboard, atomic setup, remembered preferences, commercial exports, public sector shared links, presentation mode and 390-pixel layout |
+| Enterprise 10.0.1 and 10.4.0 service | Passed candidate update, public sector loop clocks, retail observations, settings, investigation and preservation of other apps' reported versions/enabled states |
+| Installed browser checks on both labs | Passed served candidate assets, hidden dashboard selectors, retail Settings and actual searches, commercial investigation/export, manufacturing sites, provider test and zero application page errors |
+| Reader checks on both labs | Passed commercial scoped investigation with caller identity, protected provider configuration/credentials, live-model opt-in and unknown expected telemetry; synthetic fixtures removed |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures; 4 warnings and 1 skipped check |
+
+Sanitized evidence is in the `commercial-*` files in [validation receipts](validation/), including [inspection findings](validation/commercial-appinspect-summary.json). Current package SHA-256: `ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01`.
+
+The four warnings include the existing Python migration, cluster configuration replication and Cloud role notices, plus the custom Mako-template deprecation now reported by AppInspect 4.3.1. Splunk 10.4 still supports the template on the tested labs, but deployments that disable custom Mako templates cannot use this entry shell. Migrating that shell is required for future removal or hardened deployments. This review does not establish Cloud, cluster or future-version qualification. [Splunk 10.4 deprecations](https://help.splunk.com/en/splunk-enterprise/release-notes-and-updates/release-notes/10.4/deprecated-features/deprecated-and-removed-in-version-10.4)
+
+## Documentation and packaging review on October 5, 2026 (build 4)
 
 The documentation now provides separate paths for presenters, evaluators, administrators and developers: [demo walkthrough](demo-guide.md), [operations value and measures](operations-value.md), [setup](getting-started.md), [live observations](live-data.md), [assistant setup](assistant-setup.md) and [troubleshooting](troubleshooting.md). Claims distinguish synthetic demonstration behavior, customer evaluation hypotheses and future integrations.
 
@@ -10,9 +29,9 @@ Repository fixes add an explicit release asset list, insert an empty live invent
 
 Local verification passed 7 model/search tests and 14 Python tests, including three packaging/preview regressions, plus type checking and package creation. All three production-bundle browser workflows also passed. The build used Node 25.4.0 and Python 3.13.2; this is not a test matrix for every version above the documented minimum. Documentation file links and heading anchors were also checked.
 
-The rebuilt installer remains byte-for-byte identical to the October 4 native-tested package: SHA-256 `bf5c546d9fdfe7ea09cd28e2f4a1c0cdfc8fbf04c1c6f51d71ef5087e7e6df6f`. Those native and AppInspect receipts retain their original dates; no new lab installation or real-model inference result is implied by this repository review.
+The documentation-only review reproduced the October 4 native-tested build 4 package: SHA-256 `bf5c546d9fdfe7ea09cd28e2f4a1c0cdfc8fbf04c1c6f51d71ef5087e7e6df6f`. Those native and AppInspect receipts retain their original dates; no new lab installation or real-model inference result is implied by this repository review.
 
-## Completed checks
+## Initial release checks on October 4, 2026
 
 | Check | Result |
 | --- | --- |
@@ -37,9 +56,9 @@ The entry page uses the dedicated `facility_operations` view and an application-
 
 The isolated lab browser uses explicit exceptions for the development web certificates and the HTTP lab's secure-origin requirement. These apply to the owned browser profile only. REST checks retain each saved target's TLS verification setting. The standard Splunk Web cache bump is used after candidate updates; no Splunk restart or global configuration change is performed. [Splunk resource caching](https://help.splunk.com/en/splunk-cloud-platform/developing-views-and-apps-for-splunk-web/10.2.2510/customize-splunk-web/customization-options-and-caching)
 
-## AppInspect findings
+## Initial release AppInspect findings
 
-The remaining warnings concern the generic Python migration notice, custom configuration replication for search head clusters, and Enterprise `admin` permissions versus Cloud `sc_admin`. The skipped package-ID check expects an `app.manifest`; this release uses a traditional standalone app package with `app.conf` identity.
+The October 4 inspection warnings concern the generic Python migration notice, custom configuration replication for search head clusters, and Enterprise `admin` permissions versus Cloud `sc_admin`. The skipped package-ID check expects an `app.manifest`; this release uses a traditional standalone app package with `app.conf` identity. The October 5 inspection and its additional Mako warning are recorded above.
 
 These findings are retained in [the inspection summary](validation/appinspect-summary.json). The package is not represented as Splunkbase-certified, Cloud-qualified, or cluster-qualified. Python handlers were exercised on the labs' 3.9 and 3.13 runtimes. Cluster and Cloud configuration require separate work before those topologies are supported.
 

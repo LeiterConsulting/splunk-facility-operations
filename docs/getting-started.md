@@ -8,7 +8,7 @@ Choose the route that matches your role. A presenter can use an installed app wi
 | --- | --- | --- |
 | Present an installed demo | Browser access to Splunk Web, Facility Operations installed and enabled, an account allowed to search and read this app's lookups and macros | No live source or LLM is needed for the synthetic demonstration |
 | Build or preview locally | Git or a source archive, Node.js 20.19+ with npm, Python 3.9+ available as `python3`, dependency access during `npm ci`, local port 5174 | Development preview uses port 5173; Google Chrome is needed for repository browser tests |
-| Install the native app | The generated `.spl` file, an administrator allowed to install apps, a Splunk Enterprise development instance | Native checks cover 10.0.1 and 10.4.0; other versions/topologies require qualification |
+| Install the native app | The generated `.spl` file, an administrator allowed to install apps, a Splunk Enterprise development instance | Native checks cover 10.0.1 and 10.4.0 with custom Mako templates enabled; other versions/topologies and hardened settings require qualification |
 | Use live observations | An indexed normalized source, reviewed inventory, source search permissions, current timestamps | Ingestion and index configuration are supplied by the customer |
 | Use a connected model | Installed app; administrator with `admin_all_objects` to save/test settings; a qualified provider/model and server network access | Ollama service, OpenAI API access, or separately installed/configured Splunk AI Toolkit |
 
@@ -20,7 +20,7 @@ The demonstration does not require Enterprise Security, IT Service Intelligence,
 
 1. Sign in to Splunk Web and choose **Facility Operations** from the app menu.
 2. Select **Demo**. Confirm **LOOPING DEMO** and the synthetic evidence label.
-3. Set **Audience** to **Operations**, **Industry / vertical** to **Public Services and Benefits**, and **Use case** to **Enterprise Dependency Disruption**.
+3. Open **Settings → Presentation setup**. Set **Audience** to **Operations**, **Industry / vertical** to **Public Services and Benefits**, and **Use case** to **Enterprise Dependency Disruption**, then choose **Apply presentation**.
 4. Choose **Pause**, then **Impact**. Allow the search to refresh. Shared identity should be critical and dependent functions affected.
 5. Open **Investigation assistant** and choose **Investigate the current issue and its dependency impact**. With the saved deterministic provider, a response and expandable investigation steps should appear.
 6. Follow the [presentation guide](demo-guide.md). If an expected result is missing, use [troubleshooting](troubleshooting.md).

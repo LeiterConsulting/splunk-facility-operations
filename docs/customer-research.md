@@ -2,7 +2,7 @@
 
 This appendix records the public sector discovery that informed the first proof of concept. It translates public priorities into generic operations scenarios for presenters and product development; it is not a claim about a customer's current systems. Agency names are excluded from product labels and shipped demo evidence. Sources were reviewed on October 4, 2026; dated findings and plans remain dated evidence.
 
-Use the [operations value guide](operations-value.md) for the cross-sector story and evaluation measures, and the [presentation guide](demo-guide.md) for the actual walkthrough. Commercial business functions and industry-specific interface stories are the next app stage. Initial agency discovery does not restrict the underlying operations questions to government organizations.
+Use the [operations value guide](operations-value.md) for the cross-sector story and evaluation measures, and the [presentation guide](demo-guide.md) for the actual walkthrough. Commercial business functions and industry-specific stories are described in the [commercial demonstration guide](commercial-demo.md). Initial agency discovery does not restrict the underlying operations questions to government organizations.
 
 ## Initial priorities
 
@@ -28,7 +28,7 @@ Initial stakeholder discovery highlighted enterprise dependency visibility, situ
 
 ## How to make each presentation useful
 
-Start with a business function the audience owns. Show how a shared or physical dependency changes its operating state, which evidence supports that conclusion, and who can investigate it. Switch the audience to demonstrate the same incident as an engineering investigation, a security evidence review, a CCB decision, and an executive consequence briefing.
+Start with a business function the audience owns. Show how a shared or physical dependency changes its operating state, which evidence supports that conclusion, and who can investigate it. Apply a new audience through Settings to demonstrate the same incident as an engineering investigation, a security evidence review, a CCB decision, and an executive consequence briefing.
 
 Ask the assistant to separate observations from hypotheses, follow dependencies, inspect the event sequence, and draft a report with evidence. Then use supervised simulation to show an approval, recovery, and fresh verification. Use the missing physical-access observation to demonstrate that incomplete evidence remains unknown and blocks actions when it falls inside the action scope.
 

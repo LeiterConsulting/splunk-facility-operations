@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-05",
+  "build": 5,
+  "version": "4.3.1",
+  "mode": "precert",
+  "package_sha256": "ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01",
+  "summary": {
+    "error": 0,
+    "failure": 0,
+    "future_failure": 0,
+    "skipped": 1,
+    "not_applicable": 128,
+    "warning": 4,
+    "success": 119
+  },
+  "findings": [
+    {
+      "name": "check_for_python_script_existence",
+      "result": "warning",
+      "messages": [
+        "3 Python files found. Update these Python scripts to be cross-compatible with Python 2 and 3 for Splunk Enterprise 8.0. See https://docs.splunk.com/Documentation/Splunk/latest/Python3Migration/AboutMigration for more information. If you've finished your update, please disregard this message."
+      ]
+    },
+    {
+      "name": "check_custom_conf_replication",
+      "result": "warning",
+      "messages": [
+        "App contains one or more custom configs but does not have a `[shclustering]` stanza in server.conf. File: default/server.conf"
+      ]
+    },
+    {
+      "name": "check_for_valid_package_id",
+      "result": "skipped",
+      "messages": [
+        "Splunk App packages doesn't contain `app.manifest` file. No `app.manifest` was found."
+      ]
+    },
+    {
+      "name": "check_kos_are_accessible",
+      "result": "warning",
+      "messages": [
+        "In Splunk Cloud, customers have access to the sc_admin role instead of the admin role. Your customers will not be able to access knowledge objects where the only assigned role is admin. Please consider also including the sc_admin role for compatibility with Splunk Cloud. File: metadata/default.meta Line Number: 2",
+        "In Splunk Cloud, customers have access to the sc_admin role instead of the admin role. Your customers will not be able to access knowledge objects where the only assigned role is admin. Please consider also including the sc_admin role for compatibility with Splunk Cloud. File: metadata/default.meta Line Number: 6"
+      ]
+    },
+    {
+      "name": "check_for_custom_mako_templates",
+      "result": "warning",
+      "messages": [
+        "Custom Mako template file 'appserver/templates/facility_operations.html' is deprecated in Splunk Enterprise 10.4. Future Splunk platform versions will no longer support custom Mako templates. Remove the custom template. For UCC-generated apps, regenerate the app with UCC framework version '6.3.0' or later. For apps built using @splunk/create, regenerate the app with @splunk/create version '11.0.0' or later. See https://help.splunk.com/en/splunk-enterprise/release-notes-and-updates/release-notes/10.4/deprecated-features/deprecated-and-removed-in-version-10.4. File: appserver/templates/facility_operations.html"
+      ]
+    }
+  ]
+}

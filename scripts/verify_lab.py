@@ -91,6 +91,8 @@ def main():
     for clock in [90, 450, 2592090]:
         rows = client.search('| `facility_ops_demo_events("public_services","dependency",' + str(clock) + ')` | stats latest(state) as state latest(_time) as observed by entity_id')
         check("loop_clock_" + str(clock), len(rows) == 10 and next(x["state"] for x in rows if x["entity_id"] == "identity") == "critical")
+    rows = client.search('| `facility_ops_demo_events("retail","dependency",90)` | stats latest(state) as state latest(name) as name latest(reason) as reason latest(owner) as owner by entity_id')
+    check("commercial_retail_loop", len(rows) == 10 and any(row["name"] == "Online checkout" for row in rows) and next(row["reason"] for row in rows if row["entity_id"] == "identity") == "Customer and fulfillment sign-in latency")
     try:
         settings = client.request("servicesNS/-/" + APP + "/facility_ops/settings")
         check("provider_settings", settings.get("provider") == "demo" and settings.get("can_configure"))

@@ -2,10 +2,12 @@ import { uiClass } from './classes';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@splunk/react-ui/Button';
 import { createURL } from '@splunk/splunk-utils/url';
-import { audiences, verticals, usecases, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
+import { audiences, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
 import { demoSnapshot, dependents, impactSummary, narrative, phaseAt } from './model';
 import { isSplunk, searchSignals } from './search';
 import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings } from './AgentWorkspace';
+import { Picker, PresentationSettings } from './PresentationSettings';
+import { loadPresentation, PRESENTATION_KEY, type Presentation } from './presentation';
 
 type View = 'situation' | 'dependencies' | 'facility' | 'actions' | 'change' | 'evidence' | 'investigate' | 'settings';
 type Policy = 'observe' | 'supervised' | 'automatic';
@@ -19,17 +21,10 @@ const views: { id: View; label: string; icon: string }[] = [
 const stateLabel: Record<State, string> = { healthy: 'Healthy', warning: 'Degraded', critical: 'Critical', recovering: 'Recovering', unknown: 'Unknown' };
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const formatTime = (second: number) => second ? timeFormatter.format(new Date(second * 1000)) : 'No evidence';
-function initialSelection(key: string, choices: readonly { id: string }[], fallback: string) {
-  const value = new URLSearchParams(window.location.search).get(key);
-  return choices.some((item) => item.id === value) ? value! : fallback;
-}
 function download(name: string, data: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
   const link = document.createElement('a');
   link.href = url; link.download = name; link.click(); URL.revokeObjectURL(url);
-}
-function Picker({ label, value, options, onChange }: { label: string; value: string; options: readonly { id: string; label: string }[]; onChange: (value: string) => void }) {
-  return <label className={uiClass("picker")}><span>{label}</span><select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select></label>;
 }
 function Badge({ state }: { state: State }) { return <span className={uiClass('badge ' + state)}><i />{stateLabel[state]}</span>; }
 function Panel({ title, eyebrow, children, className = '' }: { title: string; eyebrow?: string; children: React.ReactNode; className?: string }) {
@@ -71,9 +66,12 @@ function EvidenceTable({ signals, select }: { signals: Signal[]; select: (id: st
   </tr>)}</tbody></table></div>;
 }
 export function App() {
-  const [vertical, setVertical] = useState(() => initialSelection('vertical', verticals, 'public_services'));
-  const [audience, setAudience] = useState(() => initialSelection('audience', audiences, 'operations'));
-  const [usecase, setUsecase] = useState(() => initialSelection('usecase', usecases, 'dependency'));
+  const [presentation, setPresentation] = useState(() => {
+    let saved: string | null = null;
+    try { saved = window.localStorage.getItem(PRESENTATION_KEY); } catch { /* Preferences are optional on restricted browsers. */ }
+    return loadPresentation(window.location.search, saved);
+  });
+  const { vertical, audience, usecase } = presentation;
   const [view, setView] = useState<View>('situation');
   const [mode, setMode] = useState<Mode>('demo');
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
@@ -100,7 +98,7 @@ export function App() {
   [mode, installed, vertical, usecase, scenarioSecond, now, searchRows]);
   const phase = phaseAt(scenarioSecond);
   const currentVertical = getVertical(vertical);
-  const scenario = getUsecase(usecase);
+  const scenario = getUsecase(usecase, vertical);
   const persona = audiences.find((item) => item.id === audience)!;
   const scope = vertical + ':' + usecase;
   useEffect(() => {
@@ -171,6 +169,14 @@ export function App() {
     const time = Math.floor(scenarioSecond / CYCLE_SECONDS) * CYCLE_SECONDS + next * PHASE_SECONDS;
     if (pausedSecond !== null) setPausedSecond(time); else setOffset(time - now);
   }
+  function applyPresentation(value: Presentation) {
+    setPresentation(value);
+    setPolicy('observe');
+    setApproved(false);
+    setSelected(null);
+    try { window.localStorage.setItem(PRESENTATION_KEY, JSON.stringify(value)); } catch { /* Apply in memory even if browser storage is unavailable. */ }
+    setView(value.audience === 'ccb' ? 'change' : value.audience === 'isso' || value.audience === 'audit' ? 'evidence' : value.audience === 'facilities' ? 'facility' : 'situation');
+  }
   function share() {
     const url = new URL(window.location.href);
     url.searchParams.set('vertical', vertical); url.searchParams.set('audience', audience); url.searchParams.set('usecase', usecase);
@@ -188,8 +194,8 @@ export function App() {
       <main id="main-content">
         <div className={uiClass("page-intro")}><div><span className={uiClass("eyebrow")}>FACILITY OPERATIONS / {views.find((item) => item.id === view)?.label.toUpperCase()}</span><h1>{view === 'situation' ? 'Operational situation room' : views.find((item) => item.id === view)?.label}</h1><p>{persona.question}</p></div><Button onClick={share}>Share this view</Button></div>
         {(compact || presenter) && <div className={uiClass("compact-navigation")}><Picker label="Workspace view" value={view} options={views} onChange={(value) => setView(value as View)} /></div>}
-        <div className={uiClass("context-bar")}><Picker label="Audience" value={audience} options={audiences} onChange={(value) => { setAudience(value); if (value === 'ccb') setView('change'); else if (value === 'isso' || value === 'audit') setView('evidence'); else if (value === 'facilities') setView('facility'); else setView('situation'); }} />
-          <Picker label="Industry / vertical" value={vertical} options={verticals} onChange={setVertical} /><Picker label="Use case" value={usecase} options={usecases} onChange={setUsecase} />
+        <div className={uiClass("context-summary")} aria-label="Current presentation context"><div className={uiClass("context-labels")}><strong>{currentVertical.label}</strong><span>{persona.label}</span><span>{scenario.label}</span></div>
+          {view !== 'settings' && <Button appearance="subtle" onClick={() => setView('settings')}>Presentation settings</Button>}
           <div className={uiClass("mode-picker")}><span>Data source</span><div role="group" aria-label="Data source"><button className={uiClass(mode === 'demo' ? 'active' : '')} onClick={() => setMode('demo')}>Demo</button><button className={uiClass(mode === 'live' ? 'active' : '')} onClick={() => setMode('live')}>Live</button></div></div>
         </div>
         <div className={uiClass('source-strip ' + mode)}><div><span className={uiClass("source-dot")} /><strong>{mode === 'demo' ? 'LOOPING DEMO' : 'LIVE SPLUNK DATA'}</strong><span>{mode === 'demo' ? 'Synthetic scenario · current timestamps · actions are simulated' : 'Authenticated Splunk searches · last 60 minutes · actions require integration'}</span></div><span>{loading ? 'Refreshing…' : signals.length ? (mode === 'demo' && !installed ? 'Local replay' : 'Splunk search') + ' · ' + signals.length + ' entities' : 'No signals'}</span></div>
@@ -203,9 +209,9 @@ export function App() {
           <div className={uiClass("main-grid")}><Panel title="From business function to physical dependency" eyebrow="DEPENDENCY CONTEXT"><p className={uiClass("panel-description")}>Follow a dependency to inspect its owner, evidence, and operational consequences. {mode === 'demo' ? 'Relationships are illustrative.' : 'Relationships come from configured inventory.'}</p><DependencyMap signals={signals} selected={selected} select={setSelected} /><div className={uiClass("graph-legend")}>{(['healthy', 'warning', 'critical', 'recovering', 'unknown'] as State[]).map((state) => <Badge state={state} key={state} />)}</div></Panel><Panel title={focused ? focused.name : 'Decision context'} eyebrow={focused ? 'SELECTED COMPONENT' : 'WHAT TO LOOK AT NEXT'} className={uiClass("context-panel")}>
             {focused ? <><Badge state={focused.state} /><p className={uiClass("context-reason")}>{focused.reason}</p><dl><dt>Responsible team</dt><dd>{focused.owner}</dd><dt>Site</dt><dd>{focused.site}</dd><dt>Observed at</dt><dd>{formatTime(focused._time)}</dd><dt>Latency</dt><dd>{focused.latency_ms} ms</dd><dt>Related control</dt><dd>{focused.control_id} · {focused.control_state}</dd></dl><Button onClick={() => setView('evidence')}>Inspect evidence</Button></> : <><span className={uiClass("decision-label")}>01 / SCOPE THE IMPACT</span><p>{scenario.why}</p><span className={uiClass("decision-label")}>02 / VERIFY THE EVIDENCE</span><p>Check freshness and ownership. A missing signal remains unknown.</p><span className={uiClass("decision-label")}>03 / CHOOSE A SAFE ACTION</span><p>{scenario.action}. Review the approval gate and rollback before proceeding.</p><Button onClick={() => setView('change')}>Review change gates</Button></>}
           </Panel></div>
-          <div className={uiClass("bottom-grid")}><Panel title="Business function continuity" eyebrow="MISSION CONSEQUENCES">{missionSignals.map((signal) => <div className={uiClass("function-row")} key={signal.entity_id}><div><button className={uiClass("text-button")} onClick={() => setSelected(signal.entity_id)}>{signal.name}</button><small>{signal.site} · {signal.owner}</small></div><Badge state={signal.state} /><span>{signal.queue_depth.toLocaleString()} waiting</span></div>)}</Panel><Panel title={mode === 'demo' ? 'The scenario as it unfolds' : 'Recent observations'} eyebrow="OPERATIONAL TIMELINE">{mode === 'demo' ? phases.map((name, index) => <button className={uiClass('timeline-row ' + (phase === index ? 'selected' : ''))} key={name} onClick={() => goPhase(index)}><span className={uiClass("timeline-dot")} /><strong>{name}</strong><span>{index === 0 ? 'Operating baseline' : index === 1 ? scenario.symptom : index === 2 ? 'Dependent functions affected' : index === 3 ? 'Evidence and ownership established' : index === 4 ? 'Policy and approval checked' : index === 5 ? 'Recovery path exercised' : index === 6 ? 'Fresh signals validate recovery' : 'Decision evidence retained'}</span></button>) : signals.slice().sort((a, b) => b._time - a._time).slice(0, 6).map((signal) => <div className={uiClass("observation")} key={signal.entity_id}><small>{formatTime(signal._time)}</small><strong>{signal.name}</strong><span>{signal.reason}</span></div>)}</Panel></div>
+          <div className={uiClass("bottom-grid")}><Panel title="Business function continuity" eyebrow="BUSINESS CONSEQUENCES">{missionSignals.map((signal) => <div className={uiClass("function-row")} key={signal.entity_id}><div><button className={uiClass("text-button")} onClick={() => setSelected(signal.entity_id)}>{signal.name}</button><small>{signal.site} · {signal.owner}</small></div><Badge state={signal.state} /><span>{signal.queue_depth.toLocaleString()} waiting</span></div>)}</Panel><Panel title={mode === 'demo' ? 'The scenario as it unfolds' : 'Recent observations'} eyebrow="OPERATIONAL TIMELINE">{mode === 'demo' ? phases.map((name, index) => <button className={uiClass('timeline-row ' + (phase === index ? 'selected' : ''))} key={name} onClick={() => goPhase(index)}><span className={uiClass("timeline-dot")} /><strong>{name}</strong><span>{index === 0 ? 'Operating baseline' : index === 1 ? scenario.symptom : index === 2 ? 'Dependent functions affected' : index === 3 ? 'Evidence and ownership established' : index === 4 ? 'Policy and approval checked' : index === 5 ? 'Recovery path exercised' : index === 6 ? 'Fresh signals validate recovery' : 'Decision evidence retained'}</span></button>) : signals.slice().sort((a, b) => b._time - a._time).slice(0, 6).map((signal) => <div className={uiClass("observation")} key={signal.entity_id}><small>{formatTime(signal._time)}</small><strong>{signal.name}</strong><span>{signal.reason}</span></div>)}</Panel></div>
         </>}
-        {view === 'facility' && <><div className={uiClass("site-grid")}>{['Central campus', 'Regional center', 'Remote site', ...signals.map((item) => item.site).filter((site) => !['Central campus', 'Regional center', 'Remote site'].includes(site))].filter((site, index, all) => all.indexOf(site) === index && (mode === 'demo' || signals.some((item) => item.site === site))).map((site) => {
+        {view === 'facility' && <><div className={uiClass("site-grid")}>{[...new Set(signals.map((item) => item.site))].map((site) => {
           const siteSignals = signals.filter((item) => item.site === site);
           return <Panel key={site} title={site} eyebrow="SITE CONTINUITY"><div className={uiClass("site-plan")} aria-label={site + ' schematic; illustrative layout'}><span>POWER</span><span>ENVIRONMENT</span><span>ACCESS</span><div>Digital services and occupied spaces</div></div>{siteSignals.map((signal) => <button className={uiClass("site-entity")} key={signal.entity_id} onClick={() => setSelected(signal.entity_id)}><span>{signal.name}</span><Badge state={signal.state} /></button>)}<p className={uiClass("panel-description")}>{siteSignals.filter((item) => item.state === 'unknown').length} evidence gaps · {siteSignals.filter((item) => item.layer === 'mission').length} business functions</p></Panel>;
         })}</div><Panel title={focused ? focused.name : 'Physical conditions and digital continuity'} eyebrow="SITE EVIDENCE">{focused && <p>{focused.reason} Responsible team: {focused.owner}.</p>}<EvidenceTable signals={signals.filter((item) => item.layer === 'facility' || item.layer === 'infrastructure')} select={setSelected} /></Panel></>}
@@ -215,7 +221,7 @@ export function App() {
         </div>}
         {view === 'evidence' && <><div className={uiClass("evidence-banner")}><strong>Control evidence supports review; it does not establish compliance.</strong><p>Inspect the source, age, owner, and missing observations. The control associations in demo mode are illustrative.</p></div><Panel title="Current evidence and accountability" eyebrow="CONTINUOUS MONITORING"><EvidenceTable signals={signals} select={setSelected} />{focused && <div className={uiClass("evidence-detail")}><strong>{focused.name}</strong><p>{focused.reason}</p><span>Control: {focused.control_id} · Owner: {focused.owner} · Source: {focused.origin}</span></div>}</Panel><div className={uiClass("export-row")}><Button onClick={() => download('facility-operations-evidence.json', { generated_at: new Date().toISOString(), mode, vertical, usecase, audience, signals, decisions: scopedDecisions })}>Export current evidence</Button><span>Includes mode, timestamps, ownership, observations, and local demo decisions.</span></div></>}
         {view === 'investigate' && <AgentWorkspace context={{ mode, vertical, usecase, audience, clock: scenarioSecond }} signals={signals} settings={agentSettings} openSettings={() => setView('settings')} />}
-        {view === 'settings' && <ProviderSettings settings={agentSettings} setSettings={setAgentSettings} />}
+        {view === 'settings' && <><PresentationSettings value={presentation} onApply={applyPresentation} /><ProviderSettings settings={agentSettings} setSettings={setAgentSettings} /></>}
         <div role="contentinfo" className={uiClass('footer')}><span>Facility Operations · {currentVertical.label}</span><span>{mode === 'demo' ? 'Synthetic scenario, not a representation of any customer environment' : 'Observed state only; unknown data remains explicit'}</span></div>
       </main>
     </div>

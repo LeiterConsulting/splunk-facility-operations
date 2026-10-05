@@ -1,0 +1,44 @@
+{
+  "target": "PULSE_SPOKE1",
+  "checks": [
+    {
+      "name": "reader_can_read_nonsecret_settings",
+      "passed": true
+    },
+    {
+      "name": "reader_cannot_write_settings",
+      "passed": true
+    },
+    {
+      "name": "reader_investigation_uses_caller_identity",
+      "passed": true
+    },
+    {
+      "name": "commercial_reader_scope_and_identity",
+      "passed": true
+    },
+    {
+      "name": "credential_never_returned_by_settings",
+      "passed": true
+    },
+    {
+      "name": "reader_cannot_read_credential_storage",
+      "passed": true
+    },
+    {
+      "name": "live_llm_requires_enabled_setting",
+      "passed": true
+    },
+    {
+      "name": "missing_live_inventory_entity_is_unknown",
+      "passed": true
+    },
+    {
+      "name": "synthetic_fixtures_removed",
+      "passed": true
+    }
+  ],
+  "date": "2026-10-05",
+  "build": 5,
+  "package_sha256": "ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01"
+}

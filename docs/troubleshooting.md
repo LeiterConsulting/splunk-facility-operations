@@ -34,10 +34,10 @@ If a request is denied with 401/403, confirm the session and the relevant Splunk
 | Nothing advances | Pause freezes the phase intentionally. Choose Resume or select the next phase. Installed searches refresh about every 15 seconds. |
 | One physical-access observation is Unknown in Demo | An authored evidence gap during Detect through Decision demonstrates incomplete coverage. It is not a failed demo feed. |
 | Run simulation is disabled | Choose Demo, Supervised execution, and Record demo approval after affected-path evidence is fresh. Observe and recommend permits review only. Live execution needs a future authorized integration. |
-| Approval was cleared | Changing scope or policy clears approval. Review the current context and record the new demo approval. |
+| Approval was cleared | Applying presentation settings returns the action policy to Observe and recommend and clears approval. Choose Supervised execution and review the current context before a new demo approval. |
 | Automatic simulation does not run | Choose Governed Autonomous Operations, Bounded automatic simulation, and Decision with fresh affected-path evidence. It runs once per cycle. For a clean rehearsal, export needed records, reload and select the context again. |
 | Simulation moves directly to Recover | Expected behavior. It records simulated execution, then leaves verification for the presenter. Select Verify to discuss recovery evidence. |
-| Conversation or decisions disappeared | Reload resets page state; context changes clear the investigation conversation. Export needed drafts first. The app does not store durable investigations or shared decisions. |
+| Conversation or decisions disappeared | Reload resets conversation and decisions; leaving the investigation view or changing context clears its conversation. Audience, industry and use case are remembered separately in this browser. Export needed drafts first. The app does not store durable investigations or shared decisions. |
 | Shared link does not reproduce a paused phase or investigation | Share this view includes audience, vertical and use case. It does not serialize workspace page, data mode, phase, evidence, conversation or decision records. |
 
 ## Live observations

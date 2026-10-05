@@ -41,6 +41,8 @@ try:
     context = {'mode':'demo','vertical':'public_services','usecase':'dependency','audience':'operations','clock':90}
     answer = reader.request(base + 'agent', {'payload':json.dumps({'message':'Investigate dependency impact','context':context})})
     check('reader_investigation_uses_caller_identity', answer.get('user') == username and bool(answer.get('results')))
+    retail = reader.request(base + 'agent', {'payload':json.dumps({'message':'Investigate dependency impact','context':dict(context, vertical='retail', audience='executive')})})
+    check('commercial_reader_scope_and_identity', retail.get('user') == username and retail.get('scope',{}).get('vertical') == 'retail' and any(row.get('name') == 'Online checkout' for result in retail.get('results',[]) for row in result.get('rows',[])))
     saved = admin.request(base + 'settings', {'payload':json.dumps(dict(settings, api_key=fake_key))})
     credential = True
     info = reader.request(base + 'settings')

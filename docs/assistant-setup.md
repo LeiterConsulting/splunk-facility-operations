@@ -50,7 +50,7 @@ A connected model receives the question, bounded recent conversation and normali
 
 The installed service takes an initial snapshot, then allows up to three model-requested tool executions across at most four model turns. Searches use validated templates and scope; supplied model text cannot become arbitrary executable SPL. The deterministic provider selects a fixed investigation path for supported intent families.
 
-Exports are text reports, JSON evidence and SPL traces. The assistant does not publish saved reports, retain a server conversation database or change infrastructure. Conversation and decision state are held in the current page session; export needed drafts before reload or context changes. Action workspace execution is a separate simulation.
+Exports are text reports, JSON evidence and SPL traces. The assistant does not publish saved reports, retain a server conversation database or change infrastructure. Conversation and decision state are held in the current page session; export needed drafts before leaving the investigation view, reloading or applying new context. Action workspace execution is a separate simulation.
 
 ## Qualify a model before presenting it
 

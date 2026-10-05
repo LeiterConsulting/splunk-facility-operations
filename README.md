@@ -28,13 +28,13 @@ New to the terminology? See the [glossary](docs/glossary.md). Initial public sec
 - **Situation awareness:** business function consequences, queued work, component state, accountable owners and evidence age.
 - **Dependency investigation:** an interactive map linking business functions, technology and site conditions, with potential downstream impact and event chronology.
 - **Several audiences, one incident:** Operations, Security, Engineering, Executive, Chief Information Security Officer (CISO), Information System Security Officer (ISSO), Change Control Board (CCB), Facilities, Continuity, and Audit and Oversight.
-- **Several operating contexts:** nine verticals and six use cases covering shared dependency disruption, cyber and physical continuity, containment, change readiness, modernization and governed autonomy.
+- **Several operating contexts:** sixteen verticals and six use-case families covering shared dependency disruption, cyber and physical continuity, containment, change readiness, modernization and governed autonomy.
 - **Repeatable presentations:** an eight-phase synthetic incident loop with fresh timestamps, pause, phase selection and presentation mode. No continuously ingested demo source is required.
 - **An investigation assistant:** inspect scope, follow supplied dependencies, run bounded event queries and draft reports. Export the response as text, evidence as JSON, and executed searches as SPL.
 - **Governance conversations:** examine evidence, approval, rollback and recovery gates through clearly labeled simulations.
 - **A separate live path:** authenticated Splunk searches use the signed-in user's data permissions. Missing or stale telemetry remains unknown.
 
-The operations questions apply to commercial and public sector organizations. The current scenario catalogue reflects the initial public sector discovery. Broader commercial business functions and industry-specific interface stories are the next app development stage; the guides explain how to explore those needs without representing proposed scenarios as shipped features.
+The catalogue supports commercial and public sector organizations. Retail, manufacturing, logistics, financial services, technology and SaaS, commercial properties, and hospitality have business functions, owners, sites and incident stories appropriate to their operations. Enterprise Shared Services uses neutral workforce, finance and employee-support language. See the [commercial demonstration guide](docs/commercial-demo.md).
 
 ## Quick local preview
 
@@ -46,7 +46,7 @@ npm run package
 npm run preview
 ```
 
-Open [the local preview](http://127.0.0.1:5174). Select **Demo**, **Operations**, **Public Services and Benefits**, and **Enterprise Dependency Disruption**. Choose **Pause**, then **Impact**, and open **Dependencies**.
+Open [the local preview](http://127.0.0.1:5174). Open **Settings → Presentation setup**, choose **Operations**, **Public Services and Benefits**, and **Enterprise Dependency Disruption**, then choose **Apply presentation**. Select **Demo**, choose **Pause**, then **Impact**, and open **Dependencies**.
 
 A presenter with an already installed app can open **Facility Operations** from the Splunk app menu and follow the same walkthrough. The local preview uses synthetic observations and the deterministic assistant. Real searches and configured model connections require installation in Splunk.
 
@@ -56,7 +56,7 @@ The generated installer is `artifacts/splunk_facility_operations-0.1.0.spl`; it 
 
 The native app was checked on Splunk Enterprise **10.0.1 and 10.4.0**, using Splunk UI Toolkit components and Enterprise themes. Baseline searches use SPL; there are no shipped SPL2 modules. Other versions and deployment topologies need their own qualification. [Validation scope](docs/validation.md)
 
-Dependency relationships come from the supplied inventory. Chronology and relationships support investigation hypotheses; they do not independently prove cause. Audience selection changes the presentation and grants no permissions.
+Dependency relationships come from the supplied inventory. Chronology and relationships support investigation hypotheses; they do not independently prove cause. Audience selection changes the presentation and grants no permissions. Audience, industry and use case are configured together in Settings and remembered in this browser; the dashboard shows their active labels and keeps the Demo/Live switch visible. Valid shared-link context overrides remembered preferences.
 
 All action execution is a browser-session simulation. Reports are downloadable drafts, and investigations and decisions are not a durable incident record. The deterministic assistant uses templates without an LLM. Connected provider adapters are implemented and tested with mocks; real model inference still requires qualification. Provider failure is shown as an error; presenters can explicitly select and save the deterministic assistant to continue.
 

@@ -12,11 +12,15 @@ Packaged SPL2 apps require Enterprise 10.2+ on Linux under the documented instal
 
 Persistent Python handlers declare 3.9/3.13 runtime requirements with a 3.9 fallback. The implementation uses the standard library and Splunk's packaged REST interfaces. Handler sessions are authenticated; provider configuration additionally requires `admin_all_objects`. [REST handler configuration](https://help.splunk.com/en/splunk-enterprise/administer/admin-manual/10.0/configuration-file-reference/10.0.2-configuration-file-reference/restmap.conf)
 
+AppInspect 4.3.1 flags the existing custom Mako entry template as deprecated in Splunk 10.4. It remains supported on the tested labs; instances that deactivate custom Mako templates cannot use this shell. See [validation](validation.md) for the current inspection and migration requirement.
+
 ## Context and scenarios
 
-`src/catalogue.ts` defines personas, verticals, use cases, entities, dependencies, and phases. Business function names change by vertical. Scenarios change the initiating dependency, operational consequence, proposed action, approval gate, and rollback. Audience lenses change the question and briefing, with dedicated entry views for ISSO, Audit, CCB, and Facilities.
+`src/catalogue.ts` defines personas, verticals, use cases, entities, dependencies, and phases. Business function names change by vertical. Commercial profiles also supply relevant owners, sites and six incident-story variations, while retaining the base dependency IDs and action policies. Scenarios change the initiating dependency, operational consequence, proposed action, approval gate, and rollback. Audience lenses change the question and briefing, with dedicated entry views for ISSO, Audit, CCB, and Facilities.
 
-`src/model.ts` generates deterministic observations. `scripts/generate-lookups.ts` expands the catalogue into 4,320 rows: nine verticals × six scenarios × eight phases × ten entities. The `facility_ops_demo_events` macro assigns each phase a recent timestamp relative to the supplied clock. The latest row per entity gives the current phase, while the full cycle supplies an investigation timeline. Missing evidence is intentional for one illustrative component.
+`src/model.ts` generates deterministic observations. `scripts/generate-lookups.ts` expands the catalogue into 7,680 rows: sixteen verticals × six scenarios × eight phases × ten entities. The `facility_ops_demo_events` macro assigns each phase a recent timestamp relative to the supplied clock. The latest row per entity gives the current phase, while the full cycle supplies an investigation timeline. Missing evidence is intentional for one illustrative component.
+
+Presentation selection lives in `src/PresentationSettings.tsx`. A draft audience, industry and use case is applied atomically, then the workspace returns to the audience entry view. Only those generic preferences are stored under a versioned browser key. Shared URL context takes precedence after validation. Provider settings remain separately authenticated server configuration. Applying presentation context clears action approval and restores the observe policy.
 
 ## Live data contract
 
@@ -63,11 +67,10 @@ The current action workspace is a simulation. Observe, supervised, and bounded a
 
 | Stage | Concrete additions |
 | --- | --- |
-| Broader commercial presentations | Reviewed business functions and language for ordinary commercial organizations, with relevant dependency, continuity, security and change stories; preserve generic organization labels |
 | Customer-specific evidence | Reviewed dependency inventory, source adapters, sampling contracts, completeness and pagination, baseline comparison, timeline overlays for actual changes |
 | Expanded investigation | Reviewed SPL/SPL2 search authoring with previews and cost limits, additional analysis tools, persisted investigations, confidence and evidence references, saved report creation with explicit authorization |
 | Operational collaboration | Case and ticket integration, owner handoff, maintenance windows, shared incident history, durable action audit, report publishing and retention rules |
 | Governed execution | Customer allowlists, external approval identity, automation integration, verification and rollback callbacks, replay protection, concurrency limits, durable quotas |
-| Product qualification | AppInspect, real provider tests, RBAC and secret lifecycle tests, scale/performance, accessibility audit, clustered Splunk, Cloud/GovCloud and customer deployment policies |
+| Product qualification | Migration of the custom Mako entry shell for hardened/future deployments; AppInspect, real provider tests, RBAC and secret lifecycle tests, scale/performance, accessibility audit, clustered Splunk, Cloud/GovCloud and customer deployment policies |
 
 These are future capabilities. They should be qualified separately rather than inferred from the demonstration's successful local and lab checks.

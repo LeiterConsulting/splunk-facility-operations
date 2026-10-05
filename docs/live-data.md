@@ -36,7 +36,7 @@ workforce,Workforce service,enterprise,mission,Example campus,Service owner,Busi
 
 `entity_id` must be stable and unique within the selected vertical. `depends_on` means “this entity requires these other entities”; separate multiple IDs with semicolons. Dependency targets must be represented in the same scope. Use `enabled=1` for expected entities, and review names, ownership and relationships with the service owners. This inventory supports impact hypotheses; it does not establish health.
 
-Supported vertical IDs are `public_services`, `enterprise`, `distributed_care`, `regulated_science`, `mission_support`, `oversight`, `legislative`, `global_services`, and `critical_infrastructure`. Their labels are defined in [the catalogue](../src/catalogue.ts). The example uses **Enterprise Shared Services** (`enterprise`). New vertical IDs require catalogue and validation changes before the service accepts them.
+Supported vertical IDs are `public_services`, `enterprise`, `distributed_care`, `regulated_science`, `mission_support`, `oversight`, `legislative`, `global_services`, `critical_infrastructure`, `retail`, `manufacturing`, `logistics`, `financial_services`, `technology`, `commercial_property`, and `hospitality`. Their labels are defined in [the catalogue](../src/catalogue.ts). The example uses **Enterprise Shared Services** (`enterprise`). New vertical IDs require catalogue and validation changes before the service accepts them.
 
 Keep metadata consistent between observations and inventory. Conflicting names, ownership or relationship fields can produce multivalue search results; they are not automatically reconciled. Preserve a protected inventory backup across [app upgrades](getting-started.md#update-and-preserve-configuration). The distributable package always contains a header-only live inventory.
 
@@ -80,7 +80,7 @@ Inventory can supply context when an expected entity has no observation. Keep ev
 | table entity_id name owner site layer depends_on
 ```
 
-4. Open the app, select **Enterprise Shared Services**, then **Live**. Confirm **LIVE SPLUNK DATA**, the correct names and owners, and the expected state.
+4. Open **Settings → Presentation setup**, choose **Enterprise Shared Services**, then **Apply presentation**. Select **Live** in the dashboard. Confirm **LIVE SPLUNK DATA**, the correct names and owners, and the expected state.
 5. Compare a known current entity, a stale observation and an expected entity without telemetry. Missing events or events older than 180 seconds should appear unknown. Empty source plus empty inventory should show no signals. No synthetic fallback should appear.
 6. Investigate with the deterministic provider first. Review the trace and exported evidence against the source. Qualify a connected model separately using [assistant setup](assistant-setup.md).
 

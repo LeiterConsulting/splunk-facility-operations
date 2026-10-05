@@ -1,6 +1,6 @@
 # Repository development and verification
 
-The repository produces a proof-of-concept app and its demonstration guides. Keep presentation claims aligned with implemented behavior and actual validation. Introduce broader commercial scenarios as a separate app stage, with reviewed business functions and evidence rather than renamed customer references.
+The repository produces a proof-of-concept app and its demonstration guides. Keep presentation claims aligned with implemented behavior and actual validation. Extend commercial or public sector contexts with reviewed business functions, ownership, relationships and fictional incident stories. Keep organization names generic.
 
 ## Reproduce a build
 
@@ -12,7 +12,7 @@ npm run verify
 npm run test:browser
 ```
 
-`verify` runs model/search tests, Python backend/packaging tests, type checking, lookup generation and package creation. Browser tests run separately against the production bundle created by that command. They require Google Chrome and port 5174; the test runner starts the preview if it is not already running. Ensure any existing preview serves this checkout's current bundle.
+`verify` first type-checks and builds the package, regenerating the current catalogue and lookups, then runs model/search and Python backend/packaging tests. Browser tests run separately against the production bundle created by that command. They require Google Chrome and port 5174; the test runner starts the preview if it is not already running. Ensure any existing preview serves this checkout's current bundle.
 
 | Command | Scope |
 | --- | --- |

@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { CYCLE_SECONDS, PHASE_SECONDS, verticals, usecases, phases, entitiesFor } from '../src/catalogue';
+import { CYCLE_SECONDS, PHASE_SECONDS, verticals, usecases, phases, entitiesFor, commercialProfiles, getUsecase, usecasesFor } from '../src/catalogue';
 import { demoSnapshot, demoHistory, dependents, impactSummary, phaseAt } from '../src/model';
 import { buildSearch, normalizeResult } from '../src/search';
 import { investigateDemo } from '../src/AgentWorkspace';
+import { loadPresentation } from '../src/presentation';
 
 test('Every audience scenario continues to produce current evidence across repeated cycles and long gaps', () => {
   for (const vertical of verticals) for (const usecase of usecases) for (const phase of phases.keys()) {
@@ -68,4 +69,34 @@ test('The shipped cycle includes all verticals and scenarios and no named custom
   assert.equal(csv.trim().split('\n').length, verticals.length * usecases.length * phases.length * 10 + 1);
   assert.ok(!/\b(CMS|HHS|IHS|FDA|GAO)\b/.test(csv));
   assert.equal(phaseAt(CYCLE_SECONDS + PHASE_SECONDS), 1);
+});
+test('Commercial stories retain a valid dependency path, local ownership and distinct business context', () => {
+  for (const [vertical, profile] of Object.entries(commercialProfiles)) {
+    const entities = entitiesFor(vertical);
+    const ids = new Set(entities.map((entity) => entity.entity_id));
+    assert.ok(entities.every((entity) => entity.depends_on.every((id) => ids.has(id))));
+    assert.deepEqual(entities.slice(0, 3).map((entity) => entity.owner), profile.owners);
+    assert.ok(entities.every((entity) => profile.sites.includes(entity.site)));
+    assert.equal(usecasesFor(vertical).length, 6);
+    for (const scenario of usecasesFor(vertical)) {
+      const rows = demoSnapshot(vertical, scenario.id, 2 * PHASE_SECONDS, 2000000000);
+      const root = rows.find((row) => row.entity_id === scenario.root)!;
+      assert.equal(root.reason, scenario.symptom);
+      assert.equal(root.state, 'critical');
+      assert.ok(impactSummary(rows).impacted > 0);
+      assert.equal(scenario.root, getUsecase(scenario.id).root);
+      assert.equal(scenario.gate, getUsecase(scenario.id).gate);
+    }
+  }
+  assert.notEqual(getUsecase('dependency', 'retail').label, getUsecase('dependency', 'manufacturing').label);
+  assert.throws(() => getUsecase('dependency', 'unsupported'));
+});
+test('Presentation preferences validate saved context and allow valid shared links to take precedence', () => {
+  const stored = JSON.stringify({ audience: 'executive', vertical: 'retail', usecase: 'facility', api_key: 'must-not-be-loaded' });
+  assert.deepEqual(loadPresentation('', stored), { audience: 'executive', vertical: 'retail', usecase: 'facility' });
+  assert.deepEqual(loadPresentation('?vertical=manufacturing&audience=ccb&usecase=change', stored), { audience: 'ccb', vertical: 'manufacturing', usecase: 'change' });
+  assert.deepEqual(loadPresentation('?vertical=bad%22%20%7C%20delete', stored), { audience: 'executive', vertical: 'retail', usecase: 'facility' });
+  for (const bad of ['broken JSON', 'null', '[]', '{"vertical":"removed","audience":"admin","usecase":"delete"}']) {
+    assert.deepEqual(loadPresentation('', bad), { audience: 'operations', vertical: 'enterprise', usecase: 'dependency' });
+  }
 });

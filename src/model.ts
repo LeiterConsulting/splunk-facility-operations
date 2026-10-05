@@ -18,7 +18,7 @@ export function dependents(entities: Entity[], root: string): Set<string> {
 }
 export function signalsForPhase(verticalId: string, usecaseId: string, phase: number, time: number): Signal[] {
   const entities = entitiesFor(verticalId);
-  const scenario = getUsecase(usecaseId);
+  const scenario = getUsecase(usecaseId, verticalId);
   const affected = dependents(entities, scenario.root);
   return entities.map((entity) => {
     const root = entity.entity_id === scenario.root;
@@ -64,7 +64,7 @@ export function impactSummary(signals: Signal[]) {
 }
 export function narrative(signals: Signal[], audienceId: string, usecaseId: string, phase: number): string {
   const summary = impactSummary(signals);
-  const scenario = getUsecase(usecaseId);
+  const scenario = getUsecase(usecaseId, signals[0]?.vertical);
   if (signals.length === 0) return 'No monitored entities are available in this scope. Configure the live inventory and telemetry to establish operational context.';
   if (summary.impacted === 0 && summary.critical === 0) return phase >= 6
     ? 'Dependent functions have recovered. Verify continuity, retain the decision evidence, and review the coverage gap before closing the event.'
