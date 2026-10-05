@@ -1,0 +1,7 @@
+[]
+access = read : [ * ], write : [ admin ]
+export = none
+
+[passwords]
+access = read : [ admin ], write : [ admin ]
+export = none

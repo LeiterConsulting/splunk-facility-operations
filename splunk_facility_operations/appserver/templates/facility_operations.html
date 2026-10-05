@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facility Operations</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="${make_url('/static/app/splunk_facility_operations/facility-operations.css')}" />
+</head>
+<body style="margin:0">
+    <div id="facility-operations-root"></div>
+    <script src="${make_url('/config?autoload=1')}" crossorigin="use-credentials"></script>
+    <script src="${make_url('/static/js/i18n.js')}"></script>
+    <script src="${make_url('/i18ncatalog?autoload=1')}"></script>
+    <script>window.__splunkd_partials__ = ${json_decode(splunkd)};</script>
+    <script defer src="${make_url('/static/app/splunk_facility_operations/facility-operations.js')}"></script>
+</body>
+</html>

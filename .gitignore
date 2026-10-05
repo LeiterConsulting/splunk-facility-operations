@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+splunk_facility_operations/appserver/static/facility-operations.js
+splunk_facility_operations/appserver/static/facility-operations.css
+splunk_facility_operations/appserver/static/facility-operations.js.LEGAL.txt
+artifacts/
+__pycache__/
+*.pyc
+playwright-report/

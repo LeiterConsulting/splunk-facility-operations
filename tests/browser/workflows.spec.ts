@@ -1,0 +1,58 @@
+import { test, expect } from '@playwright/test';
+test.beforeEach(async ({ page }) => {
+  page.on('pageerror', (error) => console.error('Application browser error:', error.message));
+});
+test('Dependency disruption, investigation, evidence exports, and live separation', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: '3 Impact', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Shared identity, Critical, inspect evidence', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Shared identity, Critical, inspect evidence', exact: true }).click();
+  await expect(page.getByText('Shared identity latency', { exact: true }).first()).toBeVisible();
+  await page.getByRole('button', { name: '✧ Investigation assistant', exact: true }).click();
+  await page.getByRole('button', { name: /^Investigate the current issue and its dependency impact/ }).click();
+  await expect(page.getByText('Investigation steps', { exact: true })).toBeVisible();
+  await expect(page.locator('summary').filter({ hasText: 'follow dependencies' })).toBeVisible();
+  await page.locator('summary').filter({ hasText: 'query events' }).click();
+  await expect(page.locator('pre').last()).toContainText('facility_ops_demo_events');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export evidence', exact: true }).click();
+  expect((await download).suggestedFilename()).toBe('operations-investigation.json');
+  await page.getByRole('button', { name: 'Live', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Live data requires this app to be installed in Splunk');
+  await expect(page.getByText('Investigation steps', { exact: true })).toHaveCount(0);
+  await page.screenshot({ path: 'artifacts/browser-tests/live-separation.png', fullPage: true });
+  expect(errors).toEqual([]);
+});
+test('Provider settings and supervised demo action stay explicit', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: '3 Impact', exact: true }).click();
+  await page.getByRole('button', { name: '⚙ Settings', exact: true }).click();
+  await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('openai');
+  await expect(page.getByLabel('OpenAI API key', { exact: false })).toBeDisabled();
+  await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('demo');
+  await page.getByRole('button', { name: 'Save provider settings', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Preview settings updated');
+  await page.getByRole('button', { name: '↗ Action workspace', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Run simulation', exact: true })).toBeDisabled();
+  await page.getByRole('combobox', { name: /Autonomy policy/ }).selectOption('supervised');
+  await page.getByRole('button', { name: 'Record demo approval', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Run simulation', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Run simulation', exact: true }).click();
+  await expect(page.getByText('Simulated execution completed; recovery verification required', { exact: false })).toBeVisible();
+  await page.screenshot({ path: 'artifacts/browser-tests/supervised-action.png', fullPage: true });
+});
+test('Verticals and audience workflows adapt, including compact navigation', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('combobox', { name: /Industry \/ vertical/ }).selectOption('distributed_care');
+  await expect(page.getByRole('button', { name: 'Clinical workflow', exact: true })).toBeVisible();
+  await page.getByRole('combobox', { name: /Audience/ }).selectOption('isso');
+  await expect(page.getByRole('heading', { name: 'Current evidence and accountability', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 750, height: 1000 });
+  await page.getByRole('combobox', { name: /Workspace view/ }).selectOption('investigate');
+  await expect(page.getByRole('heading', { name: 'Operations investigation assistant', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'artifacts/browser-tests/compact-assistant.png', fullPage: true });
+});

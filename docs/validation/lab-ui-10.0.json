@@ -1,0 +1,38 @@
+{
+  "target": "PULSE_SPOKE1",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": false,
+  "entry_http_status": 200,
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "candidate_bundle_in_served_asset": true,
+  "local_bundle_sha256": "f62c98476a562ec6ca393b7bfc7b7124f40c4374526f640cf40ced54dee3dc0f",
+  "served_bundle_sha256": "bd28406790dbefe020f0e2f55f073645b3165c88c3ffef08b8e42e12c498725b",
+  "version": "10.0.1",
+  "package_sha256": "bf5c546d9fdfe7ea09cd28e2f4a1c0cdfc8fbf04c1c6f51d71ef5087e7e6df6f"
+}
