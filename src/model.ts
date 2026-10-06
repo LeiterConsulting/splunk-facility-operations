@@ -66,6 +66,7 @@ export function narrative(signals: Signal[], audienceId: string, usecaseId: stri
   const summary = impactSummary(signals);
   const scenario = getUsecase(usecaseId, signals[0]?.vertical);
   if (signals.length === 0) return 'No monitored entities are available in this scope. Configure the live inventory and telemetry to establish operational context.';
+  if (summary.impacted === 0 && summary.critical === 0 && summary.unknown > 0) return 'Health remains unknown for ' + summary.unknown + ' monitored ' + (summary.unknown === 1 ? 'entity' : 'entities') + '. Verify the missing or stale telemetry before confirming normal operations or recovery.';
   if (summary.impacted === 0 && summary.critical === 0) return phase >= 6
     ? 'Dependent functions have recovered. Verify continuity, retain the decision evidence, and review the coverage gap before closing the event.'
     : 'Essential functions are operating within expected ranges. Confirm telemetry freshness and fallback readiness before the next change.';
