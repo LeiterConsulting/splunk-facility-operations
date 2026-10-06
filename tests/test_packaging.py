@@ -1,6 +1,7 @@
 """Release checks protect local configuration and inventory from distribution."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import errno
 import importlib.util
 import tarfile
 import unittest
@@ -50,7 +51,7 @@ class PackagingTests(unittest.TestCase):
             second = package.create_package(app, root / "second.spl")
             self.assertEqual(target.read_bytes(), second.read_bytes())
 
-    def test_missing_or_linked_release_inputs_fail_before_writing(self):
+    def test_missing_release_inputs_fail_before_writing(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)
             app = self.fixture(root)
@@ -60,9 +61,22 @@ class PackagingTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 package.create_package(app, target)
             self.assertFalse(target.exists())
+
+    def test_linked_release_inputs_fail_before_writing(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            app = self.fixture(root)
+            path = app / "default/app.conf"
+            path.unlink()
+            target = root / "candidate.spl"
             private = root / "private.conf"
             private.write_text("private fixture")
-            path.symlink_to(private)
+            try:
+                path.symlink_to(private)
+            except OSError as error:
+                if error.errno in (errno.EPERM, errno.EACCES, errno.ENOTSUP) or getattr(error, "winerror", None) == 1314:
+                    self.skipTest("Host cannot create symlinks; linked-input rejection requires another host")
+                raise
             with self.assertRaises(ValueError):
                 package.create_package(app, target)
             self.assertFalse(target.exists())
