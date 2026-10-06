@@ -27,6 +27,10 @@ npm run test:browser
 
 Use meaningful checks for the changed behavior. Provider mocks establish protocol/policy handling, not real model inference. Browser preview tests establish local workflows, not native Splunk authentication or search execution. Native receipts in [validation](validation.md) identify the separately tested lab behavior.
 
+The linked-release-input test skips when the host cannot create symlinks. The
+missing-input test still runs independently. Report that skip separately and run
+the linked-input check on a host with symlink support before claiming that boundary.
+
 ## Source and configuration ownership
 
 | Location | Purpose |

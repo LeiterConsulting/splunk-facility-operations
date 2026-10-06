@@ -42,6 +42,10 @@ Keep metadata consistent between observations and inventory. Conflicting names, 
 
 ## Normalize the observations
 
+When any monitored entity has unknown health, a briefing with no observed impact
+keeps the coverage gap explicit. Verify the missing or stale telemetry before
+confirming normal operations or recovery, even if the selected demo phase is recovery.
+
 One observation describes one entity at an event time. Map existing telemetry into these fields through the customer's ingestion or normalization process. Supply a current `state` and reason; this release does not derive state from numeric measures alone.
 
 | Field | Required meaning and format |

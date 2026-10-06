@@ -2,10 +2,28 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { CYCLE_SECONDS, PHASE_SECONDS, verticals, usecases, phases, entitiesFor, commercialProfiles, getUsecase, usecasesFor } from '../src/catalogue';
-import { demoSnapshot, demoHistory, dependents, impactSummary, phaseAt } from '../src/model';
+import { demoSnapshot, demoHistory, dependents, impactSummary, phaseAt, narrative } from '../src/model';
 import { buildSearch, normalizeResult } from '../src/search';
 import { investigateDemo } from '../src/AgentWorkspace';
 import { loadPresentation } from '../src/presentation';
+
+test('Unknown live evidence cannot become a healthy or recovered briefing', () => {
+  const rows = demoSnapshot('public_services', 'dependency', 0, 2000000000).map((row) => ({
+    ...row, state: 'unknown' as const, origin: 'live' as const, evidence_at: 0,
+  }));
+  const partial = rows.map((row, index) => ({ ...row, state: index === 0 ? 'unknown' as const : 'healthy' as const }));
+  for (const sample of [rows, partial]) for (const phase of [0, 6]) for (const audience of ['operations', 'executive', 'audit', 'facilities']) {
+    const message = narrative(sample, audience, 'dependency', phase);
+    assert.doesNotMatch(message, /operating within expected ranges|functions have recovered/i);
+    assert.match(message, /unknown|unverified|missing evidence/i);
+  }
+});
+
+test('Healthy evidence keeps normal and recovered briefings available', () => {
+  const rows = demoSnapshot('public_services', 'dependency', 0, 2000000000);
+  assert.match(narrative(rows, 'operations', 'dependency', 0), /operating within expected ranges/i);
+  assert.match(narrative(rows, 'operations', 'dependency', 6), /functions have recovered/i);
+});
 
 test('Every audience scenario continues to produce current evidence across repeated cycles and long gaps', () => {
   for (const vertical of verticals) for (const usecase of usecases) for (const phase of phases.keys()) {
