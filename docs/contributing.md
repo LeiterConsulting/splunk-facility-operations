@@ -88,7 +88,7 @@ The service helper checks app version, repeating demo clocks, administrator sett
 
 `verify_lab.py --install` installs a missing candidate and refuses replacement. `--update` permits replacement of this app. Those options use a temporary package server restricted to the selected target IP and randomized path; the Splunk server must reach an ephemeral builder port. Use normal app-manager upload if that route is unavailable. Follow the inventory/configuration backup procedure before updates.
 
-Use `--package artifacts/splunk_facility_operations-0.1.0.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
+Use `--package artifacts/splunk_facility_operations-0.1.1.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
 
 The UI helper uses an isolated owned Chrome profile and can run with `--headed`. `--browser-tls-exception` explicitly permits the lab's untrusted web certificate in that profile; the script also follows a saved `VERIFY_TLS=false`. Its HTTP lab secure-origin exception is profile-scoped. `--bump` invokes the shared Splunk Web static-cache bump; coordinate that on a shared instance. These helpers do not request a Splunk restart.
 
@@ -101,3 +101,13 @@ python3 scripts/verify_lab_policy.py --env-file /absolute/path/to/private-lab.en
 It refuses a populated live inventory or existing OpenAI key. It creates a temporary reader, stores a synthetic key, changes provider configuration temporarily and writes a synthetic inventory row to test unknown telemetry. It attempts cleanup and restoration in `finally`; if connectivity fails during cleanup, the administrator must verify and remove test fixtures and restore the prior settings. Do not run this fixture on a customer-configured or production instance.
 
 Review receipts and screenshots before sharing: even a demo browser session can expose deployment details. Only sanitized evidence belongs in `docs/validation/`. Keep the original dated receipts when a later release has not repeated those native checks.
+
+### Optional model-discovery lab qualification
+
+`verify_lab_models.py` checks the new Settings fields, deterministic discovery, unsaved draft isolation, missing OpenAI key behavior, toolkit caller permissions, and a reasoning-policy save/read/restore round trip. It refuses a real-provider setup, a configured app key or enabled live transmission. It temporarily changes this app's reasoning policy and restores the original settings in `finally`; check the restoration receipt if interrupted. It does not call real model inference or alter toolkit roles/connections.
+
+```sh
+python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.env --prefix LAB --package artifacts/splunk_facility_operations-0.1.1.tar.gz --output artifacts/lab-models.json
+```
+
+The fixture reads the caller capability before interpreting the toolkit result: missing read permission must produce an explicit permission error; otherwise it records inventory success or a clearly handled unavailable service. A handled unavailable service is not a passed inventory/inference qualification. It never grants or revokes toolkit roles. Browser tests mock provider inventory and capability responses; those checks establish UI behavior, not real model inference.

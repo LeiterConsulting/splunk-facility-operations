@@ -63,7 +63,7 @@ class AgentToolsTests(unittest.TestCase):
 
     def test_ollama_adapter_disables_streaming_and_parses_tools(self):
         settings = validate_settings(dict(SETTINGS, provider="ollama", model="test-model"))
-        with patch("agent_providers.post_json", return_value={"message": {"content": "", "tool_calls": [{"function": {"name": "inspect_scope", "arguments": {}}}]}}) as request:
+        with patch("agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": []}), patch("agent_providers.post_json", return_value={"message": {"content": "", "tool_calls": [{"function": {"name": "inspect_scope", "arguments": {}}}]}}) as request:
             _, calls = Provider(settings, "", lambda query: []).complete([{"role": "user", "content": "Inspect"}])
             self.assertFalse(request.call_args.args[1]["stream"])
             self.assertEqual(calls[0]["arguments"], {})

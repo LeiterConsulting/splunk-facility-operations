@@ -1,0 +1,58 @@
+{
+  "target": "PULSE_HQ",
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "dashboard_selectors_hidden",
+      "passed": true
+    },
+    {
+      "name": "commercial_settings_and_native_search",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "commercial_investigation_export",
+      "passed": true
+    },
+    {
+      "name": "commercial_facility_sites",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": true,
+  "static_cache_bump_status": 200,
+  "entry_http_status": 200,
+  "served_bundle_sha256": "9e669119b430d52054e35dc7b3e647421382fc09d4b31986c547ea9ce0d735e9",
+  "local_bundle_sha256": "c2d7edf23e130c6aa7149492f3d2a6d9330a1f8348dbd7778322d97146382c05",
+  "candidate_bundle_in_served_asset": true,
+  "date": "2026-10-07",
+  "release": "v0.1.1",
+  "build": 7,
+  "package_filename": "splunk_facility_operations-0.1.1.tar.gz",
+  "package_sha256": "d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e"
+}

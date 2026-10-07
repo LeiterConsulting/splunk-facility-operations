@@ -18,21 +18,21 @@ The demonstration does not require Enterprise Security, IT Service Intelligence,
 
 ## Download and install from GitHub
 
-1. Open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest). For this guide's version, use [release 0.1.0](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.0).
-2. Under **Assets**, download [splunk_facility_operations-0.1.0.tar.gz](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.0/splunk_facility_operations-0.1.0.tar.gz) to your computer. Keep it compressed; select this file directly during installation. An identical `.spl` installer is also supplied. The automatically generated **Source code (zip)** and **Source code (tar.gz)** downloads contain the repository and require a build; they are not the compiled installer.
+1. Open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest). For this guide's version, use [release 0.1.1](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.1).
+2. Under **Assets**, download [splunk_facility_operations-0.1.1.tar.gz](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.1/splunk_facility_operations-0.1.1.tar.gz) to your computer. Keep it compressed; select this file directly during installation. An identical `.spl` installer is also supplied. The automatically generated **Source code (zip)** and **Source code (tar.gz)** downloads contain the repository and require a build; they are not the compiled installer.
 3. For an existing installation, first follow [Update and preserve configuration](#update-and-preserve-configuration). The package contains an empty live inventory, so back up any configured inventory before upgrading.
 4. Sign in to Splunk Web as an administrator. Open **Apps → Manage Apps → Install app from file**.
-5. Choose the downloaded `splunk_facility_operations-0.1.0.tar.gz`. Leave **Upgrade app** unchecked for a first installation; select it when intentionally updating the existing app after backup. Choose **Upload**.
-6. Follow Splunk's deployment prompts. Open **Facility Operations** from the app menu once it is enabled. Release 0.1.0 declares app version **0.1.0**, build **6**; the app ID is `splunk_facility_operations`.
+5. Choose the downloaded `splunk_facility_operations-0.1.1.tar.gz`. Leave **Upgrade app** unchecked for a first installation; select it when intentionally updating the existing app after backup. Choose **Upload**.
+6. Follow Splunk's deployment prompts. Open **Facility Operations** from the app menu once it is enabled. Release 0.1.1 declares app version **0.1.1**, build **7**; the app ID is `splunk_facility_operations`.
 7. Run the [installed-demo checks](#present-an-already-installed-app) below. Expect **LOOPING DEMO**, a dependency map with current synthetic observations, and an investigation with expandable evidence. Resolve missing menus, upload errors or an empty page with [troubleshooting](troubleshooting.md#release-download-and-installation).
 
 The archive includes the compiled JavaScript/CSS, Python handlers, Splunk configuration and recurring demonstration lookup. There is no `npm ci`, clone or compilation step for this route. Optional live sources and model connections are configured after installation.
 
 ### Optional download integrity check
 
-Download `SHA256SUMS` from the same release. It lists the SHA-256 for each compiled installer. If your organization verifies downloads, compare the selected file's hash with its entry before uploading. A technical user can compute it with `shasum -a 256 splunk_facility_operations-0.1.0.tar.gz` on macOS or `sha256sum splunk_facility_operations-0.1.0.tar.gz` on Linux.
+Download `SHA256SUMS` from the same release. It lists the SHA-256 for each compiled installer. If your organization verifies downloads, compare the selected file's hash with its entry before uploading. A technical user can compute it with `shasum -a 256 splunk_facility_operations-0.1.1.tar.gz` on macOS or `sha256sum splunk_facility_operations-0.1.1.tar.gz` on Linux.
 
-On Windows PowerShell, run `Get-FileHash .\splunk_facility_operations-0.1.0.tar.gz -Algorithm SHA256` and compare its hash to the `.tar.gz` line in `SHA256SUMS`. This check is optional and is not a build step.
+On Windows PowerShell, run `Get-FileHash .\splunk_facility_operations-0.1.1.tar.gz -Algorithm SHA256` and compare its hash to the `.tar.gz` line in `SHA256SUMS`. This check is optional and is not a build step.
 
 ## Present an already installed app
 
@@ -47,10 +47,10 @@ An administrator should save **Deterministic demo assistant** before a disconnec
 
 ## Build and preview from source
 
-To rebuild the published 0.1.0 release or run its local preview, clone the release tag:
+To rebuild the published 0.1.1 release or run its local preview, clone the release tag:
 
 ```sh
-git clone --branch v0.1.0 https://github.com/LeiterConsulting/splunk-facility-operations.git
+git clone --branch v0.1.1 https://github.com/LeiterConsulting/splunk-facility-operations.git
 cd splunk-facility-operations
 node --version
 npm --version
@@ -60,7 +60,7 @@ npm run package
 npm run preview
 ```
 
-For an existing checkout, start from its repository root. `npm ci` installs the locked dependencies. `npm run package` checks types, regenerates synthetic lookups, builds browser assets and creates `artifacts/splunk_facility_operations-0.1.0.tar.gz`, an identical `.spl` installer and `SHA256SUMS`. `npm run preview` serves that production browser bundle at [http://127.0.0.1:5174](http://127.0.0.1:5174). Keep that terminal running; use Ctrl+C to stop it. The clone uses a release tag; create a development branch before editing it.
+For an existing checkout, start from its repository root. `npm ci` installs the locked dependencies. `npm run package` checks types, regenerates synthetic lookups, builds browser assets and creates `artifacts/splunk_facility_operations-0.1.1.tar.gz`, an identical `.spl` installer and `SHA256SUMS`. `npm run preview` serves that production browser bundle at [http://127.0.0.1:5174](http://127.0.0.1:5174). Keep that terminal running; use Ctrl+C to stop it. The clone uses a release tag; create a development branch before editing it.
 
 Expected result: the situation room opens, Demo replay controls are available, and the deterministic investigation returns evidence. Selecting Live explains that installation in Splunk is required. Model settings in the preview cannot establish a real server connection.
 

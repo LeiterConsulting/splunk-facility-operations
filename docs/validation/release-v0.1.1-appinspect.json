@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-07",
+  "appinspect_version": "4.3.1",
+  "mode": "precert",
+  "package": "splunk_facility_operations-0.1.1.tar.gz",
+  "sha256": "d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e",
+  "summary": {
+    "error": 0,
+    "failure": 0,
+    "future_failure": 0,
+    "skipped": 1,
+    "not_applicable": 128,
+    "warning": 4,
+    "success": 119
+  },
+  "warnings": [
+    "check_for_python_script_existence",
+    "check_custom_conf_replication",
+    "check_kos_are_accessible",
+    "check_for_custom_mako_templates"
+  ]
+}

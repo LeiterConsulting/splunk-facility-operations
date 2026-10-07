@@ -9,6 +9,8 @@ from collections import defaultdict, deque
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agent_tools import Investigation, demo_answer
 from agent_providers import Provider, run_agent, validate_settings
+from agent_models import discover_models, inspect_ollama
+from agent_transport import ProviderError
 try:
     import splunk.rest
     from splunk.persistconn.application import PersistentServerConnectionApplication
@@ -61,6 +63,8 @@ class FacilityOperations(PersistentServerConnectionApplication):
             "model": content.get("model", ""),
             "ollama_url": content.get("ollama_url", "http://127.0.0.1:11434"),
             "aitk_provider": content.get("aitk_provider", "Ollama"),
+            "aitk_connection": content.get("aitk_connection", ""),
+            "reasoning_mode": content.get("reasoning_mode", "adaptive"),
             "allow_live_llm": content.get("allow_live_llm", "0"),
         })
 
@@ -73,7 +77,7 @@ class FacilityOperations(PersistentServerConnectionApplication):
         return result.get("entry", [{}])[0].get("content", {}).get("clear_password", "")
 
     def set_secret(self, token, secret):
-        if not isinstance(secret, str) or not secret or len(secret) > 1000 or "\n" in secret:
+        if not isinstance(secret, str) or not secret or len(secret) > 1000 or "\n" in secret or "\r" in secret:
             raise RequestError(400, "Invalid API key")
         name = urllib.parse.quote("facility_ops:openai:", safe="")
         try:
@@ -103,6 +107,24 @@ class FacilityOperations(PersistentServerConnectionApplication):
             if not isinstance(body, dict):
                 raise RequestError(400, "Payload must be an object")
             settings = self.get_settings(system_token)
+            if route.endswith("/models"):
+                if not is_admin:
+                    raise RequestError(403, "The admin_all_objects capability is required for provider discovery")
+                if method != "POST":
+                    raise RequestError(405, "Method not supported")
+                draft = validate_settings(body, require_model=False)
+                if draft["provider"] == "aitk" and "list_ai_commander_config" not in capabilities:
+                    raise RequestError(403, "AI Toolkit discovery requires list_ai_commander_config for the signed-in user. Configure toolkit permissions or enter the model manually.")
+                if body.get("operation", "list") not in ("list", "inspect"):
+                    raise RequestError(400, "Unknown model discovery operation")
+                secret = body.get("api_key") or self.get_secret(system_token)
+                if not isinstance(secret, str) or len(secret) > 1000 or "\n" in secret or "\r" in secret:
+                    raise RequestError(400, "Invalid API key")
+                if body.get("operation") == "inspect":
+                    if draft["provider"] != "ollama" or not draft["model"]:
+                        raise RequestError(400, "Select an Ollama model to check its capabilities")
+                    return self.response(200, {"model": inspect_ollama(draft)})
+                return self.response(200, discover_models(draft, secret, lambda path: self.rest(path, token)))
             if route.endswith("/settings"):
                 if method == "POST":
                     if not is_admin:
@@ -153,9 +175,12 @@ class FacilityOperations(PersistentServerConnectionApplication):
                 "mode": investigation.context["mode"], "generated_at": time.time(),
                 "trace": investigation.trace, "results": investigation.results,
                 "scope": investigation.context, "user": user,
+                "calls": provider.diagnostics if settings["provider"] != "demo" else [],
             })
         except RequestError as error:
             return self.response(error.status, {"error": error.message})
+        except ProviderError as error:
+            return self.response(502, {"error": str(error)})
         except (ValueError, TypeError, KeyError):
             return self.response(400, {"error": "Invalid request or provider response. Check the configured model and connection, and review the allowed context and tool schema."})
         except Exception:

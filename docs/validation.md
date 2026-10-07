@@ -89,3 +89,24 @@ These findings are retained in [the inspection summary](validation/appinspect-su
 - Formal accessibility, scale, clustered deployment, Cloud/GovCloud, and separately gated SPL2 qualification.
 
 Action execution remains a synthetic simulation. The current release creates downloadable report drafts and evidence, rather than publishing reports or making changes to infrastructure.
+
+## LLM model discovery and reasoning release 0.1.1 (build 7)
+
+October 7, 2026. The release adds Settings discovery, capability checks, named toolkit connections, adaptive/fixed reasoning, preserved provider state and per-call resource diagnostics. Official provider references and implementation limits are in [assistant setup](assistant-setup.md#official-implementation-references).
+
+| Check | Result |
+| --- | --- |
+| Type checking and compiled archive | Passed; 22 regular app files, no local overrides and a header-only live inventory |
+| Model/search/preferences | 11 tests passed |
+| Python adapters, discovery, authorization, transport and packaging | 33 tests passed |
+| Browser workflows | 5 passed across the suite and a targeted rerun after correcting the asynchronous inventory assertion timeout |
+| Enterprise 10.0.1 and 10.4.0 native app/service checks | 8 passed per lab on the exact installer |
+| Settings/discovery native checks | 7 passed per lab: new fields, deterministic inventory, draft isolation, missing credentials, toolkit error/permission handling, reasoning persistence and restoration |
+| Native installed browser workflows | 10 passed per lab, including exact served assets, searches, commercial presentation, evidence exports and Settings |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures, 4 warnings, 1 skipped |
+
+Installer SHA-256: `d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e`. The `.tar.gz` and `.spl` are byte-identical. Sanitized receipts are prefixed `release-v0.1.1` under [validation evidence](validation/); the release manifest records archive and test scope.
+
+Successful remote inventory and inference are separate qualifications. OpenAI/Ollama inventory, Ollama capability metadata, strict function requests, reasoning adaptation, provider state replay and toolkit connection parsing use mocked responses. The 10.0.1 lab caller has toolkit read capability, but its toolkit connection service is unavailable; the app returns a safe, actionable error. The 10.4.0 lab caller lacks toolkit read capability and receives the explicit permission result. Handling those failures is a passed error-path check, not a successful toolkit inventory or inference result. No toolkit permissions, connections or credentials were modified.
+
+The existing custom Mako shell, Cloud/GovCloud and cluster qualifications remain open as described above. Audience selection changes presentation only. No production action execution, durable incident history or measured latency/cost benefit is established by these checks.

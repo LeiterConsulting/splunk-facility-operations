@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-07",
+  "release": "v0.1.1",
+  "source_tag": "v0.1.1",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.1",
+  "build": 7,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.1.tar.gz",
+      "size_bytes": 236183,
+      "sha256": "d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.1.spl",
+      "size_bytes": 236183,
+      "sha256": "d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "regular_archive_files": 22,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "local_validation": {
+    "typecheck": "passed",
+    "model_search_preferences_tests_passed": 11,
+    "python_tests_passed": 33,
+    "browser_workflows_passed": 5,
+    "browser_method": "four workflows passed in full suite; new installed-models mock workflow passed in targeted rerun after asynchronous assertion fix",
+    "provider_http_and_tool_responses": "mocked; no real inference qualification"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "service_checks_passed_per_lab": 8,
+    "settings_discovery_checks_passed_per_lab": 7,
+    "browser_checks_passed_per_lab": 10,
+    "page_errors": 0,
+    "temporary_reasoning_policy_restored": true,
+    "toolkit_inventory_success": false,
+    "toolkit_limits": {
+      "10.0.1": "Caller has read capability; toolkit service unavailable",
+      "10.4.0": "Caller lacks toolkit read capability"
+    }
+  },
+  "appinspect": {
+    "version": "4.3.1",
+    "mode": "precert",
+    "errors": 0,
+    "failures": 0,
+    "future_failures": 0,
+    "warnings": 4,
+    "skipped": 1
+  },
+  "qualifications": [
+    "Real provider inference and successful remote catalogs require qualification.",
+    "AI Toolkit inventory contract is version-specific; successful parsing is mock-tested.",
+    "Custom Mako templates must be enabled; deprecated entry shell on 10.4.",
+    "Cloud/GovCloud, clusters, production scale and customer sources require separate qualification."
+  ]
+}

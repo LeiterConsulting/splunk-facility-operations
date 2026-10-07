@@ -3,6 +3,7 @@
 Reads an existing KEY=value file in place. Prints and saves outcomes only.
 Refuses replacement, never restarts Splunk, and leaves other apps untouched.
 """
+from configparser import ConfigParser
 import argparse, base64, concurrent.futures, hashlib, json, secrets, socket, ssl, threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -12,6 +13,9 @@ from urllib.request import HTTPSHandler, HTTPRedirectHandler, Request, build_ope
 
 APP = "splunk_facility_operations"
 ROOT = Path(__file__).resolve().parents[1]
+VERSION_CONFIG = ConfigParser()
+VERSION_CONFIG.read(ROOT / APP / "default/app.conf")
+VERSION = VERSION_CONFIG["id"]["version"]
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
         return None
@@ -77,7 +81,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, required=True); parser.add_argument("--prefix", required=True)
     parser.add_argument("--install", action="store_true"); parser.add_argument("--update", action="store_true"); parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--package", type=Path, default=ROOT / "artifacts" / "splunk_facility_operations-0.1.0.spl", help="Built .spl or .tar.gz installer to check")
+    parser.add_argument("--package", type=Path, default=ROOT / "artifacts" / ("splunk_facility_operations-" + VERSION + ".spl"), help="Built .spl or .tar.gz installer to check")
     args = parser.parse_args(); client = Client(args.env_file, args.prefix)
     receipt = {"target": args.prefix, "version": client.request("services/server/info")["entry"][0]["content"]["version"], "tls_verified": client.verified, "checks": []}
     package = args.package
@@ -88,7 +92,7 @@ def main():
     def check(name, passed):
         receipt["checks"].append({"name": name, "passed": bool(passed)})
         print(name + ": " + ("passed" if passed else "FAILED"), flush=True)
-    check("app_installed", client.request("services/apps/local/" + APP)["entry"][0]["content"].get("version") == "0.1.0")
+    check("app_installed", client.request("services/apps/local/" + APP)["entry"][0]["content"].get("version") == VERSION)
     for clock in [90, 450, 2592090]:
         rows = client.search('| `facility_ops_demo_events("public_services","dependency",' + str(clock) + ')` | stats latest(state) as state latest(_time) as observed by entity_id')
         check("loop_clock_" + str(clock), len(rows) == 10 and next(x["state"] for x in rows if x["entity_id"] == "identity") == "critical")

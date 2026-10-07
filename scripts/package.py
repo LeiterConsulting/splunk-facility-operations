@@ -18,6 +18,8 @@ RELEASE_FILES = (
     "appserver/static/facility-operations.js.LEGAL.txt",
     "appserver/templates/facility_operations.html",
     "bin/agent_providers.py",
+    "bin/agent_models.py",
+    "bin/agent_transport.py",
     "bin/agent_tools.py",
     "bin/facility_ops_rest.py",
     "default/app.conf",

@@ -1,0 +1,39 @@
+{
+  "target": "PULSE_HQ",
+  "version": "10.4.0",
+  "package_sha256": "d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e4334d2e",
+  "checks": [
+    {
+      "name": "new_settings_fields",
+      "passed": true
+    },
+    {
+      "name": "deterministic_discovery_no_inference",
+      "passed": true
+    },
+    {
+      "name": "discovery_before_model_selection_missing_key",
+      "passed": true
+    },
+    {
+      "name": "toolkit_caller_permission_required",
+      "passed": true
+    },
+    {
+      "name": "discovery_does_not_save_draft",
+      "passed": true
+    },
+    {
+      "name": "reasoning_policy_persisted",
+      "passed": true
+    },
+    {
+      "name": "original_settings_restored",
+      "passed": true
+    }
+  ],
+  "real_model_inference": "not attempted",
+  "toolkit_read_capability": false,
+  "toolkit_discovery_status": 403,
+  "toolkit_inventory_success": false
+}

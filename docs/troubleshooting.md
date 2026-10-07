@@ -87,3 +87,17 @@ Changing the use case does not select a different live incident. The live source
 Record app version/build, Splunk version, preview versus installed route, Demo/Live selection, audience/vertical/use case, provider/model, time of the failure, visible error and steps to reproduce. If an investigation completed, attach a reviewed JSON or SPL export. For a search failure, the administrator should inspect the matching search job messages. For backend errors, inspect the Splunk service/Python logs and relevant toolkit/provider status.
 
 Keep private hostnames, API keys, passwords, session tokens, customer event content and unreviewed exports out of repository issues. Use synthetic reproductions where possible. This release has no durable investigation audit; retained evidence must follow the customer's existing incident process.
+
+## Model discovery and reasoning policy
+
+**Refresh available models is disabled:** connected discovery requires installation in Splunk and an app administrator (`admin_all_objects`). The local preview supports manual draft settings but cannot query provider endpoints.
+
+**OpenAI refresh returns HTTP 401/403:** check the pending key or saved app key and its model-list permissions. A restricted key may still permit inference with a manually entered model. The app never saves a pending key merely because Refresh was used. HTTP 429 indicates rate limit or quota; automatic inference retries are not performed.
+
+**Ollama refresh returns no models or cannot connect:** verify `/api/tags` from the Splunk host and install the desired model in Ollama. Check HTTPS trust and the server origin. **Check selected model capabilities** uses `/api/show`. A model advertising no tools cannot run this investigation protocol; missing thinking values use the model default.
+
+**AI Toolkit discovery needs another capability:** the signed-in user needs `list_ai_commander_config` in addition to app administrator access. Inference separately needs `apply_ai_commander_command`. Configure these through the normal Splunk role process. Toolkit discovery reads configured LLM connections, not trained ML models. It does not provision connections or copy provider credentials. An unsupported inventory response falls back to manual model entry; named connections require toolkit 6.0 or later.
+
+**A chosen reasoning policy has no effect:** inspect **Model calls and resource use**. Unknown OpenAI models use provider defaults; Ollama uses only advertised thinking values; AI Toolkit options are managed in its Connections page. **High** can take longer and consume more output tokens. Refine scope or choose a different qualified model if output or time limits are reached.
+
+**AI Toolkit returns a JSON protocol error:** verify the same user can run the documented `ai` command and choose a model that returns the requested JSON shape. Connection confirmation alone does not qualify tool use.

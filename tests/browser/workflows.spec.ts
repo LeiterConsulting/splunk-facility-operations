@@ -33,6 +33,8 @@ test('Provider settings and supervised demo action stay explicit', async ({ page
   await page.getByRole('button', { name: '⚙ Settings', exact: true }).click();
   await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('openai');
   await expect(page.getByLabel('OpenAI API key', { exact: false })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Refresh available models', exact: true })).toBeDisabled();
+  await expect(page.getByRole('combobox', { name: 'Reasoning policy', exact: true })).toHaveValue('adaptive');
   await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('demo');
   await page.getByRole('button', { name: 'Save provider settings', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Preview settings updated');
@@ -44,6 +46,46 @@ test('Provider settings and supervised demo action stay explicit', async ({ page
   await page.getByRole('button', { name: 'Run simulation', exact: true }).click();
   await expect(page.getByText('Simulated execution completed; recovery verification required', { exact: false })).toBeVisible();
   await page.screenshot({ path: 'artifacts/browser-tests/supervised-action.png', fullPage: true });
+});
+
+test('Installed settings discover models, inspect capabilities and keep draft changes separate from saves', async ({ page }) => {
+  let saves = 0;
+  const settings = { provider: 'demo', model: '', ollama_url: 'http://127.0.0.1:11434', aitk_provider: 'Ollama', aitk_connection: '', reasoning_mode: 'adaptive', allow_live_llm: false, key_configured: false, can_configure: true };
+  const root = await page.request.get('/');
+  const html = await root.body();
+  await page.route('**/app/splunk_facility_operations/facility_operations', (route) => route.fulfill({ contentType: 'text/html', body: html }));
+  await page.route('**/facility_ops/settings*', async (route) => {
+    if (route.request().method() === 'POST') saves++;
+    await route.fulfill({ json: settings });
+  });
+  await page.route('**/search/jobs*', (route) => route.fulfill({ json: { results: [] } }));
+  await page.route('**/facility_ops/models*', async (route) => {
+    const payload = JSON.parse(new URLSearchParams(route.request().postData() || '').get('payload') || '{}');
+    if (payload.provider === 'openai') return route.fulfill({ status: 502, json: { error: 'The provider rejected the request (HTTP 401). Check the credential and model access.' } });
+    const model = { id: 'local:latest', tools: true, thinking_values: ['low', 'medium', 'high'], capability_source: 'Ollama /api/show' };
+    await route.fulfill({ json: payload.operation === 'inspect' ? { model } : { models: [{ ...model, tools: null, thinking_values: [], capability_source: 'Not inspected' }], source: 'Ollama /api/tags', message: 'Installed models on this server.', truncated: false } });
+  });
+  await page.goto('/app/splunk_facility_operations/facility_operations');
+  await page.getByRole('button', { name: '⚙ Settings', exact: true }).click();
+  await page.getByRole('combobox', { name: 'LLM provider', exact: true }).selectOption('ollama');
+  await page.getByRole('button', { name: 'Refresh available models', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: 'Available models', exact: true })).toContainText('local:latest', { timeout: 20000 });
+  await page.getByRole('combobox', { name: 'Available models', exact: true }).selectOption('0');
+  await expect(page.getByLabel('Model identifier', { exact: false })).toHaveValue('local:latest');
+  await page.getByRole('button', { name: 'Check selected model capabilities', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('advertised by provider', { timeout: 20000 });
+  await expect(page.getByRole('status')).toContainText('low, medium, high');
+  await page.getByRole('combobox', { name: 'Reasoning policy', exact: true }).selectOption('provider_default');
+  expect(saves).toBe(0);
+  await page.getByRole('combobox', { name: 'LLM provider', exact: true }).selectOption('openai');
+  await expect(page.getByRole('combobox', { name: 'Available models', exact: true })).toHaveCount(0);
+  await page.getByLabel('OpenAI API key', { exact: false }).fill('synthetic-test-key');
+  await page.getByRole('button', { name: 'Refresh available models', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'HTTP 401' })).toBeVisible({ timeout: 20000 });
+  await page.getByLabel('Model identifier', { exact: false }).fill('manual-model');
+  expect(saves).toBe(0);
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toContain('synthetic-test-key');
+  await page.screenshot({ path: 'artifacts/browser-tests/model-discovery-settings.png', fullPage: true });
 });
 test('Verticals and audience workflows adapt, including compact navigation', async ({ page }) => {
   await page.goto('/');
