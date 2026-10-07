@@ -2,6 +2,16 @@
 
 Start by identifying whether you are using the local preview or the installed app, whether the data source is Demo or Live, and which provider is saved in Settings. These choices explain many differences in behavior. The [getting-started guide](getting-started.md) lists the expected first results.
 
+## Release download and installation
+
+| Symptom | What to check or do |
+| --- | --- |
+| Unsure which GitHub asset to download | Choose `splunk_facility_operations-0.1.0.tar.gz` from [release 0.1.0](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.0). It is the compiled installer. The automatic Source code downloads require a build. |
+| Download became a folder or an uncompressed `.tar` | Download the named installer again and keep the `.tar.gz` compressed. Splunk's file upload expects the original archive. |
+| Upload rejected the file or the installed interface is empty | Confirm the filename is the named installer, not GitHub's Source code archive; compare its hash with `SHA256SUMS` and download it again if incomplete. Then check the exact Splunk upload error and supported deployment requirements. |
+| Splunk reports that the app already exists | Back up configuration and live inventory using the [upgrade procedure](getting-started.md#update-and-preserve-configuration), then intentionally select Upgrade app. |
+| Install app from file is unavailable | Use an account authorized to install apps and ask the Splunk administrator to confirm deployment policy. This release is qualified on standalone Enterprise labs; Cloud and clustered installation need separate qualification. |
+
 ## Local build and preview
 
 | Symptom | What to check or do |
@@ -19,7 +29,7 @@ Start by identifying whether you are using the local preview or the installed ap
 | Symptom | Presenter step | Administrator check |
 | --- | --- | --- |
 | App missing from the menu | Confirm the right Splunk instance and account | In Manage Apps, check `splunk_facility_operations` is installed, visible and enabled; review app access |
-| Blank page or older interface after update | Reopen the app's `facility_operations` entry view and reload | Check version/build, packaged JavaScript/CSS requests, and browser console/network failures. Confirm installation used the built `.spl`, not an unbuilt source directory. |
+| Blank page or older interface after update | Reopen the app's `facility_operations` entry view and reload | Check version/build, packaged JavaScript/CSS requests, and browser console/network failures. Confirm installation used the compiled `.tar.gz` or `.spl`, not a source archive. |
 | Old assets persist after reload | Capture the symptom for the administrator | An administrator can use Splunk Web's `/debug/refresh` and supported static cache bump procedure. A cache bump affects Splunk Web's shared static cache; coordinate it on shared instances. It is not a restart. [Splunk caching guidance](https://help.splunk.com/en/splunk-cloud-platform/developing-views-and-apps-for-splunk-web/10.2.2510/customize-splunk-web/customization-options-and-caching) |
 | `Data connection needs attention` or search request failed | Read the error and choose Retry search | Check user search access, app macro/lookup permissions, search job messages and installed lookup files |
 | Search timed out | Retry after capacity is available | UI searches have a 25-second request limit. Review source scope, concurrent search capacity and job messages; do not expand the query blindly. |

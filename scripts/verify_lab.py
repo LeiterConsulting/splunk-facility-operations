@@ -58,7 +58,7 @@ def install(client, package, update=False):
     target = socket.gethostbyname(client.host)
     with socket.socket() as route:
         route.connect((target, client.port)); address = route.getsockname()[0]
-    path = "/" + secrets.token_hex(24) + "/candidate.spl"
+    path = "/" + secrets.token_hex(24) + "/" + package.name
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path != path or self.client_address[0] != target:
@@ -77,9 +77,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, required=True); parser.add_argument("--prefix", required=True)
     parser.add_argument("--install", action="store_true"); parser.add_argument("--update", action="store_true"); parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--package", type=Path, default=ROOT / "artifacts" / "splunk_facility_operations-0.1.0.spl", help="Built .spl or .tar.gz installer to check")
     args = parser.parse_args(); client = Client(args.env_file, args.prefix)
     receipt = {"target": args.prefix, "version": client.request("services/server/info")["entry"][0]["content"]["version"], "tls_verified": client.verified, "checks": []}
-    package = ROOT / "artifacts" / "splunk_facility_operations-0.1.0.spl"
+    package = args.package
     receipt["package_sha256"] = hashlib.sha256(package.read_bytes()).hexdigest()
     inventory = lambda: {x["name"]: {k:x["content"].get(k) for k in ["version", "disabled"]} for x in client.request("services/apps/local?count=0")["entry"] if x["name"] != APP}
     before = inventory()

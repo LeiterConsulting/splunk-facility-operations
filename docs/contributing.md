@@ -21,7 +21,7 @@ npm run test:browser
 | `npm run test` | Deterministic model, replay, topology and search-boundary tests |
 | `npm run test:backend` | Python tools, provider mocks, permissions, package exclusion and preview build prerequisite |
 | `npm run build` | Type check, generated lookup/catalogue and bundled browser assets |
-| `npm run package` | Build plus reproducible `.spl` installer |
+| `npm run package` | Build plus identical reproducible `.tar.gz`/`.spl` installers and `SHA256SUMS` |
 | `npm run preview` | Compiled interface on 127.0.0.1:5174; fails with a build instruction if assets are absent |
 | `npm run test:browser` | Production-bundle investigation/export, settings/recovery and responsive audience workflows |
 
@@ -41,7 +41,7 @@ the linked-input check on a host with symlink support before claiming that bound
 | `splunk_facility_operations/bin/` | Authenticated investigation service, tools and provider adapters |
 | `splunk_facility_operations/default/` | Generic shipped defaults; configure customers with local overrides |
 | `scripts/generate-lookups.ts` | Synthetic lookup and catalogue generation; existing local inventory is preserved |
-| `scripts/package.py` | Explicit release asset list and empty live inventory insertion |
+| `scripts/package.py` | Explicit release asset list, empty live inventory insertion, paired installers and checksums |
 | `tests/` | Model/search, backend/package and browser checks |
 | `docs/` | Presenter, evaluator, administrator and developer guidance |
 
@@ -50,6 +50,14 @@ When adding shipped app assets, update the release list in `scripts/package.py`.
 Local configuration is ignored by Git. The live inventory template is tracked: a populated local CSV will therefore show as a modification. Never commit customer inventory. Keep credentials outside the checkout and use encrypted Splunk storage for app provider keys. Generated JavaScript/CSS, installer archives, browser artifacts, logs and environment files are ignored.
 
 Documentation changes should use exact UI labels, explain prerequisites before steps, and give an expected result and recovery path. Use generic organization and business-function language in product data. Agency names belong only in dated, sourced discovery material. Mark proposed features and unmeasured value explicitly. Update README links, the relevant task guide and validation scope when behavior changes.
+
+## Publish a GitHub release
+
+Use a clean checkout of the intended release commit. Keep the versions in `package.json`, the lockfile and the `[id]`/`[launcher]` sections of `default/app.conf` consistent; increment the app build when publishing changed app assets. Run the verification commands above and review the applicable native and AppInspect evidence.
+
+`npm run package` derives installer names from `default/app.conf`. Upload the compiled `.tar.gz`, identical `.spl` and `SHA256SUMS` to a release whose tag points to that exact source commit. Include installation and upgrade links, validation dates, and remaining qualifications in the release notes. Publish the completed release after its assets are present; verify the downloads against the checksums. GitHub's automatic source archives do not include the ignored browser bundle and are not installers.
+
+Do not replace a published version's files with a different build. Publish a new version/tag and update download links instead. Keep generated artifacts out of Git; they belong under release Assets.
 
 ## Optional native lab checks
 
@@ -79,6 +87,8 @@ node scripts/verify_lab_ui.mjs /absolute/path/to/private-lab.env LAB artifacts/l
 The service helper checks app version, repeating demo clocks, administrator settings, deterministic investigation and preservation of other apps' reported versions/enabled states. It expects the deterministic provider; running it against a configured real provider is not a general production health check. Without install/update flags it does not install or reconfigure the app, but does execute bounded searches and an investigation.
 
 `verify_lab.py --install` installs a missing candidate and refuses replacement. `--update` permits replacement of this app. Those options use a temporary package server restricted to the selected target IP and randomized path; the Splunk server must reach an ephemeral builder port. Use normal app-manager upload if that route is unavailable. Follow the inventory/configuration backup procedure before updates.
+
+Use `--package artifacts/splunk_facility_operations-0.1.0.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
 
 The UI helper uses an isolated owned Chrome profile and can run with `--headed`. `--browser-tls-exception` explicitly permits the lab's untrusted web certificate in that profile; the script also follows a saved `VERIFY_TLS=false`. Its HTTP lab secure-origin exception is profile-scoped. `--bump` invokes the shared Splunk Web static-cache bump; coordinate that on a shared instance. These helpers do not request a Splunk restart.
 

@@ -14,7 +14,7 @@ The intended value is less time spent proving that an unaffected service or team
 | --- | --- |
 | Present an operations story without writing searches | [Presentation guide](docs/demo-guide.md): preparation, five-minute and ten-minute walkthroughs, expected behavior |
 | Discuss business value and define a proof of concept | [Operations value and evaluation](docs/operations-value.md): time to innocence, discovery questions, measures and acceptance criteria |
-| Run the demo or install it in Splunk | [Getting started](docs/getting-started.md): requirements, dependencies, build, installation and first checks |
+| Download and install the app in Splunk | [Getting started](docs/getting-started.md#download-and-install-from-github): release installer, browser installation, requirements and first checks |
 | Connect real operational observations | [Live data guide](docs/live-data.md): source, inventory, field contract and verification |
 | Configure the investigation assistant | [Assistant setup](docs/assistant-setup.md): deterministic demo, Ollama, OpenAI and Splunk AI Toolkit |
 | Resolve an issue | [Troubleshooting](docs/troubleshooting.md): symptoms, checks and recovery steps |
@@ -36,7 +36,15 @@ New to the terminology? See the [glossary](docs/glossary.md). Initial public sec
 
 The catalogue supports commercial and public sector organizations. Retail, manufacturing, logistics, financial services, technology and SaaS, commercial properties, and hospitality have business functions, owners, sites and incident stories appropriate to their operations. Enterprise Shared Services uses neutral workforce, finance and employee-support language. See the [commercial demonstration guide](docs/commercial-demo.md).
 
-## Quick local preview
+## Download and install
+
+Download the ready-to-install [Facility Operations 0.1.0 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.0/splunk_facility_operations-0.1.0.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
+
+In Splunk Web, an administrator opens **Apps → Manage Apps → Install app from file**, selects the downloaded `.tar.gz`, and uploads it. Keep the archive compressed. The release includes the compiled interface and demonstration data; Git, Node.js, npm and a source build are not required to install it.
+
+Follow the [download and installation guide](docs/getting-started.md#download-and-install-from-github) for first installation, upgrades and verification. Choose the named installer under **Assets**; GitHub's automatically generated **Source code** archives require a build.
+
+## Quick local preview for developers
 
 For someone building the package: use Node.js 20.19+ with npm and Python 3.9+. From the repository root:
 
@@ -50,7 +58,7 @@ Open [the local preview](http://127.0.0.1:5174). Open **Settings → Presentatio
 
 A presenter with an already installed app can open **Facility Operations** from the Splunk app menu and follow the same walkthrough. The local preview uses synthetic observations and the deterministic assistant. Real searches and configured model connections require installation in Splunk.
 
-The generated installer is `artifacts/splunk_facility_operations-0.1.0.spl`; it is a local build artifact, not a checked-in download. Follow [getting started](docs/getting-started.md) to obtain, install or update it.
+The build creates `artifacts/splunk_facility_operations-0.1.0.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
 
 ## Proof-of-concept scope
 

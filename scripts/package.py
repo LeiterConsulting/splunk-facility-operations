@@ -1,7 +1,10 @@
 """Build a reproducible demo package without local settings or customer inventory."""
 from io import BytesIO
 from pathlib import Path
+from configparser import ConfigParser
 import gzip
+import hashlib
+import re
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,5 +59,27 @@ def create_package(app, target):
     return target
 
 
+def create_release_packages(app, output_directory):
+    app, output_directory = Path(app), Path(output_directory)
+    version_file = app / "default/app.conf"
+    if version_file.is_symlink() or not version_file.resolve().is_relative_to(app.resolve()):
+        raise ValueError("Release input must be a regular app file: default/app.conf")
+    config = ConfigParser(interpolation=None)
+    config.read_string(version_file.read_text())
+    version = config["id"]["version"]
+    if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?", version) or config["launcher"]["version"] != version:
+        raise ValueError("The app must declare matching release versions in [id] and [launcher]")
+    basename = APP_ID + "-" + version
+    archive = create_package(app, output_directory / (basename + ".tar.gz"))
+    spl = output_directory / (basename + ".spl")
+    data = archive.read_bytes()
+    spl.write_bytes(data)
+    checksums = output_directory / "SHA256SUMS"
+    digest = hashlib.sha256(data).hexdigest()
+    checksums.write_text("".join(digest + "  " + target.name + "\n" for target in (archive, spl)), encoding="utf-8")
+    return archive, spl, checksums
+
+
 if __name__ == "__main__":
-    print(create_package(ROOT / APP_ID, ROOT / "artifacts" / (APP_ID + "-0.1.0.spl")))
+    for target in create_release_packages(ROOT / APP_ID, ROOT / "artifacts"):
+        print(target)

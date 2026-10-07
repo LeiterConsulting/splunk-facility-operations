@@ -1,6 +1,25 @@
 # Facility Operations validation
 
-The initial release was checked on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
+Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
+
+## GitHub release 0.1.0 on October 7, 2026 (build 6)
+
+The first GitHub release distributes the compiled app as `splunk_facility_operations-0.1.0.tar.gz`, an identical `.spl` alternative, and `SHA256SUMS`. Users can download and upload an installer through Splunk Web without development tools. The source includes the merged unknown-telemetry briefing fix and the portable packaging fixtures. App version remains 0.1.0; build 6 identifies this release candidate.
+
+| Check | Release result |
+| --- | --- |
+| Locked dependency installation, type checking and package build | Passed; 7,680 demo observations generated |
+| Model/search/preferences | 11 tests passed, including explicit unknown-telemetry briefings |
+| Python backend and packaging | 16 tests passed; includes paired installer structure, byte equality and checksum verification |
+| Production browser workflows | 4 passed against the exact compiled release bundle |
+| Archive review | 20 regular app files; compiled interface and backend included; no local overrides; header-only live inventory |
+| Enterprise 10.0.1 and 10.4.0 installation and service | Actual `.tar.gz` update passed; repeating searches, retail observations, settings and investigation passed; other apps' reported versions/enabled states preserved |
+| Installed browser workflows on both labs | Candidate assets, Settings, native commercial searches, investigation/export, manufacturing sites and provider connection check passed; zero application page errors |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures; 4 warnings and 1 skipped check |
+
+Package SHA-256 for both installer formats: `afebca5a2a9f7ef86d3b7ce4703ad0f79e824b30095e265692d6368c06b3d55f`. Sanitized release receipts are in the [release manifest](validation/release-v0.1.0.json), [10.0 service](validation/release-v0.1.0-lab-10.0.json), [10.4 service](validation/release-v0.1.0-lab-10.4.json), [10.0 interface](validation/release-v0.1.0-ui-10.0.json), [10.4 interface](validation/release-v0.1.0-ui-10.4.json), and [inspection findings](validation/release-v0.1.0-appinspect.json). See [release notes](releases/v0.1.0.md) and [download installation](getting-started.md#download-and-install-from-github).
+
+Native archive updates use the authenticated development-lab helper; installed interface checks use an isolated browser. These checks qualify the archive and resulting app, not every customer deployment policy. Provider adapters remain mock-tested for real inference. Native reader/credential fixture evidence retains its October 5 date; that fixture was not repeated for this release. The Mako shell requirement and other inspection warnings described below still apply; Cloud, clusters and future versions remain unqualified.
 
 ## Commercial catalogue and presentation settings on October 5, 2026 (build 5)
 
@@ -17,7 +36,7 @@ The current catalogue has sixteen verticals, including seven new commercial cont
 | Reader checks on both labs | Passed commercial scoped investigation with caller identity, protected provider configuration/credentials, live-model opt-in and unknown expected telemetry; synthetic fixtures removed |
 | AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures; 4 warnings and 1 skipped check |
 
-Sanitized evidence is in the `commercial-*` files in [validation receipts](validation/), including [inspection findings](validation/commercial-appinspect-summary.json). Current package SHA-256: `ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01`.
+Sanitized evidence is in the `commercial-*` files in [validation receipts](validation/), including [inspection findings](validation/commercial-appinspect-summary.json). October 5 build 5 package SHA-256: `ba473de4ce9a27c584ed250a88ffd6eda4ef69f8b181c7c40ff4c8aecc1ece01`.
 
 The four warnings include the existing Python migration, cluster configuration replication and Cloud role notices, plus the custom Mako-template deprecation now reported by AppInspect 4.3.1. Splunk 10.4 still supports the template on the tested labs, but deployments that disable custom Mako templates cannot use this entry shell. Migrating that shell is required for future removal or hardened deployments. This review does not establish Cloud, cluster or future-version qualification. [Splunk 10.4 deprecations](https://help.splunk.com/en/splunk-enterprise/release-notes-and-updates/release-notes/10.4/deprecated-features/deprecated-and-removed-in-version-10.4)
 

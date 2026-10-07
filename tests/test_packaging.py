@@ -2,6 +2,7 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import errno
+import hashlib
 import importlib.util
 import tarfile
 import unittest
@@ -85,6 +86,22 @@ class PackagingTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             with self.assertRaisesRegex(SystemExit, "Run npm run package"):
                 preview.require_bundle(Path(directory))
+
+    def test_release_archives_are_identical_installers_with_matching_checksums(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            app = self.fixture(root)
+            (app / "default/app.conf").write_text("[id]\nversion = 0.1.0\n[launcher]\nversion = 0.1.0\n")
+            archive, spl, checksums = package.create_release_packages(app, root / "artifacts")
+            self.assertEqual(archive.name, "splunk_facility_operations-0.1.0.tar.gz")
+            self.assertEqual(spl.name, "splunk_facility_operations-0.1.0.spl")
+            self.assertEqual(archive.read_bytes(), spl.read_bytes())
+            with tarfile.open(archive, "r:gz") as contents:
+                self.assertEqual(set(contents.getnames()), {package.APP_ID + "/" + name for name in (*package.RELEASE_FILES, package.LIVE_INVENTORY)})
+                self.assertTrue(all(member.isfile() for member in contents.getmembers()))
+            for line in checksums.read_text().splitlines():
+                digest, name = line.split("  ")
+                self.assertEqual(digest, hashlib.sha256((checksums.parent / name).read_bytes()).hexdigest())
 
 
 if __name__ == "__main__":

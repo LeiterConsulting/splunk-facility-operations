@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-07",
+  "release": "v0.1.0",
+  "source_tag": "v0.1.0",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.0",
+  "build": 6,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.0.tar.gz",
+      "size_bytes": 231442,
+      "sha256": "afebca5a2a9f7ef86d3b7ce4703ad0f79e824b30095e265692d6368c06b3d55f"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.0.spl",
+      "size_bytes": 231442,
+      "sha256": "afebca5a2a9f7ef86d3b7ce4703ad0f79e824b30095e265692d6368c06b3d55f"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "regular_archive_files": 20,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "local_validation": {
+    "typecheck": "passed",
+    "model_search_preferences_tests_passed": 11,
+    "python_tests_passed": 16,
+    "browser_workflows_passed": 4,
+    "compiled_preview_bundle_matches_candidate": true,
+    "checksum_and_archive_review": "passed"
+  },
+  "native_validation": {
+    "method": "authenticated REST .tar.gz update followed by installed browser workflows",
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "service_checks_passed_per_lab": 8,
+    "browser_checks_passed_per_lab": 10,
+    "page_errors": 0,
+    "reader_credential_fixture_date": "2026-10-05; not repeated for this release"
+  },
+  "appinspect": {
+    "version": "4.3.1",
+    "mode": "precert",
+    "errors": 0,
+    "failures": 0,
+    "future_failures": 0,
+    "warnings": 4,
+    "skipped": 1
+  },
+  "qualifications": [
+    "Custom Mako templates must be enabled; existing shell is deprecated in Splunk 10.4.",
+    "Cloud/GovCloud, clusters and future releases require separate qualification.",
+    "Real model inference and customer sources require evaluation; actions remain simulated."
+  ]
+}

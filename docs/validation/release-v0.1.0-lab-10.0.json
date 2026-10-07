@@ -1,0 +1,44 @@
+{
+  "target": "PULSE_SPOKE1",
+  "version": "10.0.1",
+  "tls_verified": true,
+  "checks": [
+    {
+      "name": "app_installed",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_90",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_450",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_2592090",
+      "passed": true
+    },
+    {
+      "name": "commercial_retail_loop",
+      "passed": true
+    },
+    {
+      "name": "provider_settings",
+      "passed": true
+    },
+    {
+      "name": "investigation_with_evidence",
+      "passed": true
+    },
+    {
+      "name": "other_apps_preserved",
+      "passed": true
+    }
+  ],
+  "package_sha256": "afebca5a2a9f7ef86d3b7ce4703ad0f79e824b30095e265692d6368c06b3d55f",
+  "date": "2026-10-07",
+  "release": "v0.1.0",
+  "build": 6,
+  "package_filename": "splunk_facility_operations-0.1.0.tar.gz"
+}
