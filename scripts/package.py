@@ -14,9 +14,9 @@ APP_ID = "splunk_facility_operations"
 RELEASE_FILES = (
     "appserver/static/catalogue.json",
     "appserver/static/facility-operations.css",
+    "appserver/static/facility-operations-host.css",
     "appserver/static/facility-operations.js",
     "appserver/static/facility-operations.js.LEGAL.txt",
-    "appserver/templates/facility_operations.html",
     "bin/agent_providers.py",
     "bin/agent_models.py",
     "bin/agent_transport.py",

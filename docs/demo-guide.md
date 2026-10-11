@@ -6,13 +6,13 @@ For the value discussion and customer success measures, use [operations value](o
 
 ## Prepare and rehearse
 
-1. Open the installed app or the [local preview](getting-started.md). Choose **Demo** and confirm **LOOPING DEMO** and synthetic evidence labels.
+1. Open **Facility Operations** inside Splunk Web. Confirm Splunk's native bar and the app's **Operations workspace**, **Search** and **Demo guide** navigation. The [developer component preview](getting-started.md#build-and-preview-from-source) is for development checks; use the installed app for a Splunk proof-of-concept presentation. Choose **Demo** and confirm **LOOPING DEMO** and synthetic evidence labels.
 2. Use **Deterministic demo assistant** for a presentation that does not depend on model connectivity. In an installed app, an administrator selects this in **Settings**, saves it and chooses **Test saved connection**. Demo data and provider choice are separate settings.
 3. In **Settings → Presentation setup**, choose **Operations**, **Public Services and Benefits**, and **Enterprise Dependency Disruption**, then **Apply presentation**. Choose **Pause**, then **Normal**. In Splunk, allow the refresh to complete.
 4. Rehearse **Impact**, the investigation prompt and one export. Return to **Normal** before presenting.
-5. Choose **Present** if you want more space for the workspace. It exposes a **Workspace view** selector when the sidebar is hidden. **Exit presentation** returns the regular navigation.
+5. Choose **Present** if you want more space for the workspace. It exposes a **Workspace view** selector when the sidebar is hidden. **Exit presentation** returns the regular navigation. Splunk's own chrome stays visible in both modes.
 
-Opening statement: “This is a synthetic proof of concept. We will follow an interruption from business impact to evidence and the next operational decision. The same workflow can be evaluated against your own functions and observations.”
+Opening statement: “This is a native Splunk app demonstrating the art of the possible with synthetic operational evidence. We will follow an interruption from business impact to evidence and the next operational decision. The same workflow can be evaluated against your own functions and observations.”
 
 ## A five-minute walkthrough
 
@@ -26,10 +26,12 @@ Opening statement: “This is a synthetic proof of concept. We will follow an in
 
 Do not equate synthetic phase changes with measured incident detection or recovery speed. Time-to-innocence improvement requires a [customer evaluation](operations-value.md#plan-a-customer-proof-of-concept).
 
+The [installed investigation screenshot](images/investigation.png) shows the assistant, evidence trace and draft exports inside native Splunk chrome.
+
 ## A ten-minute walkthrough
 
 1. Complete steps 1–3 above. Choose **Detect**, **Impact**, and **Diagnose** to explain the authored sequence. Pause keeps you in control of the story.
-2. Show the assistant's investigation steps, then **Export searches**. Explain that the service executes constrained read-only searches with the signed-in user's permissions. A report is a downloadable draft.
+2. Choose **Open current search in Splunk** to show the same scoped evidence in the native Search page. Return to the workspace tab, show the assistant's investigation steps, then **Export searches**. Explain that the service executes constrained read-only searches with the signed-in user's permissions. A report is a downloadable draft.
 3. Open **Presentation settings**, select **Executive**, then **Apply presentation** to brief consequences. Repeat with **ISSO** or **Audit and Oversight** to open **Evidence and controls**; point out the deliberately unknown physical-access observation. Apply **Change Control Board** to open **Change readiness**. These are audience lenses, not role or permission changes.
 4. Apply **Operations** in Presentation setup, open **Action workspace**, and choose **Supervised execution**. Once affected-path evidence is fresh, choose **Record demo approval**, then **Run simulation**. The replay moves to **Recover**, and the decision history records a simulation.
 5. Choose **Verify**, then **Restored**. Discuss which independent customer observations would be needed to confirm actual recovery. Decisions remain in this browser session.

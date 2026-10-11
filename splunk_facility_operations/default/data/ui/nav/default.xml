@@ -1,3 +1,5 @@
 <nav>
   <view name="facility_operations" default="true" />
+  <view name="search" />
+  <a href="https://github.com/LeiterConsulting/splunk-facility-operations/blob/codex/facility-operations-foundation/docs/demo-guide.md" target="_blank">Demo guide</a>
 </nav>

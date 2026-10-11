@@ -2,6 +2,26 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Native Splunk chrome release 0.1.2 (build 8)
+
+October 11, 2026. The React workspace now runs inside a standard Simple XML 1.1 host with Splunk's real chrome. The custom Mako entry and imitation header were removed. Native chrome checks begin with this release; earlier installed-workflow receipts cover searches and application behavior. The screenshots in the README and guides now come from the installed 10.4 app.
+
+| Check | Result |
+| --- | --- |
+| Type checking, model/search/preferences, backend/package | Passed; 11 TypeScript and 34 Python tests, including valid host identifiers and explicit chrome retention |
+| Compiled-bundle browser suite | All 6 workflows passed in one run; includes explicit component-preview identity, URL navigation and keyboard skip focus |
+| Archive | 22 regular files, identical `.tar.gz`/`.spl`, header-only live inventory, no local overrides or custom Mako templates |
+| Enterprise 10.0.1 and 10.4.0 service checks | 8 passed per lab after updating with the exact final installer; other apps' reported versions and enabled states preserved |
+| Installed browser checks | 18 passed per lab: real chrome outside the React root, native app navigation, exact candidate assets, replay/search, commercial settings, assistant/export, native Search results, provider test and presentation navigation |
+| Application JavaScript errors | Zero on both installed workflows |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures, 4 warnings and 1 skipped check; custom-Mako warning removed |
+
+Installer SHA-256 for both formats: `7f4c3b219950448a540b728a7ae1aeab2dc767a1aee1d8b22df7d8e9102153ed`. See the [release manifest](validation/release-v0.1.2.json), [10.0 service](validation/release-v0.1.2-lab-10.0.json), [10.4 service](validation/release-v0.1.2-lab-10.4.json), [10.0 interface](validation/release-v0.1.2-ui-10.0.json), [10.4 interface](validation/release-v0.1.2-ui-10.4.json), and [inspection summary](validation/release-v0.1.2-appinspect.json).
+
+Inspection warnings are the SplunkJS telemetry notice, generic Python migration notice, custom configuration replication and Cloud role compatibility. The skipped check concerns the traditional package identity without `app.manifest`. This is not Splunkbase certification or Cloud/cluster qualification. The package no longer depends on custom app Mako enablement; hardened deployment policies and future versions still require their own checks.
+
+The build used Node 25.4.0 and Python 3.13.2. Final browser verification used native ARM64 Node 24.19.0 and Chrome on this Apple Silicon host. Model inference, roles and connections were not changed or newly qualified. The lab certificate/secure-origin exceptions described below remain confined to the owned test profiles.
+
 ## GitHub release 0.1.0 on October 7, 2026 (build 6)
 
 The first GitHub release distributes the compiled app as `splunk_facility_operations-0.1.0.tar.gz`, an identical `.spl` alternative, and `SHA256SUMS`. Users can download and upload an installer through Splunk Web without development tools. The source includes the merged unknown-telemetry briefing fix and the portable packaging fixtures. App version remains 0.1.0; build 6 identifies this release candidate.
@@ -69,9 +89,9 @@ The documentation-only review reproduced the October 4 native-tested build 4 pac
 
 Sanitized native receipts are in [validation evidence](validation/). Credentials, private origins, browser sessions, and live event contents are excluded from those files. Browser test artifacts and the complete AppInspect output are local build artifacts.
 
-## Installed interface checks
+## Installed interface checks through release 0.1.1
 
-The entry page uses the dedicated `facility_operations` view and an application-owned HTML template. It mounts Splunk UI Toolkit components and the Enterprise theme directly into the page root. The legacy page-layout bootstrap was removed after it overwrote app header content and stalled browser interactions. Installed browser receipts record mouse-driven demo controls, actual Splunk searches, investigation evidence, provider settings, and application error counts.
+Through 0.1.1, the dedicated `facility_operations` entry used an application-owned HTML template that replaced Splunk chrome. Those receipts cover installed UI controls, searches, investigation evidence, provider settings and application error counts. Native chrome checks begin with 0.1.2; see its separate results below.
 
 The isolated lab browser uses explicit exceptions for the development web certificates and the HTTP lab's secure-origin requirement. These apply to the owned browser profile only. REST checks retain each saved target's TLS verification setting. The standard Splunk Web cache bump is used after candidate updates; no Splunk restart or global configuration change is performed. [Splunk resource caching](https://help.splunk.com/en/splunk-cloud-platform/developing-views-and-apps-for-splunk-web/10.2.2510/customize-splunk-web/customization-options-and-caching)
 
@@ -109,4 +129,4 @@ Installer SHA-256: `d74c697cafe329bde3b25cbd98f7fdd8d5b70db19e0b347ad60fe042e433
 
 Successful remote inventory and inference are separate qualifications. OpenAI/Ollama inventory, Ollama capability metadata, strict function requests, reasoning adaptation, provider state replay and toolkit connection parsing use mocked responses. The 10.0.1 lab caller has toolkit read capability, but its toolkit connection service is unavailable; the app returns a safe, actionable error. The 10.4.0 lab caller lacks toolkit read capability and receives the explicit permission result. Handling those failures is a passed error-path check, not a successful toolkit inventory or inference result. No toolkit permissions, connections or credentials were modified.
 
-The existing custom Mako shell, Cloud/GovCloud and cluster qualifications remain open as described above. Audience selection changes presentation only. No production action execution, durable incident history or measured latency/cost benefit is established by these checks.
+At the time of 0.1.1, the custom Mako shell required migration. That migration is covered by 0.1.2. Cloud/GovCloud and cluster qualifications remain open. Audience selection changes presentation only. No production action execution, durable incident history or measured latency/cost benefit is established by these checks.

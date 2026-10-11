@@ -1,10 +1,11 @@
 import { uiClass } from './classes';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@splunk/react-ui/Button';
+import ButtonGroup from '@splunk/react-ui/ButtonGroup';
 import { createURL } from '@splunk/splunk-utils/url';
 import { audiences, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
 import { demoSnapshot, dependents, impactSummary, narrative, phaseAt } from './model';
-import { isSplunk, searchSignals } from './search';
+import { buildSearch, isSplunk, searchSignals } from './search';
 import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings } from './AgentWorkspace';
 import { Picker, PresentationSettings } from './PresentationSettings';
 import { loadPresentation, PRESENTATION_KEY, type Presentation } from './presentation';
@@ -18,6 +19,10 @@ const views: { id: View; label: string; icon: string }[] = [
   { id: 'change', label: 'Change readiness', icon: '⇄' }, { id: 'evidence', label: 'Evidence and controls', icon: '▤' },
   { id: 'investigate', label: 'Investigation assistant', icon: '✧' }, { id: 'settings', label: 'Settings', icon: '⚙' },
 ];
+function viewFromURL(): View {
+  const id = window.location.hash.slice(1);
+  return views.find((item) => item.id === id)?.id ?? 'situation';
+}
 const stateLabel: Record<State, string> = { healthy: 'Healthy', warning: 'Degraded', critical: 'Critical', recovering: 'Recovering', unknown: 'Unknown' };
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const formatTime = (second: number) => second ? timeFormatter.format(new Date(second * 1000)) : 'No evidence';
@@ -72,7 +77,11 @@ export function App() {
     return loadPresentation(window.location.search, saved);
   });
   const { vertical, audience, usecase } = presentation;
-  const [view, setView] = useState<View>('situation');
+  const [view, setViewState] = useState<View>(viewFromURL);
+  function setView(value: View) {
+    if (window.location.hash !== '#' + value) window.history.pushState(null, '', '#' + value);
+    setViewState(value);
+  }
   const [mode, setMode] = useState<Mode>('demo');
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
   const [offset, setOffset] = useState(0);
@@ -101,6 +110,12 @@ export function App() {
   const scenario = getUsecase(usecase, vertical);
   const persona = audiences.find((item) => item.id === audience)!;
   const scope = vertical + ':' + usecase;
+  useEffect(() => {
+    const change = () => setViewState(viewFromURL());
+    window.addEventListener('popstate', change);
+    window.addEventListener('hashchange', change);
+    return () => { window.removeEventListener('popstate', change); window.removeEventListener('hashchange', change); };
+  }, []);
   useEffect(() => {
     const media = window.matchMedia('(max-width: 800px)');
     const change = (event: MediaQueryListEvent) => setCompact(event.matches);
@@ -185,19 +200,20 @@ export function App() {
   }
   const noData = !loading && !error && signals.length === 0;
   return <div className={uiClass('app-shell' + (presenter ? ' presenter' : ''))}>
-    <a className={uiClass("skip-link")} href="#main-content">Skip to dashboard</a>
-    <div role="banner" className={uiClass("global-bar")}><div className={uiClass("brand")}><b>splunk<span>›</span></b><i /><strong>Facility Operations</strong><span className={uiClass("build-label")}>Demonstration workspace</span></div><div className={uiClass("global-actions")}><span className={uiClass("clock")}>{formatTime(now)}</span>{installed && <Button appearance="subtle" to={createURL('app/search/search')}>Splunk Search</Button>}<Button appearance="subtle" onClick={() => setPresenter(!presenter)}>{presenter ? 'Exit presentation' : 'Present'}</Button></div></div>
+    <a className={uiClass("skip-link")} href="#facility-operations-main" onClick={(event) => { event.preventDefault(); const main = document.getElementById('facility-operations-main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to workspace</a>
+    <div className={uiClass('workspace-toolbar')} aria-label="Demonstration controls"><div><strong>{installed ? 'Splunk proof of concept' : 'Developer component preview'}</strong><span>{installed ? 'Facility Operations · Art of the possible' : 'Install in Splunk for the native app experience'}</span></div><div className={uiClass('toolbar-actions')}><span className={uiClass('clock')}>{formatTime(now)}</span><Button appearance="subtle" onClick={() => setPresenter(!presenter)}>{presenter ? 'Exit presentation' : 'Present'}</Button></div></div>
     <div className={uiClass("workspace")}>
-      <aside className={uiClass("sidebar")}><div className={uiClass("sidebar-heading")}>OPERATIONS WORKSPACE</div><nav aria-label="Workspace views">{views.map((item) => <button key={item.id} className={uiClass(view === item.id ? 'active' : '')} aria-current={view === item.id ? 'page' : undefined} onClick={() => setView(item.id)}><span>{item.icon}</span>{item.label}</button>)}</nav>
+      <aside className={uiClass("sidebar")}><div className={uiClass("sidebar-heading")}>OPERATIONS WORKSPACE</div><nav aria-label="Workspace views">{views.map((item) => <Button key={item.id} appearance="subtle" inline={false} className={uiClass(view === item.id ? 'active' : '')} aria-current={view === item.id ? 'page' : undefined} onClick={() => setView(item.id)}><span className={uiClass('nav-icon')} aria-hidden="true">{item.icon}</span>{item.label}</Button>)}</nav>
         <div className={uiClass("sidebar-note")}><span className={uiClass("mini-label")}>CONTEXT, THEN ACTION</span><p>Connect business functions to the systems and spaces that keep them running.</p><span>Splunk Enterprise 10.0+</span></div>
       </aside>
-      <main id="main-content">
+      <main id="facility-operations-main" tabIndex={-1}>
         <div className={uiClass("page-intro")}><div><span className={uiClass("eyebrow")}>FACILITY OPERATIONS / {views.find((item) => item.id === view)?.label.toUpperCase()}</span><h1>{view === 'situation' ? 'Operational situation room' : views.find((item) => item.id === view)?.label}</h1><p>{persona.question}</p></div><Button onClick={share}>Share this view</Button></div>
         {(compact || presenter) && <div className={uiClass("compact-navigation")}><Picker label="Workspace view" value={view} options={views} onChange={(value) => setView(value as View)} /></div>}
         <div className={uiClass("context-summary")} aria-label="Current presentation context"><div className={uiClass("context-labels")}><strong>{currentVertical.label}</strong><span>{persona.label}</span><span>{scenario.label}</span></div>
           {view !== 'settings' && <Button appearance="subtle" onClick={() => setView('settings')}>Presentation settings</Button>}
-          <div className={uiClass("mode-picker")}><span>Data source</span><div role="group" aria-label="Data source"><button className={uiClass(mode === 'demo' ? 'active' : '')} onClick={() => setMode('demo')}>Demo</button><button className={uiClass(mode === 'live' ? 'active' : '')} onClick={() => setMode('live')}>Live</button></div></div>
+          <div className={uiClass("mode-picker")}><span>Data source</span><ButtonGroup aria-label="Data source"><Button aria-pressed={mode === 'demo'} appearance={mode === 'demo' ? 'primary' : 'secondary'} onClick={() => setMode('demo')}>Demo</Button><Button aria-pressed={mode === 'live'} appearance={mode === 'live' ? 'primary' : 'secondary'} onClick={() => setMode('live')}>Live</Button></ButtonGroup></div>
         </div>
+        {installed && <div className={uiClass('search-handoff')}><span>Evidence is queried in this Splunk app with your search permissions.</span><Button appearance="subtle" openInNewContext to={createURL('app/splunk_facility_operations/search', { q: buildSearch(mode, vertical, usecase, scenarioSecond), earliest: '-60m', latest: 'now' })}>Open current search in Splunk</Button></div>}
         <div className={uiClass('source-strip ' + mode)}><div><span className={uiClass("source-dot")} /><strong>{mode === 'demo' ? 'LOOPING DEMO' : 'LIVE SPLUNK DATA'}</strong><span>{mode === 'demo' ? 'Synthetic scenario · current timestamps · actions are simulated' : 'Authenticated Splunk searches · last 60 minutes · actions require integration'}</span></div><span>{loading ? 'Refreshing…' : signals.length ? (mode === 'demo' && !installed ? 'Local replay' : 'Splunk search') + ' · ' + signals.length + ' entities' : 'No signals'}</span></div>
         {mode === 'demo' && <div className={uiClass("replay-bar")}><span className={uiClass("mini-label")}>SCENARIO REPLAY</span><div className={uiClass("phase-buttons")}>{phases.map((name, index) => <button key={name} className={uiClass(phase === index ? 'current' : '')} aria-pressed={phase === index} onClick={() => goPhase(index)}>{index + 1}<span>{name}</span></button>)}</div><Button appearance="subtle" onClick={() => pausedSecond === null ? setPausedSecond(scenarioSecond) : (setOffset(pausedSecond - now), setPausedSecond(null))}>{pausedSecond === null ? 'Pause' : 'Resume'}</Button></div>}
         {error && <div role="alert" className={uiClass("message error")}><strong>Data connection needs attention</strong><p>{error}</p><Button onClick={() => setRevision((value) => value + 1)}>Retry search</Button></div>}

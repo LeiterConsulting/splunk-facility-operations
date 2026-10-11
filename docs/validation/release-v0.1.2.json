@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-11",
+  "release": "v0.1.2",
+  "source_tag": "v0.1.2",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.2",
+  "build": 8,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.2.tar.gz",
+      "size_bytes": 236812,
+      "sha256": "7f4c3b219950448a540b728a7ae1aeab2dc767a1aee1d8b22df7d8e9102153ed"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.2.spl",
+      "size_bytes": 236812,
+      "sha256": "7f4c3b219950448a540b728a7ae1aeab2dc767a1aee1d8b22df7d8e9102153ed"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "regular_archive_files": 22,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "custom_mako_templates_shipped": false,
+  "local_validation": {
+    "typecheck": "passed",
+    "model_search_preferences_tests_passed": 11,
+    "python_tests_passed": 34,
+    "browser_workflows_passed": 6,
+    "browser_method": "all six workflows passed in one run against the exact compiled release bundle",
+    "provider_http_and_tool_responses": "mocked; no new real inference qualification"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "service_checks_passed_per_lab": 8,
+    "browser_checks_passed_per_lab": 18,
+    "page_errors": 0,
+    "native_chrome_outside_react_root": true,
+    "native_app_navigation": true,
+    "native_search_handoff_returned_scoped_results": true,
+    "presentation_retains_native_chrome": true,
+    "other_apps_reported_versions_and_enabled_states_preserved": true,
+    "model_configuration": "existing deterministic provider preserved; no provider settings, roles or connections changed",
+    "workspace_keyboard_focus_inside_app": true
+  },
+  "appinspect": {
+    "version": "4.3.1",
+    "mode": "precert",
+    "errors": 0,
+    "failures": 0,
+    "future_failures": 0,
+    "warnings": 4,
+    "skipped": 1
+  },
+  "qualifications": [
+    "Real provider inference remains separately qualified; no model connectivity claim added by this UI migration.",
+    "Cloud/GovCloud, clusters, other versions, production scale and customer sources require separate qualification.",
+    "Action execution is simulated; reports are downloadable drafts and investigations are browser-session artifacts."
+  ]
+}

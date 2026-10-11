@@ -4,7 +4,11 @@ The app separates presentation context, observations, investigation tools, and a
 
 ## Runtime and compatibility
 
-The frontend is a React 18 application using `@splunk/react-ui`, `@splunk/themes`, and `@splunk/splunk-utils`. An IIFE bundle mounts into the app-owned page root with React's standard renderer. An app-scoped HTML template supplies authenticated configuration and localization on both supported versions. Application classes use a dedicated prefix, and application styles are scoped to the root to avoid collisions with Splunk Web navigation. The installed shell includes a return link to Splunk Search. It avoids the legacy page-layout bootstrap, which interfered with the React interface during lab integration. Splunk serves its static assets and authenticates browser REST calls. [Splunk UI Toolkits](https://splunkui.splunk.com/Toolkits)
+The frontend is a React 18 application using `@splunk/react-ui`, `@splunk/themes`, and `@splunk/splunk-utils`. The installed entry is a standard **Simple XML 1.1** view with one HTML mount panel, shipped JavaScript/CSS extensions and the Enterprise light theme. Splunk Web renders the real Splunk bar, app bar, menus and footer and supplies session configuration and localization. The React bundle waits for `splunkjs/mvc/simplexml/ready!` and mounts only inside `#facility-operations-root`. It does not replace Splunk's layout or draw a Splunk logo/header. [Splunk UI Toolkits](https://splunkui.splunk.com/Toolkits), [documented Simple XML extensions](https://dev.splunk.com/enterprise/docs/developapps/webframework/usewebframework/modifydashboards)
+
+The XML host explicitly retains chrome while hiding dashboard title/edit/export controls, because the workspace supplies its own title and reviewed draft exports. App navigation is defined in `default/data/ui/nav/default.xml`. Toolkit buttons support workspace navigation and the Demo/Live toggle. Workspace changes use validated URL fragments for shareable links and browser Back/Forward without leaving Splunk or clearing the replay. Presentation mode changes content navigation only and retains native chrome. **Open current search in Splunk** passes the current bounded SPL and time range to Search in this app's namespace, using locale/root-aware Splunk URL helpers.
+
+Application classes are prefixed and styles are scoped to the app root. A small host stylesheet removes spacing only from this view's content containers; it never hides or restyles Splunk navigation. The developer component preview uses the same compiled bundle but renders no imitation Splunk chrome and cannot qualify authentication, native navigation or searches. The previous custom Mako shell was removed in 0.1.2, following [Splunk 10.4's deprecation guidance](https://help.splunk.com/en/splunk-enterprise/release-notes-and-updates/release-notes/10.4/deprecated-features/deprecated-and-removed-in-version-10.4).
 
 Baseline searches use SPL so Enterprise 10.0 remains supported. Queries filter the source and scope early, use bounded time windows, select normalized fields, and aggregate before presenting evidence. Generating demo searches avoid index scans. [Splunk search optimization](https://help.splunk.com/en/splunk-enterprise/search/search-manual/10.4/optimize-searches/quick-tips-for-optimization)
 
@@ -12,7 +16,7 @@ Packaged SPL2 apps require Enterprise 10.2+ on Linux under the documented instal
 
 Persistent Python handlers declare 3.9/3.13 runtime requirements with a 3.9 fallback. The implementation uses the standard library and Splunk's packaged REST interfaces. Handler sessions are authenticated; provider configuration additionally requires `admin_all_objects`. [REST handler configuration](https://help.splunk.com/en/splunk-enterprise/administer/admin-manual/10.0/configuration-file-reference/10.0.2-configuration-file-reference/restmap.conf)
 
-AppInspect 4.3.1 flags the existing custom Mako entry template as deprecated in Splunk 10.4. It remains supported on the tested labs; instances that deactivate custom Mako templates cannot use this shell. See [validation](validation.md) for the current inspection and migration requirement.
+This host is a compatibility choice for Enterprise 10.0 and 10.4, not a new Classic custom visualization. The rich interface is React/Splunk UI Toolkit code. Future Studio-specific visualizations or other platform releases need separate qualification. See [validation](validation.md) for exact installed-interface checks and AppInspect findings.
 
 ## Context and scenarios
 
@@ -81,6 +85,6 @@ The current action workspace is a simulation. Observe, supervised, and bounded a
 | Expanded investigation | Reviewed SPL/SPL2 search authoring with previews and cost limits, additional analysis tools, persisted investigations, confidence and evidence references, saved report creation with explicit authorization |
 | Operational collaboration | Case and ticket integration, owner handoff, maintenance windows, shared incident history, durable action audit, report publishing and retention rules |
 | Governed execution | Customer allowlists, external approval identity, automation integration, verification and rollback callbacks, replay protection, concurrency limits, durable quotas |
-| Product qualification | Migration of the custom Mako entry shell for hardened/future deployments; AppInspect, real provider tests, RBAC and secret lifecycle tests, scale/performance, accessibility audit, clustered Splunk, Cloud/GovCloud and customer deployment policies |
+| Product qualification | Ongoing entry-view and frontend compatibility checks; AppInspect, real provider tests, RBAC and secret lifecycle tests, scale/performance, accessibility audit, clustered Splunk, Cloud/GovCloud and customer deployment policies |
 
 These are future capabilities. They should be qualified separately rather than inferred from the demonstration's successful local and lab checks.

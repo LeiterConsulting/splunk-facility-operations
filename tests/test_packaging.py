@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import tarfile
 import unittest
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,6 +23,17 @@ preview = load_script("serve_preview")
 
 
 class PackagingTests(unittest.TestCase):
+    def test_installed_host_retains_chrome_and_uses_valid_dashboard_identifiers(self):
+        view = ElementTree.parse(ROOT / package.APP_ID / 'default/data/ui/views/facility_operations.xml').getroot()
+        self.assertEqual(view.tag, 'dashboard')
+        self.assertEqual(view.get('version'), '1.1')
+        for option in ['hideChrome', 'hideSplunkBar', 'hideAppBar']:
+            self.assertEqual(view.get(option), 'false')
+        for component in [*view.iter('row'), *view.iter('panel')]:
+            self.assertRegex(component.get('id', ''), r'^[A-Za-z][A-Za-z0-9_]*$')
+        self.assertIsNotNone(view.find('.//html/div[@id="facility-operations-root"]'))
+        self.assertFalse(any(name.startswith('appserver/templates/') for name in package.RELEASE_FILES))
+
     def fixture(self, root):
         app = root / package.APP_ID
         for name in package.RELEASE_FILES:

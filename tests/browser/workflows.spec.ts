@@ -2,6 +2,25 @@ import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   page.on('pageerror', (error) => console.error('Application browser error:', error.message));
 });
+test('Component preview is explicit and workspace links support browser navigation', async ({ page }) => {
+  await page.goto('/?vertical=retail&audience=executive&usecase=dependency#investigate');
+  await expect(page.getByText('Developer component preview', { exact: true })).toBeVisible();
+  await expect(page.getByText('Install in Splunk for the native app experience', { exact: true })).toBeVisible();
+  await expect(page.getByRole('banner')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Operations investigation assistant', exact: true })).toBeVisible();
+  const skip = page.getByRole('link', { name: 'Skip to workspace', exact: true });
+  await skip.focus();
+  await skip.press('Enter');
+  await expect(page.locator('#facility-operations-main')).toBeFocused();
+  await expect(page).toHaveURL(/#investigate$/);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page).toHaveURL(/#settings$/);
+  await page.goBack();
+  await expect(page.getByRole('heading', { name: 'Operations investigation assistant', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Current presentation context')).toContainText('Retail and Commerce');
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'Presentation setup', exact: true })).toBeVisible();
+});
 test('Dependency disruption, investigation, evidence exports, and live separation', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -11,7 +30,7 @@ test('Dependency disruption, investigation, evidence exports, and live separatio
   await expect(page.getByRole('button', { name: 'Shared identity, Critical, inspect evidence', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Shared identity, Critical, inspect evidence', exact: true }).click();
   await expect(page.getByText('Shared identity latency', { exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: '✧ Investigation assistant', exact: true }).click();
+  await page.getByRole('button', { name: 'Investigation assistant', exact: true }).click();
   await page.getByRole('button', { name: /^Investigate the current issue and its dependency impact/ }).click();
   await expect(page.getByText('Investigation steps', { exact: true })).toBeVisible();
   await expect(page.locator('summary').filter({ hasText: 'follow dependencies' })).toBeVisible();
@@ -30,7 +49,7 @@ test('Provider settings and supervised demo action stay explicit', async ({ page
   await page.goto('/');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
-  await page.getByRole('button', { name: '⚙ Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('openai');
   await expect(page.getByLabel('OpenAI API key', { exact: false })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Refresh available models', exact: true })).toBeDisabled();
@@ -38,7 +57,7 @@ test('Provider settings and supervised demo action stay explicit', async ({ page
   await page.getByRole('combobox', { name: /LLM provider/ }).selectOption('demo');
   await page.getByRole('button', { name: 'Save provider settings', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Preview settings updated');
-  await page.getByRole('button', { name: '↗ Action workspace', exact: true }).click();
+  await page.getByRole('button', { name: 'Action workspace', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Run simulation', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: /Autonomy policy/ }).selectOption('supervised');
   await page.getByRole('button', { name: 'Record demo approval', exact: true }).click();
@@ -66,7 +85,7 @@ test('Installed settings discover models, inspect capabilities and keep draft ch
     await route.fulfill({ json: payload.operation === 'inspect' ? { model } : { models: [{ ...model, tools: null, thinking_values: [], capability_source: 'Not inspected' }], source: 'Ollama /api/tags', message: 'Installed models on this server.', truncated: false } });
   });
   await page.goto('/app/splunk_facility_operations/facility_operations');
-  await page.getByRole('button', { name: '⚙ Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('combobox', { name: 'LLM provider', exact: true }).selectOption('ollama');
   await page.getByRole('button', { name: 'Refresh available models', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Available models', exact: true })).toContainText('local:latest', { timeout: 20000 });
@@ -121,7 +140,7 @@ test('Commercial presentation setup applies atomically, remembers context and ke
   await expect(page.getByRole('button', { name: 'Online checkout', exact: true })).toBeVisible();
   await expect(page.getByText('Customer and fulfillment sign-in latency', { exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Audience', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: '✧ Investigation assistant', exact: true }).click();
+  await page.getByRole('button', { name: 'Investigation assistant', exact: true }).click();
   await page.getByRole('button', { name: /^Investigate the current issue and its dependency impact/ }).click();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export evidence', exact: true }).click();

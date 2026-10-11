@@ -1,0 +1,7 @@
+/* Only the standard view's content container is adapted. Splunk's header,
+   app bar, menus, account controls, and footer remain owned by Splunk Web. */
+.dashboard-body:has(#facility_operations_host_row) { padding: 0; }
+#facility_operations_host_row { margin: 0; }
+#facility_operations_host_panel { margin: 0; padding: 0; }
+#facility_operations_host_panel .dashboard-panel { margin: 0; border: 0; }
+#facility_operations_host_panel .panel-body.html { padding: 0; }

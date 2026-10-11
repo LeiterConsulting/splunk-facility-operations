@@ -25,7 +25,7 @@ npm run test:browser
 | `npm run preview` | Compiled interface on 127.0.0.1:5174; fails with a build instruction if assets are absent |
 | `npm run test:browser` | Production-bundle investigation/export, settings/recovery and responsive audience workflows |
 
-Use meaningful checks for the changed behavior. Provider mocks establish protocol/policy handling, not real model inference. Browser preview tests establish local workflows, not native Splunk authentication or search execution. Native receipts in [validation](validation.md) identify the separately tested lab behavior.
+Use meaningful checks for the changed behavior. Provider mocks establish protocol/policy handling, not real model inference. Browser preview tests establish local workflows, not native Splunk authentication, chrome or search execution. Installed UI checks must assert native chrome outside the React root and its visibility during presentation, plus the app-scoped Search handoff. Do not replace native chrome with a branded header or hide it to fix a styling conflict. Native receipts in [validation](validation.md) identify the separately tested lab behavior.
 
 The linked-release-input test skips when the host cannot create symlinks. The
 missing-input test still runs independently. Report that skip separately and run
@@ -38,6 +38,8 @@ the linked-input check on a host with symlink support before claiming that bound
 | `src/catalogue.ts` | Audience, vertical, scenario, entity and phase definitions |
 | `src/model.ts`, `src/search.ts` | Synthetic observations, dependency traversal and bounded searches |
 | `src/App.tsx`, `src/AgentWorkspace.tsx` | Presentation, replay, simulation, investigation and settings |
+| `splunk_facility_operations/default/data/ui/views/facility_operations.xml` | Standard Splunk host view; preserves native chrome and loads the React workspace |
+| `splunk_facility_operations/appserver/static/facility-operations-host.css` | Spacing for this host panel only; never style Splunk navigation |
 | `splunk_facility_operations/bin/` | Authenticated investigation service, tools and provider adapters |
 | `splunk_facility_operations/default/` | Generic shipped defaults; configure customers with local overrides |
 | `scripts/generate-lookups.ts` | Synthetic lookup and catalogue generation; existing local inventory is preserved |
@@ -50,6 +52,16 @@ When adding shipped app assets, update the release list in `scripts/package.py`.
 Local configuration is ignored by Git. The live inventory template is tracked: a populated local CSV will therefore show as a modification. Never commit customer inventory. Keep credentials outside the checkout and use encrypted Splunk storage for app provider keys. Generated JavaScript/CSS, installer archives, browser artifacts, logs and environment files are ignored.
 
 Documentation changes should use exact UI labels, explain prerequisites before steps, and give an expected result and recovery path. Use generic organization and business-function language in product data. Agency names belong only in dated, sourced discovery material. Mark proposed features and unmeasured value explicitly. Update README links, the relevant task guide and validation scope when behavior changes.
+
+## Splunk UI integration rules
+
+The standard Simple XML 1.1 host owns the page frame; React owns only `#facility-operations-root`. Preserve Splunk's bar, app navigation, account menus and footer, including during presentations. Keep host spacing changes limited to the identified content panel. Use Splunk UI Toolkit components and the Enterprise theme for interactive workspace controls, and keep their React/styled-components peer versions locked together. The current host and component provider explicitly use the light theme.
+
+Use Splunk URL and fetch utilities for locale/root-aware links, CSRF handling and authenticated REST calls. Native Search handoff must keep this app's macro namespace, bounded SPL and time range. Persona selection is presentation context; Splunk roles govern access. Keep workspace fragments validated, support browser navigation, and clean up event listeners and aborted requests.
+
+The build checks host identifiers and chrome settings. Installed browser checks cover the actual native frame, navigation, Search results, assistant exports and presentation behavior on each supported lab. A component preview cannot replace those checks. Splunk 10.4 can use newer first-party React page templates; this app uses one documented extension host for compatibility with both 10.0 and 10.4 and ships no custom Mako template.
+
+References: [Splunk UI Toolkit](https://splunkui.splunk.com/Toolkits), [Simple XML extensions](https://dev.splunk.com/enterprise/docs/developapps/webframework/usewebframework/modifydashboards), [Splunk 10.4 deprecations](https://help.splunk.com/en/splunk-enterprise/release-notes-and-updates/release-notes/10.4/deprecated-features/deprecated-and-removed-in-version-10.4). The [architecture](architecture.md) records the implemented boundaries and remaining qualifications.
 
 ## Publish a GitHub release
 
@@ -88,7 +100,7 @@ The service helper checks app version, repeating demo clocks, administrator sett
 
 `verify_lab.py --install` installs a missing candidate and refuses replacement. `--update` permits replacement of this app. Those options use a temporary package server restricted to the selected target IP and randomized path; the Splunk server must reach an ephemeral builder port. Use normal app-manager upload if that route is unavailable. Follow the inventory/configuration backup procedure before updates.
 
-Use `--package artifacts/splunk_facility_operations-0.1.1.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
+Use `--package artifacts/splunk_facility_operations-0.1.2.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
 
 The UI helper uses an isolated owned Chrome profile and can run with `--headed`. `--browser-tls-exception` explicitly permits the lab's untrusted web certificate in that profile; the script also follows a saved `VERIFY_TLS=false`. Its HTTP lab secure-origin exception is profile-scoped. `--bump` invokes the shared Splunk Web static-cache bump; coordinate that on a shared instance. These helpers do not request a Splunk restart.
 
@@ -107,7 +119,7 @@ Review receipts and screenshots before sharing: even a demo browser session can 
 `verify_lab_models.py` checks the new Settings fields, deterministic discovery, unsaved draft isolation, missing OpenAI key behavior, toolkit caller permissions, and a reasoning-policy save/read/restore round trip. It refuses a real-provider setup, a configured app key or enabled live transmission. It temporarily changes this app's reasoning policy and restores the original settings in `finally`; check the restoration receipt if interrupted. It does not call real model inference or alter toolkit roles/connections.
 
 ```sh
-python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.env --prefix LAB --package artifacts/splunk_facility_operations-0.1.1.tar.gz --output artifacts/lab-models.json
+python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.env --prefix LAB --package artifacts/splunk_facility_operations-0.1.2.tar.gz --output artifacts/lab-models.json
 ```
 
 The fixture reads the caller capability before interpreting the toolkit result: missing read permission must produce an explicit permission error; otherwise it records inventory success or a clearly handled unavailable service. A handled unavailable service is not a passed inventory/inference qualification. It never grants or revokes toolkit roles. Browser tests mock provider inventory and capability responses; those checks establish UI behavior, not real model inference.
