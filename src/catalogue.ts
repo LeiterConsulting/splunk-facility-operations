@@ -50,8 +50,8 @@ export interface Entity {
   depends_on: string[]; category: string; control_id: string;
 }
 export interface Signal extends Entity {
-  _time: number; state: State; reason: string; latency_ms: number; queue_depth: number;
-  temperature_c: number; control_state: string; origin: Mode; vertical: string;
+  _time: number; state: State; reason: string; latency_ms: number | null; queue_depth: number | null;
+  temperature_c: number | null; control_state: string; origin: Mode; vertical: string;
   usecase: string; phase: number; evidence_at: number;
 }
 export const entityTemplate: Entity[] = [

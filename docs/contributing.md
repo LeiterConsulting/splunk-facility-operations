@@ -94,13 +94,16 @@ For an already installed candidate, run:
 ```sh
 python3 scripts/verify_lab.py --env-file /absolute/path/to/private-lab.env --prefix LAB --output artifacts/lab-service.json
 node scripts/verify_lab_ui.mjs /absolute/path/to/private-lab.env LAB artifacts/lab-ui
+python3 scripts/verify_lab_grounding.py --env-file /absolute/path/to/private-lab.env --prefix LAB --output artifacts/lab-grounding.json
 ```
 
 The service helper checks app version, repeating demo clocks, administrator settings, deterministic investigation and preservation of other apps' reported versions/enabled states. It expects the deterministic provider; running it against a configured real provider is not a general production health check. Without install/update flags it does not install or reconfigure the app, but does execute bounded searches and an investigation.
 
+The grounding helper runs generated in-memory observations through the compiled live query pipeline to check current, stale, absent and future evidence, missing metrics and grouped reporting denominators. It also checks an authenticated audience/focus investigation, current-pass chronology and the report packet. It changes no indexes, inventory files, roles or provider settings. These fixture checks do not qualify a customer source or real model inference.
+
 `verify_lab.py --install` installs a missing candidate and refuses replacement. `--update` permits replacement of this app. Those options use a temporary package server restricted to the selected target IP and randomized path; the Splunk server must reach an ephemeral builder port. Use normal app-manager upload if that route is unavailable. Follow the inventory/configuration backup procedure before updates.
 
-Use `--package artifacts/splunk_facility_operations-0.1.2.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
+Use `--package artifacts/splunk_facility_operations-0.1.3.tar.gz` to verify the release archive explicitly. The helper records the selected file's SHA-256 and serves its original filename to Splunk. Omitting that flag retains the `.spl` candidate path.
 
 The UI helper uses an isolated owned Chrome profile and can run with `--headed`. `--browser-tls-exception` explicitly permits the lab's untrusted web certificate in that profile; the script also follows a saved `VERIFY_TLS=false`. Its HTTP lab secure-origin exception is profile-scoped. `--bump` invokes the shared Splunk Web static-cache bump; coordinate that on a shared instance. These helpers do not request a Splunk restart.
 
@@ -119,7 +122,7 @@ Review receipts and screenshots before sharing: even a demo browser session can 
 `verify_lab_models.py` checks the new Settings fields, deterministic discovery, unsaved draft isolation, missing OpenAI key behavior, toolkit caller permissions, and a reasoning-policy save/read/restore round trip. It refuses a real-provider setup, a configured app key or enabled live transmission. It temporarily changes this app's reasoning policy and restores the original settings in `finally`; check the restoration receipt if interrupted. It does not call real model inference or alter toolkit roles/connections.
 
 ```sh
-python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.env --prefix LAB --package artifacts/splunk_facility_operations-0.1.2.tar.gz --output artifacts/lab-models.json
+python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.env --prefix LAB --package artifacts/splunk_facility_operations-0.1.3.tar.gz --output artifacts/lab-models.json
 ```
 
 The fixture reads the caller capability before interpreting the toolkit result: missing read permission must produce an explicit permission error; otherwise it records inventory success or a clearly handled unavailable service. A handled unavailable service is not a passed inventory/inference qualification. It never grants or revokes toolkit roles. Browser tests mock provider inventory and capability responses; those checks establish UI behavior, not real model inference.

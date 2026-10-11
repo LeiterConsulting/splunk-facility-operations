@@ -21,6 +21,7 @@ RELEASE_FILES = (
     "bin/agent_models.py",
     "bin/agent_transport.py",
     "bin/agent_tools.py",
+    "bin/agent_assessment.py",
     "bin/facility_ops_rest.py",
     "default/app.conf",
     "default/data/ui/nav/default.xml",

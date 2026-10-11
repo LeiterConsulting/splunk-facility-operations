@@ -3,7 +3,7 @@
 Creates one temporary reader and one synthetic inventory row, then removes both.
 Refuses to replace populated inventory or an existing provider key.
 """
-import argparse, base64, copy, json, secrets
+import argparse, base64, copy, json, secrets, sys
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import quote
@@ -54,6 +54,7 @@ try:
     admin.search('| makeresults | eval entity_id="identity",name="Synthetic lab inventory probe",vertical="public_services",layer="shared",site="Synthetic site",owner="Synthetic owner",category="Identity",control_id="IA-2",depends_on="",enabled=1 | table entity_id name vertical layer site owner category control_id depends_on enabled | outputlookup facility_ops_live_inventory.csv')
     inventory = True
     from importlib.util import spec_from_file_location, module_from_spec
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'splunk_facility_operations/bin'))
     spec = spec_from_file_location('facility_test_tools', Path(__file__).resolve().parents[1] / 'splunk_facility_operations/bin/agent_tools.py')
     module = module_from_spec(spec); spec.loader.exec_module(module)
     rows = reader.search(module.compile_search(dict(context, mode='live'), 'snapshot'))

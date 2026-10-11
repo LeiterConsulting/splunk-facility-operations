@@ -2,6 +2,27 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Operational grounding release 0.1.3 (build 9)
+
+October 11, 2026. Audience-specific operational briefings now connect computed impact, dependency hypotheses, healthy counter-evidence, accountable teams and unknown coverage to focused assistant investigations. Dataset purpose, field meanings, audience and selected component accompany each provider request. Live context uses returned function names and does not supply an authored scenario root or action as evidence.
+
+| Check | Result |
+| --- | --- |
+| Type checking and local tests | Passed: 16 TypeScript and 42 Python checks, including all 96 vertical/use-case impact fixtures, role/focus validation, null metrics, timestamp handling, live grounding and truncation |
+| Compiled-bundle browser workflows | All 7 passed in one run; includes selected-component handoff, prepared question, computed receipt, upstream evidence, current-pass chronology, export and evidence drilldown |
+| Exact final archive | 23 regular files; byte-identical `.tar.gz`/`.spl`; reproducible; header-only inventory and no local overrides or custom Mako templates |
+| Enterprise 10.0.1 and 10.4.0 service checks | 8 passed per lab after final-package update; other apps' reported versions/enabled states preserved |
+| Native browser checks | 24 passed per lab, including real chrome, scoped Search, audience briefing, data guide, component handoff, computed evidence, current-pass chronology and presentation navigation |
+| Read-only native grounding checks | 12 passed per lab: generated live-pipeline fixtures for stale/missing/future evidence, null metrics, grouped reporting denominators, audience/focus context, computed impact and report scope |
+| Application JavaScript errors | Zero in both installed workflows |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures; 4 warnings and 1 skipped check |
+
+Installer SHA-256: `f3490e6ba809118ef422c421f31168c9a6403fca8f66dc04774c7e2b64be9cbf`. Existing deterministic provider settings, empty live inventory and live-LLM opt-in were preserved. No provider roles, connections or credentials were changed. The same SplunkJS telemetry, Python migration, cluster replication and Cloud role notices remain; the traditional package identity check is skipped.
+
+The [release manifest](validation/release-v0.1.3.json), service/UI/grounding receipts and [AppInspect summary](validation/release-v0.1.3-appinspect.json) identify the exact package. Native screenshot examples in the guides come from this installed 10.4 release. The [investigation walkthrough](investigation-workflows.md) explains expected facts and limitations.
+
+Real model inference remains separately qualified. Generated live-pipeline fixtures establish SPL behavior, not customer ingestion or source completeness. No new production-scale, Cloud/GovCloud, cluster or other-version claim is added. Actions are simulations; reports are drafts, and time-to-innocence improvements require measurement in the customer's proof of concept.
+
 ## Native Splunk chrome release 0.1.2 (build 8)
 
 October 11, 2026. The React workspace now runs inside a standard Simple XML 1.1 host with Splunk's real chrome. The custom Mako entry and imitation header were removed. Native chrome checks begin with this release; earlier installed-workflow receipts cover searches and application behavior. The screenshots in the README and guides now come from the installed 10.4 app.

@@ -1,6 +1,40 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 test.beforeEach(async ({ page }) => {
   page.on('pageerror', (error) => console.error('Application browser error:', error.message));
+});
+
+test('Operational briefing hands a component to the assistant and keeps receipt facts traceable', async ({ page }) => {
+  await page.goto('/?vertical=manufacturing&audience=engineering&usecase=facility');
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: '3 Impact', exact: true }).click();
+  const briefing = page.getByRole('region', { name: 'Operational briefing', exact: true });
+  await expect(briefing).toContainText('Cooling and environment');
+  await expect(briefing).toContainText('6 components at lower priority');
+  await briefing.getByText('What this dataset can answer', { exact: true }).click();
+  await expect(briefing).toContainText('Sensor thresholds, redundant capacity');
+  await page.getByRole('button', { name: 'Data platform, Degraded, inspect evidence', exact: true }).click();
+  await page.getByRole('button', { name: 'Investigate this component', exact: true }).click();
+  await expect(page.getByText('Focused on Data platform [database]', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Ask about the current operational context')).toHaveValue(/Data platform \[database\]/);
+  await page.getByRole('button', { name: 'Investigate', exact: true }).click();
+  const receipt = page.getByRole('region', { name: 'Retrieved evidence summary', exact: true });
+  await expect(receipt).toContainText('1 affected functions');
+  await expect(receipt).toContainText('260 reported waiting work');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export evidence', exact: true }).click();
+  const exported = JSON.parse(await readFile((await (await download).path())!, 'utf8'));
+  expect(exported.scope.entity_id).toBe('database');
+  expect(exported.assessment.candidate.entity.entity_id).toBe('cooling');
+  expect(exported.results.find((result: { kind: string }) => result.kind === 'dependencies').upstream.some((row: { entity_id: string }) => row.entity_id === 'cooling')).toBe(true);
+  expect(exported.results.find((result: { kind: string }) => result.kind === 'timeline').rows.every((row: { phase: number }) => row.phase <= 2)).toBe(true);
+  await receipt.getByRole('button', { name: 'Inspect Cooling and environment', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Current evidence and accountability', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Investigate this evidence', exact: true }).click();
+  await expect(page.getByText('Focused on Cooling and environment [cooling]', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Use whole scope', exact: true }).click();
+  await expect(page.getByLabel('Ask about the current operational context')).toHaveValue('');
+  await page.screenshot({ path: 'artifacts/browser-tests/focused-investigation.png', fullPage: true });
 });
 test('Component preview is explicit and workspace links support browser navigation', async ({ page }) => {
   await page.goto('/?vertical=retail&audience=executive&usecase=dependency#investigate');

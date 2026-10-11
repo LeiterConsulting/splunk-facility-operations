@@ -60,7 +60,7 @@ One observation describes one entity at an event time. Map existing telemetry in
 | `name`, `layer`, `site`, `owner`, `category` | Context consistent with inventory; layer is `mission`, `shared`, `infrastructure`, or `facility` |
 | `depends_on` | Optional event relationship field, consistent with inventory; semicolon-separated IDs |
 | `control_id`, `control_state` | Optional reviewed control association and evidence description; no automatic compliance assessment |
-| `latency_ms`, `queue_depth`, `temperature_c` | Optional normalized measures relevant to this entity |
+| `latency_ms`, `queue_depth`, `temperature_c` | Optional finite measures relevant to this entity. Missing or invalid values remain unreported, not zero. Latency/queue values must be nonnegative; temperature can be negative. Queue depth is waiting work per business function, with possible overlap across queues. |
 
 Inventory can supply context when an expected entity has no observation. Keep event time and evidence time truthful and synchronized. An old event cannot be made fresh by substituting an ingestion timestamp that hides its actual observation age. Missing numeric measures currently render as zero; those defaults are not measured zero values and should not be used to establish performance or business impact.
 
@@ -88,7 +88,11 @@ Inventory can supply context when an expected entity has no observation. Keep ev
 5. Compare a known current entity, a stale observation and an expected entity without telemetry. Missing events or events older than 180 seconds should appear unknown. Empty source plus empty inventory should show no signals. No synthetic fallback should appear.
 6. Investigate with the deterministic provider first. Review the trace and exported evidence against the source. Qualify a connected model separately using [assistant setup](assistant-setup.md).
 
-The live snapshot takes the latest fields per entity within the last hour, appends enabled inventory and marks absent or older-than-three-minute event observations unknown. Invalid or missing state also normalizes to unknown. Evidence age is displayed from `evidence_at`; review it alongside event freshness. Slow polling sources require a reviewed code/configuration change and revalidation; there is currently no settings-page freshness control.
+The live snapshot takes the latest fields per entity within the last hour and appends enabled inventory. Missing event/evidence times, either time older than three minutes, or either time over 30 seconds in the future make current state unknown. Invalid or missing state also normalizes to unknown. Supply `evidence_at` as numeric epoch seconds, and compare it with event freshness. Slow polling sources require a reviewed code/configuration change and revalidation; there is currently no settings-page freshness control.
+
+The assistant's receipt computes facts from up to 100 returned entities; a larger snapshot is explicitly marked truncated. Unresolved dependency IDs also limit its footprint. The selected use case supplies a question and data guide, not a claim that its demo incident occurred. Missing queue values are excluded with a reporting denominator; values from unknown functions are excluded. The combined total is waiting work across function queues, not unique customers, throughput or financial loss. See [field meanings and investigation workflows](investigation-workflows.md#what-the-data-means).
+
+Normalize queue observations to the selected vertical's displayed unit (for example orders in Retail and Commerce or work orders in Manufacturing). Only aggregate comparable function queues. If a source reports a different or mixed unit, map it explicitly or leave that metric unreported until the source contract is agreed.
 
 ## Practical limits
 

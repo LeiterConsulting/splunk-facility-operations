@@ -13,13 +13,18 @@ export function buildSearch(mode: Mode, vertical: string, usecase: string, clock
   const inventory = mode === 'live'
     ? ' | append [ | inputlookup facility_ops_live_inventory.csv | search enabled=1 vertical="' + vertical + '" | fields entity_id name layer site owner category control_id depends_on ]'
       + ' | stats max(_time) as _time values(state) as state values(reason) as reason max(latency_ms) as latency_ms max(queue_depth) as queue_depth max(temperature_c) as temperature_c values(control_state) as control_state max(evidence_at) as evidence_at values(phase) as phase values(usecase) as usecase values(name) as name values(layer) as layer values(site) as site values(owner) as owner values(category) as category values(control_id) as control_id values(depends_on) as depends_on by entity_id'
-      + ' | eval origin="live", state=if(isnull(_time) OR now()-_time>180,"unknown",state), reason=if(state="unknown","Missing or stale live telemetry",reason)'
+      + ' | eval origin="live", state=if(isnull(_time) OR now()-_time>180 OR _time>now()+30 OR isnull(evidence_at) OR now()-evidence_at>180 OR evidence_at>now()+30,"unknown",state), reason=if(state="unknown","Missing or stale live telemetry",reason)'
     : '';
   return base + latest + inventory + ' | eval vertical="' + vertical + '" | table _time entity_id name layer site owner category control_id depends_on state reason latency_ms queue_depth temperature_c control_state evidence_at origin vertical usecase phase';
 }
 export const isSplunk = () => /\/app\/splunk_facility_operations(?:\/|$)/.test(window.location.pathname);
 function scalar(value: unknown): string {
   return Array.isArray(value) ? String(value[0] ?? '') : String(value ?? '');
+}
+function metric(value: unknown, nonnegative = true): number | null {
+  const text = scalar(value);
+  const number = text ? Number(text) : NaN;
+  return Number.isFinite(number) && (!nonnegative || number >= 0) ? number : null;
 }
 export function normalizeResult(row: Record<string, unknown>, mode: Mode): Signal {
   const knownStates = ['healthy', 'warning', 'critical', 'recovering', 'unknown'];
@@ -37,8 +42,8 @@ export function normalizeResult(row: Record<string, unknown>, mode: Mode): Signa
     _time: Number.isFinite(eventTime) ? eventTime : 0,
     state: knownStates.includes(state) ? state as State : 'unknown',
     reason: scalar(row.reason) || 'No explanatory evidence supplied',
-    latency_ms: Number(row.latency_ms) || 0, queue_depth: Number(row.queue_depth) || 0,
-    temperature_c: Number(row.temperature_c) || 0, control_state: scalar(row.control_state) || 'Unreviewed',
+    latency_ms: metric(row.latency_ms), queue_depth: metric(row.queue_depth),
+    temperature_c: metric(row.temperature_c, false), control_state: scalar(row.control_state) || 'Unreviewed',
     evidence_at: Number(row.evidence_at) || 0, origin: mode, vertical: scalar(row.vertical),
     usecase: scalar(row.usecase), phase: Number(row.phase) || 0,
   };

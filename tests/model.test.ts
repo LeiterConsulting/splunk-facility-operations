@@ -80,7 +80,7 @@ test('The preview assistant investigates dependencies and exports traceable evid
   const result = investigateDemo('Investigate why the dependent functions are degraded', context, rows, 2000000000);
   assert.deepEqual(result.trace.map((trace) => trace.tool), ['inspect_scope', 'follow_dependencies', 'query_events']);
   assert.ok(result.answer.includes('hypothesis') && result.answer.includes('synthetic'));
-  assert.equal(result.results.find((result) => result.kind === 'timeline')?.rows.length, 80);
+  assert.equal(result.results.find((result) => result.kind === 'timeline')?.rows.length, 30);
 });
 test('The shipped cycle includes all verticals and scenarios and no named customer agencies', () => {
   const csv = readFileSync('splunk_facility_operations/lookups/facility_ops_demo_cycle.csv', 'utf8');

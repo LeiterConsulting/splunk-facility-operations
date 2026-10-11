@@ -3,9 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@splunk/react-ui/Button';
 import { createFetchInit } from '@splunk/splunk-utils/fetch';
 import { createRESTURL } from '@splunk/splunk-utils/url';
-import { demoHistory, dependents, impactSummary } from './model';
+import { demoHistory, dependents } from './model';
 import { buildSearch, isSplunk } from './search';
-import type { Mode, Signal } from './catalogue';
+import { audiences, getUsecase, getVertical, type Mode, type Signal } from './catalogue';
+import { audienceQuestion, guideFor } from './datasets';
+import { assessOperations, briefing, type Assessment } from './intelligence';
+import { DatasetPurpose, EvidenceReceipt, type InvestigationIntent } from './OperationsBriefing';
 
 export type ProviderId = 'demo' | 'ollama' | 'openai' | 'aitk';
 export type AgentSettings = {
@@ -15,13 +18,13 @@ export type AgentSettings = {
 };
 export const defaultSettings: AgentSettings = { provider: 'demo', model: '', ollama_url: 'http://127.0.0.1:11434', aitk_provider: 'Ollama', aitk_connection: '', reasoning_mode: 'adaptive', allow_live_llm: false, key_configured: false, can_configure: true };
 export const providerLabels: Record<ProviderId, string> = { demo: 'Deterministic demo assistant', ollama: 'Ollama', openai: 'OpenAI', aitk: 'Splunk AI Toolkit' };
-type Context = { mode: Mode; vertical: string; usecase: string; audience: string; clock: number };
-type Trace = { tool: string; query?: string; rows: number; mode: string; entity_id?: string };
-type Result = { kind: string; rows: unknown[]; query?: string; root?: string };
+type Context = { mode: Mode; vertical: string; usecase: string; audience: string; clock: number; entity_id?: string };
+type Trace = { tool: string; query?: string; rows: number; mode: string; entity_id?: string; truncated?: boolean };
+type Result = { kind: string; rows: unknown[]; query?: string; root?: string; truncated?: boolean; upstream?: Signal[] };
 type CallDetail = { turn: number; reasoning: string; duration_ms: number; usage: { input_tokens?: number; output_tokens?: number; total_tokens?: number }; think?: string | boolean };
 type ModelOption = { id: string; connection?: string; tools: boolean | null; thinking_values: (string | boolean)[]; reasoning_efforts?: string[]; capability_source: string };
 type ModelInventory = { models: ModelOption[]; source: string; message: string; truncated: boolean };
-type Answer = { calls?: CallDetail[]; answer: string; trace: Trace[]; results: Result[]; provider: string; model: string; mode: Mode; generated_at: number; scope: Context };
+type Answer = { assessment?: Assessment; calls?: CallDetail[]; answer: string; trace: Trace[]; results: Result[]; provider: string; model: string; mode: Mode; generated_at: number; scope: Context };
 type Message = { role: 'user' | 'assistant'; content: string; investigation?: Answer };
 
 export async function agentRequest(path: 'settings' | 'agent' | 'models', method: 'GET' | 'POST', body?: unknown, signal?: AbortSignal) {
@@ -40,25 +43,33 @@ export function investigateDemo(message: string, context: Context, signals: Sign
   const snapshotQuery = buildSearch('demo', context.vertical, context.usecase, context.clock);
   const trace: Trace[] = [{ tool: 'inspect_scope', query: snapshotQuery, rows: signals.length, mode: 'demo' }];
   const results: Result[] = [{ kind: 'snapshot', rows: signals, query: snapshotQuery }];
-  const summary = impactSummary(signals);
-  const critical = signals.find((item) => item.state === 'critical');
-  let interpretation = 'The current observations establish operating state. They do not independently establish the cause of an event.';
-  if (/cause|depend|why|impact|investigat|correlat/.test(lower)) {
-    if (critical) {
-      const affected = dependents(signals, critical.entity_id);
+  const assessment = assessOperations(signals, now);
+  const guide = guideFor(context.usecase);
+  const persona = audiences.find((item) => item.id === context.audience)!;
+  const vertical = getVertical(context.vertical);
+  const focus = signals.find((row) => row.entity_id === context.entity_id);
+  const root = focus ?? assessment.candidate?.entity;
+  if (context.entity_id && !focus) throw new Error('Selected component is not in the current investigation scope.');
+  if (/report|export|brief|review/.test(lower)) {
+    results.push({ kind: 'report', rows: signals }); trace.push({ tool: 'draft_report', rows: signals.length, mode: 'demo' });
+  }
+  let sequence = '';
+  if (/cause|depend|why|impact|investigat|correlat|sequence|timeline/.test(lower)) {
+    if (root) {
+      const affected = dependents(signals, root.entity_id);
       const rows = signals.filter((item) => affected.has(item.entity_id));
-      results.push({ kind: 'dependencies', rows, root: critical.entity_id });
-      trace.push({ tool: 'follow_dependencies', entity_id: critical.entity_id, rows: rows.length, mode: 'demo' });
-      interpretation = critical.name + ' is a candidate initiating dependency. The configured relationships connect it to ' + (rows.length - 1) + ' other components. Validate the first abnormal event and rule out independent faults before asserting causation.';
+      const upstream = new Set<string>(root.depends_on);
+      for (let index = 0; index < signals.length; index++) for (const item of signals) if (upstream.has(item.entity_id)) item.depends_on.forEach((id) => upstream.add(id));
+      results.push({ kind: 'dependencies', rows, root: root.entity_id, upstream: signals.filter((row) => upstream.has(row.entity_id) && row.entity_id !== root.entity_id) });
+      trace.push({ tool: 'follow_dependencies', entity_id: root.entity_id, rows: rows.length, mode: 'demo' });
     }
-    const rows = demoHistory(context.vertical, context.usecase, context.clock, now);
-    const query = '| `facility_ops_demo_events("' + context.vertical + '","' + context.usecase + '",' + context.clock + ')` | sort 100 - _time | table _time entity_id name state reason owner site';
-    results.push({ kind: 'timeline', rows, query });
-    trace.push({ tool: 'query_events', query, rows: rows.length, mode: 'demo' });
-  } else if (/report|export|brief/.test(lower)) {
-    results.push({ kind: 'report', rows: signals });
-    trace.push({ tool: 'draft_report', rows: signals.length, mode: 'demo' });
-  } else {
+    const rows = demoHistory(context.vertical, context.usecase, context.clock, now).filter((row) => row.phase <= Math.floor(context.clock % 360 / 45));
+    const query = '| `facility_ops_demo_events("' + context.vertical + '","' + context.usecase + '",' + context.clock + ')` | where phase<=' + Math.floor(context.clock % 360 / 45) + ' | sort 100 - _time | table _time entity_id name state reason owner site';
+    results.push({ kind: 'timeline', rows, query }); trace.push({ tool: 'query_events', query, rows: rows.length, mode: 'demo' });
+    const first = new Map<string, Signal>();
+    for (const row of rows) if (['critical', 'warning', 'recovering'].includes(row.state) && !first.has(row.entity_id)) first.set(row.entity_id, row);
+    sequence = '\n\nEarliest returned abnormal evidence (current replay pass)\n' + ([...first.values()].map((row) => new Date(row._time * 1000).toISOString() + ' · ' + row.name + ' [' + row.entity_id + '] · ' + row.state).join('\n') || 'No abnormal observations returned in this window.');
+  } else if (!results.some((item) => item.kind === 'report')) {
     const group = lower.includes('site') ? 'site' : lower.includes('state') ? 'state' : 'owner';
     const counts = new Map<string, number>();
     for (const signal of signals) counts.set(signal[group], (counts.get(signal[group]) || 0) + 1);
@@ -66,21 +77,27 @@ export function investigateDemo(message: string, context: Context, signals: Sign
     const query = snapshotQuery + ' | stats count as entities by ' + group;
     results.push({ kind: 'summary', rows, query }); trace.push({ tool: 'query_events', rows: rows.length, query, mode: 'demo' });
   }
-  const issues = signals.filter((item) => item.state !== 'healthy');
-  const evidence = issues.length ? issues.map((item) => '• ' + item.name + ' [' + item.entity_id + ']: ' + item.state + '. ' + item.reason).join('\n') : 'All ' + signals.length + ' observed entities are within expected operating ranges.';
+  const evidenceRows = [...new Map([...(focus ? [focus] : []), ...(assessment.candidate ? [assessment.candidate.entity] : []), ...assessment.affected_functions, ...assessment.unknown].map((row) => [row.entity_id, row])).values()];
+  const evidence = evidenceRows.map((row) => row.name + ' [' + row.entity_id + ']: ' + row.state + '; owner ' + row.owner + '; observed ' + new Date(row._time * 1000).toISOString() + '. ' + row.reason).join('\n') || 'No degraded or unknown components in this returned snapshot.';
+  const candidate = assessment.candidate;
   return {
-    answer: 'Observed evidence\n' + evidence + '\n\nOperational consequences\n' + summary.impacted + ' business functions affected; ' + summary.queue + ' queued work items; ' + summary.unknown + ' components with unknown state.\n\nInvestigation hypothesis\n' + interpretation + '\n\nRecommended next step\nInspect the source observations, check evidence age and ownership, then review the proposed action and recovery verification in the action workspace.\n\nEvidence limits\nThis is a deterministic assistant using a synthetic scenario. Correlation and dependency relationships are not proof of cause.',
-    trace, results, provider: 'demo', model: '', mode: 'demo', generated_at: now, scope: context,
+    answer: persona.label + ' operational brief\nDeterministic evidence analysis · DEMO\n\nPurpose\n' + guide.purpose + '\n' + persona.question + '\n\nDecision summary\n' + briefing(assessment, context.audience, vertical.unit) + '\n\nObserved evidence\n' + evidence + '\n\nOperational consequences\n' + assessment.affected_functions.length + ' of ' + assessment.functions + ' business functions need attention; ' + (assessment.queue === null ? 'waiting work unreported' : assessment.queue.toLocaleString() + ' ' + vertical.unit + ' waiting') + '; ' + assessment.queue_reporting + ' functions reporting.\n\nInvestigation hypothesis\n' + (candidate ? candidate.entity.name + ' [' + candidate.entity.entity_id + '] has a configured path to ' + candidate.affected.length + ' affected functions. Validate the initiating observation before asserting cause.' : 'No abnormal shared-dependency candidate was found. Do not infer a cause from a healthy or unverified snapshot.') + sequence + '\n\nNarrowing the investigation\n' + assessment.lower_priority.length + ' components have current healthy evidence outside the candidate footprint. Lower priority is not exoneration.\n\nAccountable next step\n' + guide.decision + '\nTeams with issues or evidence gaps: ' + (assessment.owners.join(', ') || 'none in the returned snapshot') + '\n\nEvidence still needed\n' + guide.needed + '\nThis is a synthetic scenario. Correlation is not causal proof. Queue depth is waiting work, not financial loss; measured time-to-innocence and SLA results are not supplied.',
+    assessment, trace, results, provider: 'demo', model: '', mode: 'demo', generated_at: now, scope: context,
   };
 }
-export function AgentWorkspace({ context, signals, settings, openSettings }: { context: Context; signals: Signal[]; settings: AgentSettings; openSettings: () => void }) {
+export function AgentWorkspace({ context, signals, settings, intent, inspect, clearFocus, openSettings }: { context: Context; signals: Signal[]; settings: AgentSettings; intent: InvestigationIntent | null; inspect: (id: string) => void; clearFocus: () => void; openSettings: () => void }) {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [question, setQuestion] = useState('');
+  const [question, setQuestion] = useState(intent?.question ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const pending = useRef<AbortController | null>(null);
-  const scopeKey = context.mode + ':' + context.vertical + ':' + context.usecase + ':' + context.audience;
-  useEffect(() => { pending.current?.abort(); setMessages([]); setError(''); setBusy(false); return () => pending.current?.abort(); }, [scopeKey]);
+  const scopeKey = context.mode + ':' + context.vertical + ':' + context.usecase + ':' + context.audience + ':' + (context.entity_id ?? '');
+  const intentQuestion = intent?.question ?? '';
+  const focus = signals.find((row) => row.entity_id === context.entity_id);
+  const guide = guideFor(context.usecase);
+  const scenario = getUsecase(context.usecase, context.vertical);
+  const persona = audiences.find((item) => item.id === context.audience)!;
+  useEffect(() => { pending.current?.abort(); pending.current = null; setMessages([]); setQuestion(intentQuestion); setError(''); setBusy(false); return () => { pending.current?.abort(); pending.current = null; }; }, [scopeKey, intentQuestion]);
   async function submit(value: string) {
     if (!value.trim() || busy) return;
     const history = messages.map(({ role, content }) => ({ role, content }));
@@ -96,19 +113,25 @@ export function AgentWorkspace({ context, signals, settings, openSettings }: { c
       } else {
         answer = await agentRequest('agent', 'POST', { message: value, context, history }, controller.signal) as Answer;
       }
-      if (!controller.signal.aborted) setMessages((items) => [...items, { role: 'assistant', content: answer.answer, investigation: answer }]);
+      if (!controller.signal.aborted && pending.current === controller) setMessages((items) => [...items, { role: 'assistant', content: answer.answer, investigation: answer }]);
     } catch (reason) {
-      if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : 'Investigation failed');
+      if (!controller.signal.aborted && pending.current === controller) setError(reason instanceof Error ? reason.message : 'Investigation failed');
       else if (pending.current === controller) setError('Investigation stopped. Refine the scope or retry.');
     } finally { window.clearTimeout(timer); if (pending.current === controller) setBusy(false); }
   }
-  const prompts = ['Investigate the current issue and its dependency impact', 'Show the event sequence and possible cause', 'Summarize the operational impact by owner', 'Create an executive incident report with evidence'];
+  const prompts = [
+    { label: 'Investigate the current issue and its dependency impact' + (focus ? ' · ' + focus.name : ''), question: 'Investigate ' + (focus ? focus.name + ' [' + focus.entity_id + ']' : 'the current issue') + ', upstream dependencies, downstream impact and evidence gaps. Dataset purpose: ' + guide.purpose },
+    { label: 'Show the event sequence and possible cause', question: 'Trace the event sequence and dependency hypothesis for this scope. Distinguish returned observations from possible causes and identify counter-evidence.' },
+    { label: 'Prepare a ' + persona.label.toLowerCase() + ' decision brief', question: audienceQuestion(context.audience, scenario, context.mode) },
+    { label: 'Find the evidence needed for ' + scenario.label, question: 'Review evidence gaps and accountable next steps. What can this dataset establish for ' + scenario.label + ', and what additional evidence is needed?' },
+  ];
   return <div className={uiClass("agent-layout")}><section className={uiClass("panel agent-chat")}><div className={uiClass("panel-heading")}><span className={uiClass("eyebrow")}>ASK, INVESTIGATE, EXPLAIN</span><h2>Operations investigation assistant</h2></div><div className={uiClass("agent-provider")}><span className={uiClass("source-dot")} />{providerLabels[settings.provider]}{settings.model && ' · ' + settings.model}<span>{context.mode.toUpperCase()} CONTEXT</span><Button appearance="subtle" onClick={openSettings}>Provider settings</Button></div>
-    {messages.length === 0 && <div className={uiClass("agent-welcome")}><div className={uiClass("agent-symbol")}>✧</div><h3>Talk to the operational evidence.</h3><p>Connect symptoms to dependencies, inspect the event sequence, and create a report you can trace back to observations.</p><div className={uiClass("prompt-grid")}>{prompts.map((prompt) => <button key={prompt} onClick={() => void submit(prompt)}>{prompt}<span>↗</span></button>)}</div></div>}
-    <div className={uiClass("chat-messages")} aria-live="polite">{messages.map((message, index) => <article key={index} className={uiClass('chat-message ' + message.role)}><span className={uiClass("mini-label")}>{message.role === 'user' ? 'YOU' : 'OPERATIONS ASSISTANT'}</span><div className={uiClass("answer-text")}>{message.content}</div>{message.investigation && <div className={uiClass("investigation-artifacts")}><div className={uiClass("tool-trace")}><strong>Investigation steps</strong>{message.investigation.trace.map((trace, step) => <details key={step}><summary><span>✓</span> {trace.tool.replaceAll('_', ' ')}<small>{trace.rows} evidence rows · {trace.mode}</small></summary>{trace.query ? <pre>{trace.query}</pre> : <p>Entity: {trace.entity_id || 'Current operational scope'}</p>}</details>)}</div>{Boolean(message.investigation.calls?.length) && <details><summary>Model calls and resource use</summary>{message.investigation.calls?.map((call) => <p key={call.turn}>Call {call.turn} · {call.reasoning.replaceAll('_', ' ')} · {(call.duration_ms / 1000).toFixed(1)} seconds{call.think !== undefined && ' · thinking: ' + String(call.think)}{call.usage.input_tokens !== undefined && ' · input tokens: ' + call.usage.input_tokens}{call.usage.output_tokens !== undefined && ' · output tokens: ' + call.usage.output_tokens}</p>)}</details>}<div className={uiClass("agent-exports")}><Button onClick={() => exportFile('operations-investigation.txt', message.content + '\n\nScope: ' + JSON.stringify(message.investigation!.scope) + '\nGenerated: ' + new Date(message.investigation!.generated_at * 1000).toISOString(), 'text/plain')}>Export report</Button><Button onClick={() => exportFile('operations-investigation.json', JSON.stringify(message.investigation, null, 2), 'application/json')}>Export evidence</Button><Button onClick={() => exportFile('operations-investigation.spl', message.investigation!.trace.filter((trace) => trace.query).map((trace) => trace.query).join('\n\n'), 'text/plain')}>Export searches</Button></div></div>}</article>)}</div>
+    {(focus || intentQuestion) && <div className={uiClass('investigation-focus')}><div><strong>{focus ? 'Focused on ' + focus.name + ' [' + focus.entity_id + ']' : 'Prepared investigation'}</strong><p>{focus ? focus.owner + ' · ' + focus.site + ' · scope-wide impact remains included' : 'Review the prepared question below, then investigate the selected scope.'}</p></div><Button appearance="subtle" onClick={clearFocus}>Use whole scope</Button></div>}
+    {messages.length === 0 && <div className={uiClass("agent-welcome")}><div className={uiClass("agent-symbol")}>✧</div><h3>Investigate with a purpose.</h3><p>{guide.purpose} Start with the {persona.label.toLowerCase()} decision: {persona.question}</p><div className={uiClass("prompt-grid")}>{prompts.map((prompt) => <Button key={prompt.label} disabled={busy || signals.length === 0} onClick={() => void submit(prompt.question)}>{prompt.label}</Button>)}</div></div>}
+    <div className={uiClass("chat-messages")} aria-live="polite">{messages.map((message, index) => <article key={index} className={uiClass('chat-message ' + message.role)}><span className={uiClass("mini-label")}>{message.role === 'user' ? 'YOU' : 'OPERATIONS ASSISTANT'}</span>{message.investigation?.assessment && <EvidenceReceipt assessment={message.investigation.assessment} inspect={inspect} />}<div className={uiClass("answer-text")}>{message.content}</div>{message.investigation && <div className={uiClass("investigation-artifacts")}><div className={uiClass("tool-trace")}><strong>Investigation steps</strong>{message.investigation.trace.map((trace, step) => <details key={step}><summary><span>✓</span> {trace.tool.replaceAll('_', ' ')}<small>{trace.rows} evidence rows · {trace.mode}{trace.truncated ? ' · truncated' : ''}</small></summary>{trace.query ? <pre>{trace.query}</pre> : <p>Entity: {trace.entity_id || 'Current operational scope'}</p>}</details>)}</div>{Boolean(message.investigation.calls?.length) && <details><summary>Model calls and resource use</summary>{message.investigation.calls?.map((call) => <p key={call.turn}>Call {call.turn} · {call.reasoning.replaceAll('_', ' ')} · {(call.duration_ms / 1000).toFixed(1)} seconds{call.think !== undefined && ' · thinking: ' + String(call.think)}{call.usage.input_tokens !== undefined && ' · input tokens: ' + call.usage.input_tokens}{call.usage.output_tokens !== undefined && ' · output tokens: ' + call.usage.output_tokens}</p>)}</details>}<div className={uiClass("agent-exports")}><Button onClick={() => exportFile('operations-investigation.txt', message.content + '\n\nScope: ' + JSON.stringify(message.investigation!.scope) + '\nGenerated: ' + new Date(message.investigation!.generated_at * 1000).toISOString(), 'text/plain')}>Export report</Button><Button onClick={() => exportFile('operations-investigation.json', JSON.stringify(message.investigation, null, 2), 'application/json')}>Export evidence</Button><Button onClick={() => exportFile('operations-investigation.spl', message.investigation!.trace.filter((trace) => trace.query).map((trace) => trace.query).join('\n\n'), 'text/plain')}>Export searches</Button></div></div>}</article>)}</div>
     {error && <div className={uiClass("message error")} role="alert">{error}</div>}{busy && <div className={uiClass("agent-busy")} role="status">Investigating the selected operational scope… <Button appearance="subtle" onClick={() => pending.current?.abort()}>Stop</Button></div>}
     <form className={uiClass("chat-compose")} onSubmit={(event) => { event.preventDefault(); void submit(question); }}><label htmlFor="investigation-question">Ask about the current operational context</label><div><textarea id="investigation-question" placeholder="What is affected, what changed, and what should we investigate next?" value={question} maxLength={6000} rows={3} onChange={(event) => setQuestion(event.target.value)} /><Button appearance="primary" disabled={busy || !question.trim()} type="submit">Investigate</Button></div><small>{settings.provider === 'demo' ? 'Deterministic demonstration · no LLM request' : 'Configured LLM · normalized scoped observations'} · Read-only investigation tools · Reports are drafts</small></form>
-  </section><aside className={uiClass("panel agent-context")}><div className={uiClass("panel-heading")}><span className={uiClass("eyebrow")}>INVESTIGATION SCOPE</span><h2>Context and boundaries</h2></div><dl><dt>Data source</dt><dd>{context.mode === 'demo' ? 'Recurring synthetic scenario' : 'Live Splunk telemetry'}</dd><dt>Authorized tools</dt><dd>Inspect scope<br />Follow dependencies<br />Query events<br />Draft a report</dd><dt>Search bounds</dt><dd>Current vertical · last 60 minutes · at most 100 result rows per tool</dd><dt>Execution</dt><dd>Up to three model-requested tools. No infrastructure changes or published reports.</dd><dt>Interpretation</dt><dd>Facts, correlations, and possible causes are distinguished. Missing telemetry is unknown.</dd></dl><p className={uiClass("small-note")}>The installed service reads evidence with the signed-in user's Splunk permissions. Conversation history and exports remain in this browser session.</p></aside></div>;
+  </section><aside className={uiClass("panel agent-context")}><div className={uiClass("panel-heading")}><span className={uiClass("eyebrow")}>INVESTIGATION SCOPE</span><h2>Context and boundaries</h2></div><p className={uiClass("context-purpose")}>{guide.purpose}</p><dl><dt>Decision lens</dt><dd>{persona.label} · {scenario.label}</dd><dt>Business functions</dt><dd>{signals.filter((row) => row.layer === 'mission').map((row) => row.name).join(', ') || 'No functions returned'}</dd><dt>Data source</dt><dd>{context.mode === 'demo' ? 'Recurring synthetic scenario' : 'Live Splunk telemetry'}</dd><dt>Authorized tools</dt><dd>Inspect scope<br />Follow dependencies<br />Query events<br />Draft a report</dd><dt>Search bounds</dt><dd>Current vertical · {context.mode === 'demo' ? 'current replay pass' : 'last 60 minutes'} · at most 100 result rows per tool</dd><dt>Execution</dt><dd>Up to three model-requested tools. No infrastructure changes or published reports.</dd><dt>Interpretation</dt><dd>Facts, correlations, and possible causes are distinguished. Missing telemetry is unknown.</dd></dl><DatasetPurpose usecase={context.usecase} /><p className={uiClass("small-note")}>The installed service reads evidence with the signed-in user's Splunk permissions. Conversation history and exports remain in this browser session.</p></aside></div>;
 }
 export function ProviderSettings({ settings, setSettings }: { settings: AgentSettings; setSettings: (settings: AgentSettings) => void }) {
   const [draft, setDraft] = useState(settings);

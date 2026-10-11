@@ -1,0 +1,115 @@
+{
+  "target": "PULSE_SPOKE1",
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "native_splunk_chrome_visible",
+      "passed": true
+    },
+    {
+      "name": "native_app_navigation_visible",
+      "passed": true
+    },
+    {
+      "name": "workspace_keyboard_focus_inside_app",
+      "passed": true
+    },
+    {
+      "name": "standard_view_without_custom_template",
+      "passed": true
+    },
+    {
+      "name": "search_handoff_keeps_app_and_scope",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "dashboard_selectors_hidden",
+      "passed": true
+    },
+    {
+      "name": "commercial_settings_and_native_search",
+      "passed": true
+    },
+    {
+      "name": "audience_operational_briefing",
+      "passed": true
+    },
+    {
+      "name": "dataset_purpose_and_limits",
+      "passed": true
+    },
+    {
+      "name": "native_search_page_runs_current_scope",
+      "passed": true
+    },
+    {
+      "name": "component_investigation_handoff",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "commercial_investigation_export",
+      "passed": true
+    },
+    {
+      "name": "computed_evidence_and_dataset_grounding",
+      "passed": true
+    },
+    {
+      "name": "current_pass_chronology",
+      "passed": true
+    },
+    {
+      "name": "receipt_evidence_drilldown",
+      "passed": true
+    },
+    {
+      "name": "commercial_facility_sites",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "presentation_preserves_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "presentation_investigation_navigation",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": false,
+  "static_cache_bump_status": 200,
+  "entry_http_status": 200,
+  "served_bundle_sha256": "229fe96573d65ddc71bd044675bdecac9bf4d881e1ff2e3e7cd1072e1a01269f",
+  "local_bundle_sha256": "8e5e7aef9fb0fbe3fd55d4baa7df91e7f99332bf64e32ce8fede4eb26517508b",
+  "candidate_bundle_in_served_asset": true,
+  "date": "2026-10-11",
+  "release": "v0.1.3",
+  "build": 9,
+  "package_filename": "splunk_facility_operations-0.1.3.tar.gz",
+  "package_sha256": "f3490e6ba809118ef422c421f31168c9a6403fca8f66dc04774c7e2b64be9cbf"
+}

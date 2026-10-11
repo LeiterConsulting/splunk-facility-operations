@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { verticals, usecases, phases, entitiesFor } from '../src/catalogue';
+import { audiences, verticals, usecases, phases, entitiesFor, usecasesFor } from '../src/catalogue';
+import { datasetGuides } from '../src/datasets';
 import { signalsForPhase } from '../src/model';
 const directory = 'splunk_facility_operations/lookups';
 mkdirSync(directory, { recursive: true });
@@ -11,5 +12,5 @@ function csv(value: unknown) {
 }
 writeFileSync(directory + '/facility_ops_demo_cycle.csv', fields.join(',') + '\n' + rows.map((row) => fields.map((field) => csv(row[field as keyof typeof row])).join(',')).join('\n') + '\n');
 if (!existsSync(directory + '/facility_ops_live_inventory.csv')) writeFileSync(directory + '/facility_ops_live_inventory.csv', 'entity_id,name,vertical,layer,site,owner,category,control_id,depends_on,enabled\n');
-writeFileSync('splunk_facility_operations/appserver/static/catalogue.json', JSON.stringify({ verticals, usecases, phases, entities: verticals.map((vertical) => ({ vertical: vertical.id, entities: entitiesFor(vertical.id) })) }));
+writeFileSync('splunk_facility_operations/appserver/static/catalogue.json', JSON.stringify({ audiences, verticals, usecases, phases, datasetGuides, scenarios: verticals.map((vertical) => ({ vertical: vertical.id, usecases: usecasesFor(vertical.id) })), entities: verticals.map((vertical) => ({ vertical: vertical.id, entities: entitiesFor(vertical.id) })) }));
 console.log('Generated ' + rows.length + ' recurring demo observations. Existing local inventory is preserved; release packages ship an empty inventory.');

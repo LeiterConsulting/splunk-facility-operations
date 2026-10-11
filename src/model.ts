@@ -35,9 +35,9 @@ export function signalsForPhase(verticalId: string, usecaseId: string, phase: nu
       : phase >= 6 && impact ? 'Recovery validated against fresh telemetry.' : 'Within the expected operating range.';
     return {
       ...entity, _time: time, state, reason, vertical: verticalId, usecase: usecaseId, origin: 'demo',
-      phase, latency_ms: state === 'critical' ? 1840 : state === 'warning' ? 680 : state === 'recovering' ? 280 : 84,
-      queue_depth: entity.layer === 'mission' && impact && phase >= 2 && phase <= 4 ? 146 + phase * 57 : phase === 5 && impact ? 48 : 0,
-      temperature_c: scenario.root === 'cooling' && phase >= 2 && phase <= 4 ? 33.7 : 21.4,
+      phase, latency_ms: entity.layer !== 'facility' && state !== 'unknown' ? (state === 'critical' ? 1840 : state === 'warning' ? 680 : state === 'recovering' ? 280 : 84) : null,
+      queue_depth: entity.layer === 'mission' && state !== 'unknown' ? (impact && phase >= 2 && phase <= 4 ? 146 + phase * 57 : phase === 5 && impact ? 48 : 0) : null,
+      temperature_c: entity.entity_id === 'cooling' ? (scenario.root === 'cooling' && phase >= 2 && phase <= 4 ? 33.7 : 21.4) : null,
       control_state: state === 'unknown' ? 'Evidence missing' : state === 'critical' ? 'Review required' : 'Evidence available',
       control_id: entity.control_id, evidence_at: state === 'unknown' ? time - 3600 : time,
     };
@@ -58,7 +58,7 @@ export function impactSummary(signals: Signal[]) {
     impacted: missions.filter((item) => item.state !== 'healthy' && item.state !== 'unknown').length,
     unknown: signals.filter((item) => item.state === 'unknown').length,
     critical: signals.filter((item) => item.state === 'critical').length,
-    queue: missions.reduce((sum, item) => sum + item.queue_depth, 0),
+    queue: missions.reduce((sum, item) => sum + (item.queue_depth ?? 0), 0),
     evidence: signals.length ? Math.round(signals.filter((item) => item.state !== 'unknown').length / signals.length * 100) : 0,
   };
 }

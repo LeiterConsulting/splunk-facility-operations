@@ -6,7 +6,7 @@ Start by identifying whether you are using the local preview or the installed ap
 
 | Symptom | What to check or do |
 | --- | --- |
-| Unsure which GitHub asset to download | Choose `splunk_facility_operations-0.1.2.tar.gz` from [release 0.1.2](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.2). It is the compiled installer. The automatic Source code downloads require a build. |
+| Unsure which GitHub asset to download | Choose `splunk_facility_operations-0.1.3.tar.gz` from [release 0.1.3](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.3). It is the compiled installer. The automatic Source code downloads require a build. |
 | Download became a folder or an uncompressed `.tar` | Download the named installer again and keep the `.tar.gz` compressed. Splunk's file upload expects the original archive. |
 | Upload rejected the file or the installed interface is empty | Confirm the filename is the named installer, not GitHub's Source code archive; compare its hash with `SHA256SUMS` and download it again if incomplete. Then check the exact Splunk upload error and supported deployment requirements. |
 | Splunk reports that the app already exists | Back up configuration and live inventory using the [upgrade procedure](getting-started.md#update-and-preserve-configuration), then intentionally select Upgrade app. |
@@ -57,8 +57,8 @@ If a request is denied with 401/403, confirm the session and the relevant Splunk
 | Symptom | Checks |
 | --- | --- |
 | No signals | Confirm the selected vertical, the live macro, index and sourcetype, `origin=live` predicate, event time in the last hour and enabled inventory. Empty source plus empty inventory produces no signals. Use the diagnostic searches in [live setup](live-data.md#verify-the-connection). |
-| Expected entities appear Unknown | This is correct for missing events or `_time` older than 180 seconds. Check ingestion, event timestamp parsing, server/source clock accuracy and sampling interval. |
-| Evidence age is missing or implausible | Supply `evidence_at` as numeric epoch seconds. Check for milliseconds, a text timestamp, source clock skew or an absent field. Event freshness and evidence age are separate checks. |
+| Expected entities appear Unknown | This is correct when event/evidence times are missing, older than 180 seconds or over 30 seconds in the future. Check ingestion, `_time`, numeric `evidence_at`, clock accuracy and sampling interval. |
+| Evidence age is missing or implausible | Supply `evidence_at` as numeric epoch seconds. Check for milliseconds, a text timestamp, source clock skew or an absent field. Both event and evidence times must meet the current-state freshness window. |
 | State is Unknown despite numeric measures | Supply one of the documented state values. The app does not independently infer health from latency, temperature or a queue count. |
 | Names, owners or edges look wrong | Compare inventory and event metadata by stable entity ID. Use semicolon-separated dependency IDs in the same vertical and resolve conflicting metadata at the source. |
 | A numeric field shows zero without a measurement | Missing measures currently default to zero in the interface. Treat that as a presentation default, not evidence of a measured zero. |

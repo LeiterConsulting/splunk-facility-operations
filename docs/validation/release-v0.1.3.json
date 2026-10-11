@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-11",
+  "release": "v0.1.3",
+  "source_tag": "v0.1.3",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.3",
+  "build": 9,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.3.tar.gz",
+      "size_bytes": 250789,
+      "sha256": "f3490e6ba809118ef422c421f31168c9a6403fca8f66dc04774c7e2b64be9cbf"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.3.spl",
+      "size_bytes": 250789,
+      "sha256": "f3490e6ba809118ef422c421f31168c9a6403fca8f66dc04774c7e2b64be9cbf"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "regular_archive_files": 23,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "custom_mako_templates_shipped": false,
+  "local_validation": {
+    "typecheck": "passed",
+    "model_search_preferences_tests_passed": 16,
+    "python_tests_passed": 42,
+    "browser_workflows_passed": 7,
+    "browser_method": "all seven workflows passed in one run against the exact compiled release bundle",
+    "provider_http_and_tool_responses": "mocked; no new real inference qualification"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "service_checks_passed_per_lab": 8,
+    "browser_checks_passed_per_lab": 24,
+    "page_errors": 0,
+    "native_chrome_outside_react_root": true,
+    "native_app_navigation": true,
+    "native_search_handoff_returned_scoped_results": true,
+    "presentation_retains_native_chrome": true,
+    "other_apps_reported_versions_and_enabled_states_preserved": true,
+    "model_configuration": "existing deterministic provider preserved; no provider settings, roles or connections changed",
+    "workspace_keyboard_focus_inside_app": true,
+    "read_only_grounding_checks_passed_per_lab": 12,
+    "dataset_purpose_audience_and_entity_focus": true,
+    "current_pass_demo_chronology": true,
+    "computed_evidence_receipt": true,
+    "live_pipeline_freshness_and_missing_metrics": "read-only generated fixtures on both versions; not customer source qualification"
+  },
+  "appinspect": {
+    "version": "4.3.1",
+    "mode": "precert",
+    "errors": 0,
+    "failures": 0,
+    "future_failures": 0,
+    "warnings": 4,
+    "skipped": 1
+  },
+  "qualifications": [
+    "Provider protocols and grounding handoff are mock-tested; no new real model inference or connection qualification.",
+    "Cloud/GovCloud, clusters, other versions, production scale and customer sources require separate qualification.",
+    "Action execution is simulated; reports are downloadable drafts and investigations are browser-session artifacts."
+  ]
+}

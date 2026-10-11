@@ -26,7 +26,7 @@ Opening statement: “This is a native Splunk app demonstrating the art of the p
 
 Do not equate synthetic phase changes with measured incident detection or recovery speed. Time-to-innocence improvement requires a [customer evaluation](operations-value.md#plan-a-customer-proof-of-concept).
 
-The [installed investigation screenshot](images/investigation.png) shows the assistant, evidence trace and draft exports inside native Splunk chrome.
+The [installed investigation screenshot](images/investigation.png) shows the assistant, computed evidence receipt, trace and draft exports inside native Splunk chrome. Use the [guided investigation workflow](investigation-workflows.md) to demonstrate the audience briefing, lower investigation priorities, dataset purpose and a component handoff.
 
 ## A ten-minute walkthrough
 
@@ -62,7 +62,7 @@ CISO means Chief Information Security Officer; ISSO means Information System Sec
 
 The six-minute cycle has eight 45-second phases: **Normal → Detect → Impact → Diagnose → Decision → Recover → Verify → Restored**. Local observations are reconstructed as the clock advances. Installed demo searches reconstruct the current timestamps from the phase clock; they do not wait for new indexed data. Searches refresh about every 15 seconds. **Pause** freezes the phase while evidence timestamps continue to refresh; **Resume** continues the story.
 
-To repeat a segment, choose its phase. To start a clean session, export anything needed, reload the page, select the context, then Pause and Normal. Reload clears conversation and decision state while retaining the remembered audience, industry and use case. Leaving the investigation view or applying new context clears its conversation. Settings drafts do not change the active scope until Apply presentation. Applying presentation context resets action policy to Observe and recommend and clears approval. **Share this view** shares audience, vertical and use case. It does not share the workspace page, data mode, evidence, conversation, decisions or a frozen replay phase.
+To repeat a segment, choose its phase. To start a clean session, export anything needed, reload the page, select the context, then Pause and Normal. Reload clears conversation and decision state while retaining the remembered audience, industry and use case. Leaving the investigation view or changing its scope/focus clears its conversation. Settings drafts do not change the active scope until Apply presentation. Applying presentation context resets action policy to Observe and recommend and clears approval. **Share this view** shares audience, vertical, use case and the workspace page. It does not share the data mode, evidence, conversation, decisions or a frozen replay phase.
 
 If a provider fails, an administrator can explicitly select **Deterministic demo assistant**, choose **Save provider settings**, and test the saved choice. In the preview, save the deterministic choice locally. Switching the data source to Demo alone does not switch the provider. See [troubleshooting](troubleshooting.md) if a search or provider is unavailable.
 
@@ -72,8 +72,10 @@ If a provider fails, an administrator can explicitly select **Deterministic demo
 
 - Investigate the current issue and its dependency impact.
 - Show the event sequence and possible cause.
-- Summarize the operational impact by owner.
-- Create an executive incident report with evidence.
+- Prepare the selected audience's decision brief (the starter changes with the audience).
+- Find the evidence needed for the selected use case (the starter changes with the scenario).
+
+You can also type **Summarize the operational impact by owner** or **Create an executive incident report with evidence**. A component handoff preloads its question without sending it; review and choose **Investigate**. Chronology uses only observations through the selected phase of the current demo pass. Current evidence, queue reporting denominators and dataset limits stay explicit.
 
 These intent families work with the deterministic assistant. A connected model can choose among the same allowed tools; inspect its actual trace when presenting. Ad hoc work currently means bounded queries, summaries and draft exports. Unrestricted SPL authoring, saved report publishing, durable investigations and production remediation are future capabilities.
 

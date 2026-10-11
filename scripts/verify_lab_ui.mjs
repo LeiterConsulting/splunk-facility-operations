@@ -99,6 +99,10 @@ try {
   await page.getByText('Customer and fulfillment sign-in latency', { exact: true }).waitFor();
   check('commercial_settings_and_native_search', (await page.getByLabel('Current presentation context').innerText()).includes('Retail and Commerce'));
   await page.screenshot({ path: output + '/commercial-situation.png', fullPage: true });
+  const briefing = page.getByRole('region', { name: 'Operational briefing', exact: true });
+  check('audience_operational_briefing', (await briefing.innerText()).includes('Online checkout') && (await briefing.innerText()).includes('6 components at lower priority'));
+  await briefing.getByText('What this dataset can answer', { exact: true }).click();
+  check('dataset_purpose_and_limits', (await briefing.innerText()).includes('Request traces, independent application telemetry'));
   receipt.stage = 'search_handoff';
   const [searchPage] = await Promise.all([
     page.waitForEvent('popup'),
@@ -109,8 +113,10 @@ try {
   await searchPage.close();
   receipt.stage = 'investigation';
   await page.screenshot({ path: output + '/situation.png', fullPage: true });
-  await clickButton('Investigation assistant');
-  await clickButton(/^Investigate the current issue and its dependency impact/);
+  await clickButton('Investigate priority');
+  await page.getByText('Focused on Shared identity [identity]', { exact: true }).waitFor();
+  check('component_investigation_handoff', (await page.getByLabel('Ask about the current operational context').inputValue()).includes('[identity]'));
+  await clickButton('Investigate');
   await page.getByText('Investigation steps', { exact: true }).waitFor();
   check('installed_investigation_service', true);
   const downloading = page.waitForEvent('download');
@@ -118,6 +124,9 @@ try {
   const download = await downloading;
   const evidence = JSON.parse(readFileSync(await download.path(), 'utf8'));
   check('commercial_investigation_export', evidence.scope.vertical === 'retail' && evidence.scope.audience === 'executive' && evidence.results.some((result) => result.rows.some((row) => row.name === 'Online checkout')));
+  check('computed_evidence_and_dataset_grounding', evidence.scope.entity_id === 'identity' && evidence.assessment.queue === 520 && evidence.assessment.observed === 9 && evidence.knowledge.audience.id === 'executive' && evidence.knowledge.vertical.unit === 'orders');
+  check('current_pass_chronology', evidence.results.find((result) => result.kind === 'timeline').rows.every((row) => Number(row.phase) <= 2));
+  check('receipt_evidence_drilldown', await page.getByRole('region', { name: 'Retrieved evidence summary', exact: true }).isVisible());
   await page.screenshot({ path: output + '/investigation.png', fullPage: true });
   receipt.stage = 'manufacturing';
   await clickButton('Presentation settings');

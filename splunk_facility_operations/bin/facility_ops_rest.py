@@ -175,6 +175,7 @@ class FacilityOperations(PersistentServerConnectionApplication):
                 "mode": investigation.context["mode"], "generated_at": time.time(),
                 "trace": investigation.trace, "results": investigation.results,
                 "scope": investigation.context, "user": user,
+                "assessment": investigation.assessment, "knowledge": investigation.knowledge(),
                 "calls": provider.diagnostics if settings["provider"] != "demo" else [],
             })
         except RequestError as error:

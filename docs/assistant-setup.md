@@ -44,14 +44,20 @@ A connected model receives the question, bounded recent conversation and normali
 
 | Tool | Purpose |
 | --- | --- |
-| Inspect scope | Review current entity state, ownership and evidence |
-| Follow dependencies | Traverse supplied relationships and identify potentially affected entities |
-| Query events | Run constrained snapshot, timeline or grouped summary searches |
-| Draft a report | Produce an evidence payload for a downloadable draft |
+| Inspect scope | Review the validated audience, selected component, dataset purpose, field meanings and computed assessment |
+| Follow dependencies | Inspect a returned component, upstream dependencies, downstream footprint and unresolved inventory references |
+| Query events | Run constrained snapshots, current-pass demo chronology or last-hour live chronology, and grouped summaries; disclose truncation |
+| Draft a report | Assemble an audience-specific packet of facts, scope and limitations for a downloadable draft |
 
 The installed service takes an initial snapshot, then allows up to three model-requested tool executions across at most four model turns. Searches use validated templates and scope; supplied model text cannot become arbitrary executable SPL. The deterministic provider selects a fixed investigation path for supported intent families.
 
+Every investigation begins with computed facts and the selected dataset's interpretation guide. Providers receive the audience decision question, normalized observations, scope-wide affected functions, queue reporting denominators, evidence gaps and a candidate dependency footprint. Live investigations receive the use-case lens without an authored root cause or proposed demo action. The assistant must identify additional evidence needed for a decision; status alone does not establish compromise, compliance, an SLA result or financial loss.
+
+Use **Investigate priority**, **Investigate this component**, **Investigate this evidence** or **Review with assistant** to carry the current operational question into chat. A handoff prepares the question; review it and choose **Investigate** to submit. The evidence receipt is computed from retrieved rows and frozen to that investigation. It is separate from model prose, and its links inspect current component evidence. See the [guided workflow](investigation-workflows.md).
+
 Exports are text reports, JSON evidence and SPL traces. The assistant does not publish saved reports, retain a server conversation database or change infrastructure. Conversation and decision state are held in the current page session; export needed drafts before leaving the investigation view, reloading or applying new context. Action workspace execution is a separate simulation.
+
+JSON exports also retain the computed assessment and dataset guide. The service validates the optional focus ID against its returned snapshot; a focus does not widen search permissions. Each tool returns at most 100 rows. A truncated result or missing dependency record makes the footprint incomplete. The current-state freshness window is 180 seconds for both event and evidence times, with observations over 30 seconds in the future treated as unknown. Historical chronology retains the state observed at the event time.
 
 ## Qualify a model before presenting it
 
@@ -81,6 +87,6 @@ The evidence export includes per-turn elapsed time, applied reasoning policy and
 - [Ollama model inventory](https://docs.ollama.com/api/tags), [model details](https://docs.ollama.com/api-reference/show-model-details), [tool calling](https://docs.ollama.com/capabilities/tool-calling) and [thinking controls](https://docs.ollama.com/capabilities/thinking).
 - [AI Toolkit 6.1 connections](https://help.splunk.com/en/splunk-enterprise/apply-machine-learning/use-ai-toolkit/6.1.0/ai-toolkit-connections-containers-and-agents/connections-in-the-ai-toolkit) and [ai command and capabilities](https://help.splunk.com/en/splunk-enterprise/apply-machine-learning/use-ai-toolkit/6.1.0/ai-toolkit-commands-macros-and-visualizations/about-the-ai-command). The version-specific `/mltk/aicommander` GET inventory is verified against the official 6.1.0 installer contract; it is not a promise of a stable cross-version public API. Upgrade qualification must check the response shape before relying on discovery.
 
-Guidance reviewed October 7, 2026. Provider catalogs and model controls can change independently of this app release.
+Function descriptions and evidence-grounding guidance reviewed October 11, 2026 against the official OpenAI function-calling guide. The implementation keeps four constrained tools, validates scope at execution, and computes facts in code before asking a model to explain them. Provider catalogs and model controls can change independently of this app release.
 
 Current lab qualification: app Settings/discovery error handling is exercised on Enterprise 10.0.1 and 10.4.0. The 10.0 lab's installed toolkit connection service returned an error; the 10.4 lab caller lacked its read capability. Successful configured toolkit inventory parsing is mock-tested, not qualified against a working lab connection. Manual entry remains available, but actual inference also requires a functioning toolkit and the appropriate role.
