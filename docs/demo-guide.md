@@ -1,84 +1,71 @@
 # Facility Operations presentation guide
 
-Present a complete operations story: observe an interruption, identify its consequences, narrow the investigation, review a decision, and verify recovery. Choose a business function your audience recognizes. The same evidence supports an engineering investigation, a security discussion and an executive briefing.
+Start with **Start guided walkthrough**. The app opens at a paused business baseline, and eight steps bring each change into view. A pinned guide explains the current evidence, highlights the relevant area and supplies Next/Back controls. Presenters do not need to memorize which panel changes or scroll ahead of the replay.
 
-For the value discussion and customer success measures, use [operations value](operations-value.md). For terminology, use the [glossary](glossary.md).
+For business value and evaluation measures, use [operations value](operations-value.md). For concrete clinical, manufacturing and retail examples, use [industry scenarios](industry-scenarios.md).
+
+![Guided impact step with highlighted evidence and native Splunk chrome](images/guided-demo.png)
 
 ## Prepare and rehearse
 
-1. Open **Facility Operations** inside Splunk Web. Confirm Splunk's native bar and the app's **Operations workspace**, **Search** and **Demo guide** navigation. The [developer component preview](getting-started.md#build-and-preview-from-source) is for development checks; use the installed app for a Splunk proof-of-concept presentation. Choose **Demo** and confirm **LOOPING DEMO** and synthetic evidence labels.
-2. Use **Deterministic demo assistant** for a presentation that does not depend on model connectivity. In an installed app, an administrator selects this in **Settings**, saves it and chooses **Test saved connection**. Demo data and provider choice are separate settings.
-3. In **Settings → Presentation setup**, choose **Operations**, **Public Services and Benefits**, and **Enterprise Dependency Disruption**, then **Apply presentation**. Choose **Pause**, then **Normal**. In Splunk, allow the refresh to complete.
-4. Rehearse **Impact**, the investigation prompt and one export. Return to **Normal** before presenting.
-5. Choose **Present** if you want more space for the workspace. It exposes a **Workspace view** selector when the sidebar is hidden. **Exit presentation** returns the regular navigation. Splunk's own chrome stays visible in both modes.
+1. Open **Facility Operations** inside Splunk Web. Confirm the native Splunk bar and app navigation. Use the installed app for a Splunk proof-of-concept presentation; the local [component preview](getting-started.md#build-and-preview-from-source) is for development.
+2. In **Settings → Presentation setup**, choose the audience, industry and use case, then **Apply presentation**. These choices also supply the walkthrough's business context, dependency, owners and decision questions.
+3. Select **Demo**, then **Start guided walkthrough**. The guide starts at Normal, pauses the scenario and brings the relevant business card into view. It uses an observe/recommend policy and clears a prior demo approval; it does not change the configured model connection.
+4. Advance with **Next**. **Back** and the numbered steps let you revisit a point. **Show highlighted evidence** returns the camera to its target after you explore or scroll away. The workspace scrolls inside the installed Splunk frame while the guide is active.
+5. The assistant step prepares a question for review. Choose **Investigate** to use the saved provider. With the deterministic provider, no external model is needed. With a connected provider, this is the explicit point at which inference starts. Use **Next: Decision** to skip an investigation you do not want to run.
+6. Rehearse the final **Download story evidence**. It contains the normalized observations and SPL from stages actually visited. Download an assistant report/evidence separately before leaving its step.
 
-Opening statement: “This is a native Splunk app demonstrating the art of the possible with synthetic operational evidence. We will follow an interruption from business impact to evidence and the next operational decision. The same workflow can be evaluated against your own functions and observations.”
-
-For complete clinical, manufacturing and retail stories with exact expected observations, comparable systems and research references, use [Industry operating scenarios](industry-scenarios.md). Start with business completion, compare diagnostic evidence, then explore the dependency map.
+Opening statement: “This is a native Splunk proof of concept using synthetic operating evidence. We will follow one business interruption from its first signal to its consequences, an investigation, a decision and the checks needed for recovery.”
 
 ## A five-minute walkthrough
 
-| Step | Show | Say | Expected result |
-| --- | --- | --- | --- |
-| 1. Establish context | Normal in Situation room | “These functions rely on shared technology and physical conditions.” | Named business handoffs, completed/attempted counts, p95 and authored objectives are visible |
-| 2. Establish impact | Impact; open Dependencies; select Benefits access broker | “A shared dependency can create symptoms across several services.” | Benefits access broker is critical; dependent paths and evidence are visible |
-| 3. Narrow the investigation | Investigation assistant → Investigate the current issue and its dependency impact | “We can inspect scope, relationships and chronology, and explain the next owner to engage.” | Response with expandable investigation steps, row counts and bounded searches |
-| 4. Explain time to innocence | Expand a search and discuss current observations outside the affected path | “This helps teams narrow candidates with evidence. Missing observations still need investigation.” | Source, time window and limits can be reviewed; no automatic clearance claim |
-| 5. Brief the decision | Export report or Export evidence; apply Executive in Settings | “An investigation and a business briefing can use the same evidence.” | Downloaded draft or JSON, followed by a consequence-focused view |
+| Step | What comes into view | Conversation |
+| --- | --- | --- |
+| 1. Baseline | A business handoff's normal completion, response and waiting work | What does this organization need to complete, and what counts as success? |
+| 2. First signal | The use case's diagnostic row | A dependency signal changes before business handoffs degrade in this authored story. What should be checked next? |
+| 3. Business impact | An affected business card and the returned measures | Which handoffs are delayed? Which continue? Compare completion and response with the supplied demo objectives. |
+| 4. Dependency | The map, with the scenario component selected | Which configured path could explain the symptoms, and which team owns the next check? A path is a hypothesis, not causal proof. |
+| 5. Investigate | A prepared assistant question; activity and response after submission | Review the question, then Investigate. Watch searches and model/tool activity, compare the answer with its evidence and export a useful brief. |
+| 6. Decision | The scope, evidence, rollback and approval runbook | What can proceed, what needs review and what independent evidence is missing? Next previews recovery; it does not approve or execute a plan. |
+| 7. Recover | Improving completion and response, with work still waiting | Improvement alone is not recovery. Check the queue and completion objective. |
+| 8. Verify | Fresh synthetic recovery observations | Reconcile the named handoff with the accountable source. Download the visited-stage evidence, restart, finish or choose another presentation. |
 
-Do not equate synthetic phase changes with measured incident detection or recovery speed. Time-to-innocence improvement requires a [customer evaluation](operations-value.md#plan-a-customer-proof-of-concept).
-
-The [installed investigation screenshot](images/investigation.png) shows the assistant, computed evidence receipt, trace and draft exports inside native Splunk chrome. Use the [guided investigation workflow](investigation-workflows.md) to demonstrate the audience briefing, lower investigation priorities, dataset purpose and a component handoff.
+The guide advances only after all expected demo entities have returned the selected stage. During a refresh, its evidence summary stays empty until matching results arrive. If a stage cannot load, use **Retry stage search** or **Exit guide**. It does not invent a successful search or advance on a timeout.
 
 ## A ten-minute walkthrough
 
-1. Complete steps 1–3 above. Choose **Detect**, **Impact**, and **Diagnose** to explain the authored sequence. Pause keeps you in control of the story.
-2. Choose **Open current search in Splunk** to show the same scoped evidence in the native Search page. Return to the workspace tab, show the assistant's investigation steps, then **Export searches**. Explain that the service executes constrained read-only searches with the signed-in user's permissions. A report is a downloadable draft.
-3. Open **Presentation settings**, select **Executive**, then **Apply presentation** to brief consequences. Repeat with **ISSO** or **Audit and Oversight** to open **Evidence and controls**; point out the deliberately unknown physical-access observation. Apply **Change Control Board** to open **Change readiness**. These are audience lenses, not role or permission changes.
-4. Apply **Operations** in Presentation setup, open **Action workspace**, and choose **Supervised execution**. Once affected-path evidence is fresh, choose **Record demo approval**, then **Run simulation**. The replay moves to **Recover**, and the decision history records a simulation.
-5. Choose **Verify**, then **Restored**. Discuss which independent customer observations would be needed to confirm actual recovery. Decisions remain in this browser session.
-6. In Presentation setup, change the use case to **Cyber and Physical Continuity**, choose **Apply presentation**, then **Impact**, and trace cooling through the data platform to business functions. Open **Sites and facilities** to connect digital consequences with site conditions.
-7. Open **Settings** to discuss provider options. Real model inference requires an installed, tested connection; the deterministic provider demonstrates the investigation workflow without calling a model.
+Complete the eight steps and spend more time on the assistant and decision:
 
-## An optional autonomy discussion
+1. In Investigate, review the prepared audience question and submit it. The guide moves the highlight to actual activity and the response. Next/Back/step jumping stay disabled while the investigation runs. Wait for completion or use **Stop**. No query or model request starts merely because you entered the step.
+2. Inspect a returned component citation, chronology and tool searches. Discuss healthy counter-evidence and missing observations before asserting cause. Use **Export report**, **Export evidence** and **Export searches** before advancing.
+3. In Decision, review the runbook with the audience. The default guide previews authored recovery when you choose Next. To demonstrate a recorded simulation, deliberately select the supervised policy, review its gate, record demo approval and run the simulation. Successful simulation advances the guide to Recover; no external infrastructure changes.
+4. In Verify, discuss the independent source reconciliation needed for a real incident. Queue entries may overlap and a workflow acknowledgement is not final settlement, fulfillment or a clinical outcome.
+5. Download **operations-guided-story.json**. It records visited stage IDs, phase clocks, capture times, normalized observations and executed dashboard SPL. Skipped stages are not fabricated; restarting clears the previous walkthrough's stage snapshots. Assistant narratives are separate downloads.
 
-In Presentation setup, choose **Governed Autonomous Operations** and **Apply presentation**, then open **Action workspace**, and select **Bounded automatic simulation**. With fresh affected-path evidence, advance to **Decision**. The allowlisted standby-pool simulation runs once in that scenario cycle and moves to **Recover**.
+Time-to-innocence, recovery speed and financial savings require a [customer evaluation](operations-value.md#plan-a-customer-proof-of-concept). Replay duration and authored phase transitions are not measured improvements.
 
-Discuss scope, evidence, permission, rollback and verification. Other scenarios require supervised review. A missing or stale signal in the affected path blocks simulation; the deliberately unknown physical-access signal is outside the identity recovery path. No external action runs in any policy.
+## Explore freely or use the continuous loop
 
-## Choose the audience emphasis
+**Exit guide** or **Finish walkthrough** removes the highlight and arrow and leaves the current phase paused. The same workspaces, source inspection and assistant remain available.
 
-| Audience | Emphasis |
+Choose **Play continuous loop** to run the eight-phase replay without guided camera movement. Use **Pause**, phase buttons and **Resume** for a manually controlled demonstration. A link with `replay=loop` explicitly starts this playback style; default links open a paused baseline. **Present** still retains native Splunk chrome and offers a workspace selector when the sidebar is hidden.
+
+Opening another workspace during a guide does not force you back. **Return to this step** restores its view and evidence target. Applying another presentation ends the current guide and returns guided playback to its baseline. Switching to **Live** ends the walkthrough; authored phase controls and guide actions are unavailable in Live.
+
+## Keyboard and compact screens
+
+Use Tab/Shift+Tab and Enter for ordinary buttons. The guide announces the current step, focuses its heading on advancement, and supports Escape while focus is inside its controls. It is a nonmodal guide; the workspace and native Splunk navigation remain usable. Reduced-motion preference removes the arrival animation and smooth scrolling.
+
+On compact screens the guide keeps its controls visible, uses the same automatic evidence positioning and outline, and omits the connecting arrow to reduce obstruction. Detailed operating context is available in **Presenter notes**.
+
+## If the presentation needs attention
+
+| Symptom | Check |
 | --- | --- |
-| Operations | Affected functions, dependencies, owner, next action and recovery evidence |
-| Engineering | Component observations, chronology, possible cause, change and rollback |
-| Security and CISO | Containment consequences, exposure, missing evidence and risk ownership |
-| Executive | Continuity, waiting work, prioritization and a concise reviewed briefing |
-| ISSO and Audit and Oversight | Evidence age, attribution, control associations and gaps |
-| Change Control Board | Impact, approval gates, rollback and verification |
-| Facilities and Continuity | Power, cooling, access, site connectivity and downstream services |
+| Nothing advances automatically | The default guided demo is intentionally paused. Choose Start guided walkthrough and Next, or Play continuous loop. |
+| Next is disabled | Wait for matching stage evidence or for the active investigation. Retry a failed search; stop an investigation explicitly if needed. |
+| You explored away from the highlighted view | Choose Return to this step or Show highlighted evidence. |
+| A model is unavailable | Exit to Settings and test the saved connection. The deterministic provider can demonstrate evidence analysis without external inference. |
+| Live is empty | Onboard inventory and normalized sources using the [live guide](live-data.md). Empty coverage remains unknown. |
 
-CISO means Chief Information Security Officer; ISSO means Information System Security Officer. A Change Control Board is commonly abbreviated CCB. These functions may have different titles in a customer's organization.
-
-## Replay, resets and recovery
-
-The six-minute cycle has eight 45-second phases: **Normal → Detect → Impact → Diagnose → Decision → Recover → Verify → Restored**. Local observations are reconstructed as the clock advances. Installed demo searches reconstruct the current timestamps from the phase clock; they do not wait for new indexed data. Searches refresh about every 15 seconds. **Pause** freezes the phase while evidence timestamps continue to refresh; **Resume** continues the story.
-
-To repeat a segment, choose its phase. To start a clean session, export anything needed, reload the page, select the context, then Pause and Normal. Reload clears conversation and decision state while retaining the remembered audience, industry and use case. Leaving the investigation view or changing its scope/focus clears its conversation. Settings drafts do not change the active scope until Apply presentation. Applying presentation context resets action policy to Observe and recommend and clears approval. **Share this view** shares audience, vertical, use case and the workspace page. It does not share the data mode, evidence, conversation, decisions or a frozen replay phase.
-
-If a provider fails, an administrator can explicitly select **Deterministic demo assistant**, choose **Save provider settings**, and test the saved choice. In the preview, save the deterministic choice locally. Switching the data source to Demo alone does not switch the provider. See [troubleshooting](troubleshooting.md) if a search or provider is unavailable.
-
-**Live** uses the configured source and expected inventory. A local preview cannot search live data. An installed empty source produces no signals, or unknown expected entities when inventory is present. Live never falls back to synthetic evidence, and all execution controls remain simulations or unavailable.
-
-## Useful investigation prompts
-
-- Investigate the current issue and its dependency impact.
-- Show the event sequence and possible cause.
-- Prepare the selected audience's decision brief (the starter changes with the audience).
-- Find the evidence needed for the selected use case (the starter changes with the scenario).
-
-You can also type **Summarize the operational impact by owner** or **Create an executive incident report with evidence**. A component handoff preloads its question without sending it; review and choose **Investigate**. Chronology uses only observations through the selected phase of the current demo pass. Current evidence, queue reporting denominators and dataset limits stay explicit.
-
-These intent families work with the deterministic assistant. A connected model can choose among the same allowed tools; inspect its actual trace when presenting. Ad hoc work currently means bounded queries, summaries and draft exports. Unrestricted SPL authoring, saved report publishing, durable investigations and production remediation are future capabilities.
-
-End by agreeing a customer function, evidence sources and one decision to evaluate. For a commercial audience, use the [cross-sector discovery questions](operations-value.md#use-the-conversation-across-sectors); use the [commercial walkthroughs](commercial-demo.md) for the available industry stories.
+Use [troubleshooting](troubleshooting.md) for installation, caches, provider connectivity and data-contract checks.

@@ -58,7 +58,7 @@ try {
     receipt.static_cache_bump_status = (await acknowledged).status();
   }
   receipt.stage = 'app';
-  const entry = await page.goto(origin + '/en-US/app/splunk_facility_operations/facility_operations?vertical=public_services&audience=operations&usecase=dependency', { waitUntil: 'commit' });
+  const entry = await page.goto(origin + '/en-US/app/splunk_facility_operations/facility_operations?vertical=public_services&audience=operations&usecase=dependency&replay=loop', { waitUntil: 'commit' });
   receipt.entry_http_status = entry.status();
   const entryHTML = await entry.text();
   receipt.entry_script_paths = (entryHTML.match(/<script[^>]+src=["'][^"']+/g) || []).map((tag) => tag.split(/src=["']/)[1]).map((url) => new URL(url, origin).pathname);

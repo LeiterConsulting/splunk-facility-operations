@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@splunk/react-ui/Button';
 import ButtonGroup from '@splunk/react-ui/ButtonGroup';
 import { createURL } from '@splunk/splunk-utils/url';
-import { audiences, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
+import { audiences, entitiesFor, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
 import { demoSnapshot, dependents, impactSummary, phaseAt } from './model';
 import { buildSearch, isSplunk, searchSignals } from './search';
 import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings } from './AgentWorkspace';
@@ -13,6 +13,8 @@ import { OperationsBriefing, type InvestigationIntent } from './OperationsBriefi
 import { Picker, PresentationSettings } from './PresentationSettings';
 import { loadPresentation, PRESENTATION_KEY, type Presentation } from './presentation';
 import { ObservationDetails, OperationalDecision, OperationalDiagnostics, OperationalEvidence, OperationalOverview, SystemReference } from './OperationalWorkspace';
+import { GuidedDemo } from './GuidedDemo';
+import { guidedSteps, guideQuestion } from './demoStory';
 
 type View = 'situation' | 'dependencies' | 'facility' | 'actions' | 'change' | 'evidence' | 'investigate' | 'settings';
 type Policy = 'observe' | 'supervised' | 'automatic';
@@ -87,9 +89,14 @@ export function App() {
     setViewState(value);
   }
   const [mode, setMode] = useState<Mode>('demo');
+  const [playback, setPlayback] = useState<'guided' | 'explore' | 'loop'>(() => new URLSearchParams(window.location.search).get('replay') === 'loop' ? 'loop' : 'guided');
+  const [guideIndex, setGuideIndex] = useState<number | null>(null);
+  const [guideTop, setGuideTop] = useState(0);
+  const [agentBusy, setAgentBusy] = useState(false);
+  const [agentHasActivity, setAgentHasActivity] = useState(false);
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
   const [offset, setOffset] = useState(0);
-  const [pausedSecond, setPausedSecond] = useState<number | null>(null);
+  const [pausedSecond, setPausedSecond] = useState<number | null>(() => new URLSearchParams(window.location.search).get('replay') === 'loop' ? null : 0);
   const [searchRows, setSearchRows] = useState<Signal[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -104,17 +111,25 @@ export function App() {
   const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 800px)').matches);
   const [agentSettings, setAgentSettings] = useState<AgentSettings>(defaultSettings);
   const automaticRuns = useRef(new Set<string>());
+  const guideReceipts = useRef(new Map<string, { step: string; phase: number; clock: number; captured_at: number; signals: Signal[]; search: string }>());
   const installed = isSplunk();
   const scenarioSecond = pausedSecond ?? now + offset;
   const signals = useMemo(() => mode === 'demo' && !installed
     ? demoSnapshot(vertical, usecase, scenarioSecond, now)
-    : searchRows.filter((row) => row.origin === mode && row.vertical === vertical && (mode === 'live' || row.usecase === usecase)),
-  [mode, installed, vertical, usecase, scenarioSecond, now, searchRows]);
+    : searchRows.filter((row) => row.origin === mode && row.vertical === vertical && (mode === 'live' || (row.usecase === usecase && (guideIndex === null || row.phase === phaseAt(scenarioSecond))))),
+  [mode, installed, vertical, usecase, scenarioSecond, now, searchRows, guideIndex]);
   const phase = phaseAt(scenarioSecond);
   const currentVertical = getVertical(vertical);
   const scenario = getUsecase(usecase, vertical);
   const persona = audiences.find((item) => item.id === audience)!;
   const scope = vertical + ':' + usecase;
+  const story = useMemo(() => guidedSteps(presentation), [presentation]);
+  const guideReady = guideIndex !== null && !error && entitiesFor(vertical).every(entity => signals.some(row => row.entity_id === entity.entity_id && row.phase === story[guideIndex].phase));
+  useEffect(() => {
+    if (guideIndex === null || !guideReady) return;
+    const step = story[guideIndex];
+    guideReceipts.current.set(step.id, { step: step.id, phase: step.phase, clock: scenarioSecond, captured_at: now, signals, search: buildSearch('demo', vertical, usecase, scenarioSecond) });
+  }, [guideIndex, guideReady, signals, story, scenarioSecond, now, vertical, usecase]);
   useEffect(() => {
     const change = () => setViewState(viewFromURL());
     window.addEventListener('popstate', change);
@@ -183,7 +198,8 @@ export function App() {
     setNotice('Simulation recorded. Review the recovery phase and fresh evidence; no external system was changed.');
     setApproved(false);
     const recoveryTime = Math.floor(scenarioSecond / CYCLE_SECONDS) * CYCLE_SECONDS + 5 * PHASE_SECONDS;
-    if (pausedSecond !== null) setPausedSecond(recoveryTime); else setOffset(recoveryTime - now);
+    if (guideIndex !== null) showGuideStep(6);
+    else if (pausedSecond !== null) setPausedSecond(recoveryTime); else setOffset(recoveryTime - now);
   }
   useEffect(() => {
     const runKey = scope + ':' + Math.floor(scenarioSecond / CYCLE_SECONDS);
@@ -193,10 +209,45 @@ export function App() {
     }
   }, [mode, policy, usecase, phase, autoAllowed, scope, scenarioSecond]);
   function goPhase(next: number) {
+    setPlayback('explore');
     const time = Math.floor(scenarioSecond / CYCLE_SECONDS) * CYCLE_SECONDS + next * PHASE_SECONDS;
     if (pausedSecond !== null) setPausedSecond(time); else setOffset(time - now);
   }
+  function showGuideStep(next: number) {
+    const step = story[next];
+    if (!step || agentBusy) return;
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    setPlayback('guided');
+    setPausedSecond(step.phase * PHASE_SECONDS);
+    setGuideIndex(next);
+    setSelected(step.id === 'dependency' || step.id === 'assistant' ? scenario.root : null);
+    if (step.id === 'assistant' && (guideIndex !== next || view !== 'investigate')) {
+      setInvestigationIntent({ entity_id: scenario.root, question: guideQuestion(presentation) });
+    } else if (step.id !== 'assistant') setInvestigationIntent(null);
+    setView(step.view);
+  }
+  function startGuide() {
+    const root = document.getElementById('facility-operations-root');
+    setGuideTop(Math.max(0, (root?.getBoundingClientRect().top ?? 0) + window.scrollY));
+    guideReceipts.current.clear();
+    setPolicy('observe'); setApproved(false); setNotice('');
+    showGuideStep(0);
+  }
+  function exitGuide() {
+    setGuideIndex(null); setPlayback('explore');
+    requestAnimationFrame(() => document.getElementById('guided-demo-start')?.focus());
+  }
+  function playLoop() {
+    setGuideIndex(null); setPlayback('loop');
+    setOffset((pausedSecond ?? scenarioSecond) - now); setPausedSecond(null);
+  }
+  function changeMode(value: Mode) {
+    setGuideIndex(null); setMode(value);
+    if (value === 'demo' && playback === 'guided') setPausedSecond(0);
+  }
   function applyPresentation(value: Presentation) {
+    setGuideIndex(null);
+    if (playback === 'guided') setPausedSecond(0);
     setPresentation(value);
     setPolicy('observe');
     setApproved(false);
@@ -208,11 +259,12 @@ export function App() {
   function share() {
     const url = new URL(window.location.href);
     url.searchParams.set('vertical', vertical); url.searchParams.set('audience', audience); url.searchParams.set('usecase', usecase);
+    if (playback === 'loop') url.searchParams.set('replay', 'loop'); else url.searchParams.delete('replay');
     if (!navigator.clipboard) { setNotice('Presentation link: ' + url.href); return; }
     void navigator.clipboard.writeText(url.href).then(() => setNotice('Presentation link copied with the current audience, vertical, and use case.')).catch(() => setNotice('Presentation link: ' + url.href));
   }
-  const noData = !loading && !error && signals.length === 0;
-  return <div className={uiClass('app-shell' + (presenter ? ' presenter' : ''))}>
+  const noData = mode === 'live' && !loading && !error && signals.length === 0;
+  return <div className={uiClass('app-shell' + (presenter ? ' presenter' : '') + (guideIndex !== null ? ' guide-active' : ''))} style={{ '--fo-native-top': guideTop + 'px' } as React.CSSProperties}>
     <a className={uiClass("skip-link")} href="#facility-operations-main" onClick={(event) => { event.preventDefault(); const main = document.getElementById('facility-operations-main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to workspace</a>
     <div className={uiClass('workspace-toolbar')} aria-label="Demonstration controls"><div><strong>{installed ? 'Splunk proof of concept' : 'Developer component preview'}</strong><span>{installed ? 'Facility Operations · Art of the possible' : 'Install in Splunk for the native app experience'}</span></div><div className={uiClass('toolbar-actions')}><span className={uiClass('clock')}>{formatTime(now)}</span><Button appearance="subtle" onClick={() => setPresenter(!presenter)}>{presenter ? 'Exit presentation' : 'Present'}</Button></div></div>
     <div className={uiClass("workspace")}>
@@ -224,11 +276,12 @@ export function App() {
         {(compact || presenter) && <div className={uiClass("compact-navigation")}><Picker label="Workspace view" value={view} options={views} onChange={(value) => setView(value as View)} /></div>}
         <div className={uiClass("context-summary")} aria-label="Current presentation context"><div className={uiClass("context-labels")}><strong>{currentVertical.label}</strong><span>{persona.label}</span><span>{scenario.label}</span></div>
           {view !== 'settings' && <Button appearance="subtle" onClick={() => setView('settings')}>Presentation settings</Button>}
-          <div className={uiClass("mode-picker")}><span>Data source</span><ButtonGroup aria-label="Data source"><Button aria-pressed={mode === 'demo'} appearance={mode === 'demo' ? 'primary' : 'secondary'} onClick={() => setMode('demo')}>Demo</Button><Button aria-pressed={mode === 'live'} appearance={mode === 'live' ? 'primary' : 'secondary'} onClick={() => setMode('live')}>Live</Button></ButtonGroup></div>
+          <div className={uiClass("mode-picker")}><span>Data source</span><ButtonGroup aria-label="Data source"><Button aria-pressed={mode === 'demo'} appearance={mode === 'demo' ? 'primary' : 'secondary'} onClick={() => changeMode('demo')}>Demo</Button><Button aria-pressed={mode === 'live'} appearance={mode === 'live' ? 'primary' : 'secondary'} onClick={() => changeMode('live')}>Live</Button></ButtonGroup></div>
         </div>
         {installed && <div className={uiClass('search-handoff')}><span>Evidence is queried in this Splunk app with your search permissions.</span><Button appearance="subtle" openInNewContext to={createURL('app/splunk_facility_operations/search', { q: buildSearch(mode, vertical, usecase, scenarioSecond), earliest: '-60m', latest: 'now' })}>Open current search in Splunk</Button></div>}
-        <div className={uiClass('source-strip ' + mode)}><div><span className={uiClass("source-dot")} /><strong>{mode === 'demo' ? 'LOOPING DEMO' : 'LIVE SPLUNK DATA'}</strong><span>{mode === 'demo' ? 'Synthetic scenario · current timestamps · actions are simulated' : 'Authenticated Splunk searches · last 60 minutes · actions require integration'}</span></div><span>{loading ? 'Refreshing…' : signals.length ? (mode === 'demo' && !installed ? 'Local replay' : 'Splunk search') + ' · ' + signals.length + ' entities' : 'No signals'}</span></div>
-        {mode === 'demo' && <div className={uiClass("replay-bar")}><span className={uiClass("mini-label")}>SCENARIO REPLAY</span><div className={uiClass("phase-buttons")}>{phases.map((name, index) => <button key={name} className={uiClass(phase === index ? 'current' : '')} aria-pressed={phase === index} onClick={() => goPhase(index)}>{index + 1}<span>{name}</span></button>)}</div><Button appearance="subtle" onClick={() => pausedSecond === null ? setPausedSecond(scenarioSecond) : (setOffset(pausedSecond - now), setPausedSecond(null))}>{pausedSecond === null ? 'Pause' : 'Resume'}</Button></div>}
+        <div className={uiClass('source-strip ' + mode)}><div><span className={uiClass("source-dot")} /><strong>{mode === 'demo' ? guideIndex !== null || playback === 'guided' ? 'GUIDED DEMO' : pausedSecond === null ? 'LOOPING DEMO' : 'PAUSED DEMO' : 'LIVE SPLUNK DATA'}</strong><span>{mode === 'demo' ? 'Synthetic scenario · current timestamps · actions are simulated' : 'Authenticated Splunk searches · last 60 minutes · actions require integration'}</span></div><span>{loading ? 'Refreshing…' : signals.length ? (mode === 'demo' && !installed ? 'Local replay' : 'Splunk search') + ' · ' + signals.length + ' entities' : 'No signals'}</span></div>
+        {mode === 'demo' && guideIndex === null && view !== 'settings' && <section className={uiClass('guide-launch')} aria-label="Guided demo introduction"><div><span className={uiClass('eyebrow')}>AN OPERATIONS STORY YOU CAN FOLLOW</span><h2>{playback === 'guided' ? 'Walk through ' + scenario.label : 'Follow the story with a guide'}</h2><p>Eight steps bring each change into view: business impact, the evidence, an assistant investigation, and the recovery decision. Advance at your own pace.</p></div><div><Button id="guided-demo-start" appearance="primary" disabled={agentBusy} onClick={startGuide}>Start guided walkthrough</Button><Button appearance="subtle" disabled={agentBusy} onClick={playLoop}>Play continuous loop</Button></div></section>}
+        {mode === 'demo' && guideIndex === null && <div className={uiClass("replay-bar")}><span className={uiClass("mini-label")}>SCENARIO REPLAY</span><div className={uiClass("phase-buttons")}>{phases.map((name, index) => <button key={name} className={uiClass(phase === index ? 'current' : '')} aria-pressed={phase === index} onClick={() => goPhase(index)}>{index + 1}<span>{name}</span></button>)}</div><Button appearance="subtle" onClick={() => pausedSecond === null ? (setPausedSecond(scenarioSecond), setPlayback('explore')) : playLoop()}>{pausedSecond === null ? 'Pause' : 'Resume'}</Button></div>}
         {error && <div role="alert" className={uiClass("message error")}><strong>Data connection needs attention</strong><p>{error}</p><Button onClick={() => setRevision((value) => value + 1)}>Retry search</Button></div>}
         {notice && <div role="status" className={uiClass("message success")}>{notice}<button aria-label="Dismiss notification" onClick={() => setNotice('')}>×</button></div>}
         {noData && <div className={uiClass("message")}><strong>Establish the live operational baseline</strong><p>No inventory or matching telemetry is available for this vertical. Configure facility_ops_live_inventory.csv and the facility_ops_live_events macro. Empty results are unknown coverage, not healthy operations.</p></div>}
@@ -236,7 +289,7 @@ export function App() {
         {view === 'dependencies' && <>
           <div className={uiClass("metric-grid")}><div><span>Business functions affected</span><strong>{signals.length ? assessment.affected_functions.length : '—'}<small> / {missionSignals.length || '—'}</small></strong><p>Dependency impact in this scope</p></div><div><span>Waiting work ({currentVertical.unit})</span><strong>{assessment.queue === null ? '—' : assessment.queue.toLocaleString()}</strong><p>{assessment.queue_reporting} of {assessment.functions} function queues reporting · may overlap{mode === 'demo' ? ' · illustrative' : ''}</p></div><div><span>Evidence coverage</span><strong>{signals.length ? Math.round(assessment.observed / assessment.total * 100) + '%' : '—'}</strong><p>{assessment.unknown.length} {assessment.unknown.length === 1 ? 'component' : 'components'} with unverified state</p></div><div><span>Critical components</span><strong className={uiClass(summary.critical ? 'critical-number' : '')}>{signals.length ? summary.critical : '—'}</strong><p>{persona.focus}</p></div></div>
           <OperationsBriefing assessment={assessment} audience={audience} vertical={vertical} usecase={usecase} mode={mode} investigate={investigate} inspect={inspectEvidence} />
-          <div className={uiClass("main-grid")}><Panel title="From business function to physical dependency" eyebrow="DEPENDENCY CONTEXT"><p className={uiClass("panel-description")}>Follow a dependency to inspect its owner, evidence, and operational consequences. {mode === 'demo' ? 'Relationships are illustrative.' : 'Relationships come from configured inventory.'}</p><DependencyMap signals={signals} selected={selected} select={setSelected} /><div className={uiClass("graph-legend")}>{(['healthy', 'warning', 'critical', 'recovering', 'unknown'] as State[]).map((state) => <Badge state={state} key={state} />)}</div></Panel><Panel title={focused ? focused.name : 'Decision context'} eyebrow={focused ? 'SELECTED COMPONENT' : 'WHAT TO LOOK AT NEXT'} className={uiClass("context-panel")}>
+          <div className={uiClass("main-grid")}><Panel title="From business function to physical dependency" eyebrow="DEPENDENCY CONTEXT"><p className={uiClass("panel-description")}>Follow a dependency to inspect its owner, evidence, and operational consequences. {mode === 'demo' ? 'Relationships are illustrative.' : 'Relationships come from configured inventory.'}</p><div data-demo-target="dependency-map"><DependencyMap signals={signals} selected={selected} select={setSelected} /></div><div className={uiClass("graph-legend")}>{(['healthy', 'warning', 'critical', 'recovering', 'unknown'] as State[]).map((state) => <Badge state={state} key={state} />)}</div></Panel><Panel title={focused ? focused.name : 'Decision context'} eyebrow={focused ? 'SELECTED COMPONENT' : 'WHAT TO LOOK AT NEXT'} className={uiClass("context-panel")}>
             {focused ? <><SystemReference vertical={vertical} entity={focused} /><Badge state={focused.state} /><p className={uiClass("context-reason")}>{focused.reason}</p><dl><dt>Responsible team</dt><dd>{focused.owner}</dd><dt>Site</dt><dd>{focused.site}</dd><dt>Observed at</dt><dd>{formatTime(focused._time)}</dd><dt>Reported latency</dt><dd>{focused.latency_ms === null ? 'Not reported / not applicable' : focused.latency_ms + ' ms'}</dd><dt>Related control</dt><dd>{focused.control_id} · {focused.control_state}</dd></dl><div className={uiClass("action-controls")}><Button onClick={() => inspectEvidence(focused.entity_id)}>Inspect evidence</Button><Button appearance="primary" onClick={() => investigate({ entity_id: focused.entity_id, question: 'Investigate ' + focused.name + ' [' + focused.entity_id + '], its dependencies, operational impact and missing evidence.' })}>Investigate this component</Button></div></> : <><span className={uiClass("decision-label")}>01 / SCOPE THE IMPACT</span><p>{mode === 'demo' ? scenario.why : 'Follow the observed symptoms and configured inventory to identify the actual dependency footprint.'}</p><span className={uiClass("decision-label")}>02 / VERIFY THE EVIDENCE</span><p>Check freshness and ownership. A missing signal remains unknown.</p><span className={uiClass("decision-label")}>03 / CHOOSE A SAFE ACTION</span><p>{mode === 'demo' ? scenario.action + '. Review the approval gate and rollback before proceeding.' : 'Use the applicable operational procedure and approved change record. This dataset supplies no authorized recovery action.'}</p><Button onClick={() => setView('change')}>Review change gates</Button></>}
           </Panel></div>
           <div className={uiClass("bottom-grid")}><Panel title="Business function continuity" eyebrow="BUSINESS CONSEQUENCES">{missionSignals.map((signal) => <div className={uiClass("function-row")} key={signal.entity_id}><div><button className={uiClass("text-button")} onClick={() => setSelected(signal.entity_id)}>{signal.name}</button><small>{signal.site} · {signal.owner}</small></div><Badge state={signal.state} /><span>{signal.queue_depth === null || signal.state === 'unknown' ? 'Queue unreported' : signal.queue_depth.toLocaleString() + ' waiting'}</span></div>)}</Panel><Panel title={mode === 'demo' ? 'The scenario as it unfolds' : 'Recent observations'} eyebrow="OPERATIONAL TIMELINE">{mode === 'demo' && <p className={uiClass('panel-description')}>Authored replay stages. Assistant chronology includes only observations through the selected stage.</p>}{mode === 'demo' ? phases.map((name, index) => <button className={uiClass('timeline-row ' + (phase === index ? 'selected' : ''))} key={name} onClick={() => goPhase(index)}><span className={uiClass("timeline-dot")} /><strong>{name}</strong><span>{index === 0 ? 'Operating baseline' : index === 1 ? scenario.symptom : index === 2 ? 'Dependent functions affected' : index === 3 ? 'Evidence and ownership established' : index === 4 ? 'Policy and approval checked' : index === 5 ? 'Recovery path exercised' : index === 6 ? 'Fresh signals validate recovery' : 'Decision evidence retained'}</span></button>) : signals.slice().sort((a, b) => b._time - a._time).slice(0, 6).map((signal) => <div className={uiClass("observation")} key={signal.entity_id}><small>{formatTime(signal._time)}</small><strong>{signal.name}</strong><span>{signal.reason}</span></div>)}</Panel></div>
@@ -245,15 +298,16 @@ export function App() {
           const siteSignals = signals.filter((item) => item.site === site);
           return <Panel key={site} title={site} eyebrow="SITE CONTINUITY"><div className={uiClass("site-plan")} aria-label={site + ' schematic; illustrative layout'}><span>POWER</span><span>ENVIRONMENT</span><span>ACCESS</span><div>Digital services and occupied spaces</div></div>{siteSignals.map((signal) => <button className={uiClass("site-entity")} key={signal.entity_id} onClick={() => setSelected(signal.entity_id)}><span>{signal.name}</span><Badge state={signal.state} /></button>)}<p className={uiClass("panel-description")}>{siteSignals.filter((item) => item.state === 'unknown').length} evidence gaps · {siteSignals.filter((item) => item.layer === 'mission').length} business functions</p></Panel>;
         })}</div><Panel title={focused ? focused.name : 'Physical conditions and digital continuity'} eyebrow="SITE EVIDENCE">{focused && <div className={uiClass("evidence-detail")}><p>{focused.reason} Responsible team: {focused.owner}.</p><Button onClick={() => investigate({ entity_id: focused.entity_id, question: 'Investigate site continuity for ' + focused.name + ' [' + focused.entity_id + '] and its dependent functions.' })}>Investigate this component</Button></div>}<EvidenceTable signals={signals.filter((item) => item.layer === 'facility' || item.layer === 'infrastructure')} select={setSelected} /></Panel></>}
-        {(view === 'actions' || view === 'change') && <div className={uiClass("action-grid")}><OperationalDecision vertical={vertical} audience={audience} mode={mode} signals={signals} investigate={investigate} /><Panel title={view === 'change' ? 'Change decision and recovery plan' : 'Evidence before execution'} eyebrow="GOVERNED OPERATIONS">{mode === 'live' && <p className={uiClass("evidence-banner")}>Illustrative plan for the selected use case. Live observations do not establish an approved change, recovery action or rollback.</p>}<h3>{scenario.action}</h3><p className={uiClass("panel-description")}>{scenario.why}</p><div className={uiClass("runbook")}>{[{ label: 'Verify scope and current evidence', detail: evidenceFresh ? 'Telemetry for the illustrative action scope is current.' : 'Evidence is missing or stale; simulation is blocked.', pass: evidenceFresh }, { label: 'Check operational consequences', detail: summary.impacted + ' business functions affected; ' + summary.queue + ' queued ' + currentVertical.unit + '.', pass: signals.length > 0 }, { label: 'Confirm rollback', detail: scenario.rollback, pass: mode === 'demo' }, { label: 'Record the decision', detail: mode === 'demo' ? scenario.gate + '; demo approval stays in this browser session.' : 'Live actions need an authorized workflow integration.', pass: approved || (policy === 'automatic' && autoAllowed) }, { label: 'Verify recovery', detail: 'Compare fresh observations with the pre-action baseline and retain the decision record.', pass: mode === 'demo' && phase >= 6 }].map((step, index) => <div key={step.label} className={uiClass("runbook-step")}><span className={uiClass(step.pass ? 'pass' : '')}>{step.pass ? '✓' : index + 1}</span><div><strong>{step.label}</strong><p>{step.detail}</p></div></div>)}</div><div className={uiClass("action-controls")}><Button onClick={() => investigate({ question: audienceQuestion(audience, scenario, mode) + ' Review the evidence needed before this proposed simulation.' })}>Review with assistant</Button><Button appearance="primary" disabled={!canRun} onClick={runSimulation}>Run simulation</Button><Button disabled={mode !== 'demo'} onClick={() => { record(scenario.action, 'Deferred for additional evidence'); setApproved(false); setNotice('Demo decision recorded: deferred for additional evidence.'); }}>Defer decision</Button><Button onClick={() => download('facility-operations-evidence.json', { generated_at: new Date().toISOString(), mode, vertical, usecase, audience, signals, decisions: scopedDecisions, simulation_only: true })}>Export evidence</Button></div><p className={uiClass("small-note")}>Actions shown here are simulations. Live execution requires a separately configured and authorized automation integration.</p></Panel>
+        {(view === 'actions' || view === 'change') && <div className={uiClass("action-grid")}><OperationalDecision vertical={vertical} audience={audience} mode={mode} signals={signals} investigate={investigate} /><Panel title={view === 'change' ? 'Change decision and recovery plan' : 'Evidence before execution'} eyebrow="GOVERNED OPERATIONS">{mode === 'live' && <p className={uiClass("evidence-banner")}>Illustrative plan for the selected use case. Live observations do not establish an approved change, recovery action or rollback.</p>}<h3>{scenario.action}</h3><p className={uiClass("panel-description")}>{scenario.why}</p><div className={uiClass("runbook")} data-demo-target="decision-runbook">{[{ label: 'Verify scope and current evidence', detail: evidenceFresh ? 'Telemetry for the illustrative action scope is current.' : 'Evidence is missing or stale; simulation is blocked.', pass: evidenceFresh }, { label: 'Check operational consequences', detail: summary.impacted + ' business functions affected; ' + summary.queue + ' queued ' + currentVertical.unit + '.', pass: signals.length > 0 }, { label: 'Confirm rollback', detail: scenario.rollback, pass: mode === 'demo' }, { label: 'Record the decision', detail: mode === 'demo' ? scenario.gate + '; demo approval stays in this browser session.' : 'Live actions need an authorized workflow integration.', pass: approved || (policy === 'automatic' && autoAllowed) }, { label: 'Verify recovery', detail: 'Compare fresh observations with the pre-action baseline and retain the decision record.', pass: mode === 'demo' && phase >= 6 }].map((step, index) => <div key={step.label} className={uiClass("runbook-step")}><span className={uiClass(step.pass ? 'pass' : '')}>{step.pass ? '✓' : index + 1}</span><div><strong>{step.label}</strong><p>{step.detail}</p></div></div>)}</div><div className={uiClass("action-controls")}><Button onClick={() => investigate({ question: audienceQuestion(audience, scenario, mode) + ' Review the evidence needed before this proposed simulation.' })}>Review with assistant</Button><Button appearance="primary" disabled={!canRun} onClick={runSimulation}>Run simulation</Button><Button disabled={mode !== 'demo'} onClick={() => { record(scenario.action, 'Deferred for additional evidence'); setApproved(false); setNotice('Demo decision recorded: deferred for additional evidence.'); }}>Defer decision</Button><Button onClick={() => download('facility-operations-evidence.json', { generated_at: new Date().toISOString(), mode, vertical, usecase, audience, signals, decisions: scopedDecisions, simulation_only: true })}>Export evidence</Button></div><p className={uiClass("small-note")}>Actions shown here are simulations. Live execution requires a separately configured and authorized automation integration.</p></Panel>
           <Panel title="Autonomy with an explicit boundary" eyebrow="POLICY AND APPROVAL"><Picker label="Autonomy policy" value={policy} options={[{ id: 'observe', label: 'Observe and recommend' }, { id: 'supervised', label: 'Supervised execution' }, { id: 'automatic', label: 'Bounded automatic simulation' }]} onChange={(value) => { setPolicy(value as Policy); setApproved(false); }} /><dl><dt>Action scope</dt><dd>{mode === 'demo' ? 'Synthetic scenario resources only' : 'Read-only live observations'}</dd><dt>Approval gate</dt><dd>{scenario.gate}</dd><dt>Evidence condition</dt><dd>{evidenceFresh ? 'Fresh evidence in the affected dependency path' : 'Insufficient evidence'}</dd><dt>Automatic eligibility</dt><dd>{usecase === 'autonomy' ? 'Allowlisted standby-pool simulation' : 'This scenario requires supervised review'}</dd></dl><Button disabled={mode !== 'demo' || policy !== 'supervised' || !evidenceFresh} onClick={() => { setApproved(true); record(scenario.action, 'Demo approval recorded'); setNotice('Demo approval recorded for this scenario and scope.'); }}>Record demo approval</Button><p className={uiClass("small-note")}>Selecting a persona does not grant permissions. Production access is governed by Splunk roles and capabilities.</p></Panel>
           <Panel title="Decision history" eyebrow="TRACEABLE OPERATIONS" className={uiClass("full-width")}>{scopedDecisions.length === 0 ? <p className={uiClass("panel-description")}>Record a demo approval, simulated execution, or deferral to build the decision trail.</p> : scopedDecisions.map((item, index) => <div className={uiClass("decision-record")} key={index}><small>{formatTime(item.time)} · {item.actor}</small><strong>{item.action}</strong><span>{item.status} · {item.policy}</span></div>)}</Panel>
         </div>}
         {view === 'evidence' && <><OperationalEvidence key={scope} signals={signals} vertical={vertical} mode={mode} /><div className={uiClass("evidence-banner")}><strong>Control evidence supports review; it does not establish compliance.</strong><p>Inspect the source, age, owner, and missing observations. The control associations in demo mode are illustrative.</p></div><Panel title="Current evidence and accountability" eyebrow="CONTINUOUS MONITORING"><EvidenceTable signals={signals} select={setSelected} />{focused && <div className={uiClass("evidence-detail")}><strong>{focused.name}</strong><p>{focused.reason}</p><span>Control: {focused.control_id} · Owner: {focused.owner} · Source: {focused.origin}</span><Button onClick={() => investigate({ entity_id: focused.entity_id, question: 'Review the evidence for ' + focused.name + ' [' + focused.entity_id + '], its control mapping, freshness, ownership and limitations.' })}>Investigate this evidence</Button></div>}</Panel><div className={uiClass("export-row")}><Button onClick={() => download('facility-operations-evidence.json', { generated_at: new Date().toISOString(), mode, vertical, usecase, audience, signals, decisions: scopedDecisions })}>Export current evidence</Button><span>Includes mode, timestamps, ownership, observations, and local demo decisions.</span></div></>}
-        {view === 'investigate' && <AgentWorkspace context={{ mode, vertical, usecase, audience, clock: scenarioSecond, ...(selected ? { entity_id: selected } : {}) }} intent={investigationIntent} inspect={inspectEvidence} clearFocus={() => { setSelected(null); setInvestigationIntent(null); }} signals={signals} settings={agentSettings} openSettings={() => setView('settings')} />}
+        {view === 'investigate' && <AgentWorkspace context={{ mode, vertical, usecase, audience, clock: scenarioSecond, ...(selected ? { entity_id: selected } : {}) }} intent={investigationIntent} inspect={inspectEvidence} clearFocus={() => { setSelected(null); setInvestigationIntent(null); }} signals={signals} settings={agentSettings} openSettings={() => setView('settings')} onBusyChange={setAgentBusy} onActivityChange={setAgentHasActivity} />}
         {view === 'settings' && <><PresentationSettings value={presentation} onApply={applyPresentation} /><ProviderSettings settings={agentSettings} setSettings={setAgentSettings} /></>}
         <div role="contentinfo" className={uiClass('footer')}><span>Facility Operations · {currentVertical.label}</span><span>{mode === 'demo' ? 'Synthetic scenario, not a representation of any customer environment' : 'Observed state only; unknown data remains explicit'}</span></div>
       </main>
     </div>
+    {mode === 'demo' && guideIndex !== null && <GuidedDemo steps={story} index={guideIndex} context={presentation} signals={signals} ready={guideReady} activeView={view} searchError={error} busy={agentBusy} agentHasActivity={agentHasActivity} onStep={showGuideStep} onExit={exitGuide} onRestart={startGuide} onRetry={() => setRevision(value => value + 1)} onExport={() => download('operations-guided-story.json', { generated_at: new Date().toISOString(), context: presentation, mode: 'demo', step: story[guideIndex], clock: scenarioSecond, visited_steps: [...guideReceipts.current.values()], signals, search: buildSearch('demo', vertical, usecase, scenarioSecond), decisions: scopedDecisions, synthetic: true })} />}
   </div>;
 }

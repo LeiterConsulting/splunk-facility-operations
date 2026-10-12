@@ -114,3 +114,9 @@ Keep private hostnames, API keys, passwords, session tokens, customer event cont
 - If new dashboard metrics appear but the assistant export lacks `knowledge.operational_facts`, confirm that the complete release was installed. The REST entry point and restmap registrations must match the app build. Follow deployment prompts and reload/restart procedures for your Splunk topology; an app version label alone does not verify a loaded persistent Python runtime.
 - In Live, an unreported measure or objective means the normalized source did not supply a valid value, or state evidence is unverified. Check the [optional observation contract](live-data.md#business-transaction-and-diagnostic-observations), entity ID and freshness. Adding inventory or selecting a vertical does not generate real transaction measurements.
 - Comparable product names and workflow steps are reference context. Confirm the actual customer products, add-ons, source permissions and correlation fields during onboarding.
+
+## Guided walkthrough and camera
+
+The default demo holds Normal until you start a guided walkthrough or choose continuous playback. A stationary phase is expected. Next waits for the complete matching demo stage and is also disabled during an active investigation. Use Retry stage search after a search failure, or Stop in the assistant before changing stages.
+
+If you navigate or scroll away, use Return to this step or Show highlighted evidence. The guide's scrolling stays inside the app workspace to retain native Splunk chrome. Exit guide/Finish walkthrough removes its arrow and highlight and keeps the phase paused. Apply a new presentation to end the current guide, or switch to Live to remove it. Detailed context is expandable in Presenter notes. Story exports contain the stage snapshots actually visited; assistant exports are separate.

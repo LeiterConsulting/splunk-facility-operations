@@ -32,8 +32,8 @@ class PackagingTests(unittest.TestCase):
         name = 'facility_ops_entry_b' + config['install']['build']
         sys.path.insert(0, str(ROOT / package.APP_ID / 'bin'))
         entry = importlib.import_module(name)
-        self.assertEqual(entry.FacilityOperations.__module__, 'facility_ops_runtime_b13.rest_handler')
-        self.assertIn('facility_ops_runtime_b13.agent_operational', sys.modules)
+        self.assertEqual(entry.FacilityOperations.__module__, 'facility_ops_runtime_b' + config['install']['build'] + '.rest_handler')
+        self.assertIn('facility_ops_runtime_b' + config['install']['build'] + '.agent_operational', sys.modules)
         self.assertIn('handler = ' + name + '.FacilityOperations', (ROOT / package.APP_ID / 'default/restmap.conf').read_text())
 
     def test_installed_host_retains_chrome_and_uses_valid_dashboard_identifiers(self):

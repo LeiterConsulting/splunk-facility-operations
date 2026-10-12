@@ -8,9 +8,9 @@ Facility Operations follows specific business handoffs—clinical order acknowle
 
 The intended value is less time spent proving that an unaffected service or team is clear, fewer unnecessary handoffs, and faster, better informed decisions. These are outcomes to measure in a customer proof of concept; this release does not claim measured time savings or return on investment.
 
-![Facility Operations situation room](docs/images/business-operations.png)
+![Guided business-impact story inside Splunk](docs/images/guided-demo.png)
 
-Installed demonstration on Splunk Enterprise 10.4 with native chrome, using the Retail and Commerce / Executive context. The [industry walkthroughs](docs/industry-scenarios.md) show clinical and manufacturing examples. See the [installed investigation assistant](docs/images/investigation.png) for the evidence-to-report workflow.
+Guided presentation on Splunk Enterprise 10.4 with native chrome, using the Retail and Commerce / Executive context. Choose **Start guided walkthrough** to follow the changes without memorizing panel locations. The [industry walkthroughs](docs/industry-scenarios.md) show clinical and manufacturing examples. See the [installed investigation assistant](docs/images/investigation.png) for the evidence-to-report workflow.
 
 ## Start with your role
 
@@ -37,7 +37,7 @@ New to the terminology? See the [glossary](docs/glossary.md). Initial public sec
 - **Dependency investigation:** an interactive map linking business functions, technology and site conditions, with potential downstream impact and event chronology.
 - **Several audiences, one incident:** Operations, Security, Engineering, Executive, Chief Information Security Officer (CISO), Information System Security Officer (ISSO), Change Control Board (CCB), Facilities, Continuity, and Audit and Oversight.
 - **Several operating contexts:** sixteen verticals and six use-case families covering shared dependency disruption, cyber and physical continuity, containment, change readiness, modernization and governed autonomy.
-- **Repeatable presentations:** an eight-phase synthetic incident loop with fresh timestamps, pause, phase selection and presentation mode. No continuously ingested demo source is required.
+- **Guided presentations:** a paused baseline and an eight-step click-through story with a pinned explanation, automatic evidence positioning, highlight, arrow, Next/Back and visited-stage export. The continuous replay remains an explicit option. No continuously ingested demo source is required.
 - **An investigation assistant grounded in the dataset:** the selected audience, component, data purpose and field meanings accompany computed operational facts. Watch search and model activity, read incremental formatted answers, inspect cited evidence and event sequences, draft briefs, and export text, JSON evidence and executed SPL.
 - **Governance conversations:** examine evidence, approval, rollback and recovery gates through clearly labeled simulations.
 - **A separate live path:** authenticated Splunk searches use the signed-in user's data permissions. Missing or stale telemetry remains unknown.
@@ -46,7 +46,7 @@ The catalogue supports commercial and public sector organizations. Retail, manuf
 
 ## Download and install
 
-Download the ready-to-install [Facility Operations 0.1.5 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.5/splunk_facility_operations-0.1.5.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
+Download the ready-to-install [Facility Operations 0.1.6 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.6/splunk_facility_operations-0.1.6.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
 
 In Splunk Web, an administrator opens **Apps → Manage Apps → Install app from file**, selects the downloaded `.tar.gz`, and uploads it. Keep the archive compressed. The release includes the compiled interface and demonstration data; Git, Node.js, npm and a source build are not required to install it.
 
@@ -68,7 +68,7 @@ Open [the local preview](http://127.0.0.1:5174). Open **Settings → Presentatio
 
 A presenter with an already installed app can open **Facility Operations** from the Splunk app menu and follow the same walkthrough. The local preview uses synthetic observations and the deterministic assistant. Real searches and configured model connections require installation in Splunk.
 
-The build creates `artifacts/splunk_facility_operations-0.1.5.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
+The build creates `artifacts/splunk_facility_operations-0.1.6.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
 
 Settings can discover OpenAI account models, installed Ollama models and AI Toolkit's configured LLM connections. Manual identifiers remain available. Direct OpenAI/Ollama connections support adaptive or fixed reasoning where the model permits it; investigation details show call duration and available token counts. Follow the [assistant setup guide](docs/assistant-setup.md) for permissions, capability checks and model qualification.
 

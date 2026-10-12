@@ -1,0 +1,94 @@
+{
+  "target": "PULSE_HQ",
+  "checks": [
+    {
+      "name": "native_chrome_visible",
+      "passed": true
+    },
+    {
+      "name": "default_demo_paused_at_baseline",
+      "passed": true
+    },
+    {
+      "name": "guided_camera_preserves_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "baseline_highlight_in_view",
+      "passed": true
+    },
+    {
+      "name": "early_signal_explained",
+      "passed": true
+    },
+    {
+      "name": "business_impact_from_returned_data",
+      "passed": true
+    },
+    {
+      "name": "highlight_and_arrow_visible",
+      "passed": true
+    },
+    {
+      "name": "dependency_view_and_owner",
+      "passed": true
+    },
+    {
+      "name": "scoped_question_prepared",
+      "passed": true
+    },
+    {
+      "name": "no_automatic_inference",
+      "passed": true
+    },
+    {
+      "name": "assistant_uses_guided_stage",
+      "passed": true
+    },
+    {
+      "name": "assistant_chronology_bounded",
+      "passed": true
+    },
+    {
+      "name": "completed_investigation_reenables_navigation",
+      "passed": true
+    },
+    {
+      "name": "decision_is_review_not_approval",
+      "passed": true
+    },
+    {
+      "name": "partial_recovery_distinguished",
+      "passed": true
+    },
+    {
+      "name": "story_export_retains_eight_visited_stages",
+      "passed": true
+    },
+    {
+      "name": "finish_removes_highlight_and_holds_stage",
+      "passed": true
+    },
+    {
+      "name": "continuous_loop_still_available",
+      "passed": true
+    },
+    {
+      "name": "candidate_asset_verified",
+      "passed": true
+    },
+    {
+      "name": "no_application_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": true,
+  "candidate_bundle_in_served_asset": true,
+  "local_bundle_sha256": "e2d6f99d96c9b369443faf0266f0e356e51e8f58fc635d036d0fdaa4e71dbb52",
+  "submitted_investigations": 1,
+  "provider": "demo",
+  "model": ""
+}

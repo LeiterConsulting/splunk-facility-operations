@@ -4,7 +4,7 @@ Use this walkthrough to demonstrate how Splunk can help a team narrow an investi
 
 ## A five-minute investigation
 
-1. In **Settings → Presentation setup**, select **Retail and Commerce**, **Executive**, and **Checkout and Fulfillment Access**. Apply the presentation. Keep **Demo** selected, choose **Pause**, then **Impact**.
+1. In **Settings → Presentation setup**, select **Retail and Commerce**, **Executive**, and **Checkout and Fulfillment Access**. Apply the presentation. For this manual exercise, keep **Demo** selected, choose **Play continuous loop**, then **Pause** and **Impact**. Use the [guided presentation](demo-guide.md) for automatic evidence positioning.
 2. Read **What matters now**. Online checkout and Order fulfillment need attention; three function queues report a combined 520 illustrative order entries. A work item may appear in multiple queues. Nine of ten components have current state evidence; Physical access remains unverified.
 3. Read **Start the investigation**. Commerce access broker has abnormal evidence and a configured path to the two affected functions. This supports a hypothesis. Six components have current healthy evidence outside that path and receive lower investigation priority; they have not been cleared of involvement.
 4. Open **What this dataset can answer**. The app can connect state, relationships, owners, latency and queues. It needs independent request traces, application telemetry and change records before establishing cause. This turns a confident-looking display into a reviewable operational conversation.

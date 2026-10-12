@@ -2,7 +2,7 @@
 
 Use these scenarios to demonstrate the path from a business handoff to its source observations, diagnostic comparisons, accountable decision and recovery check. Each vertical has three measured business workflows and a supporting technology/site reference design. Changing the vertical changes transaction volumes, objectives, source families, ownership and dependency paths.
 
-Choose a context in **Settings → Presentation setup**. Select **Operations**, apply the presentation, then open **Situation room**. Pause the loop at **Impact** to inspect the figures below. Keep Splunk’s native Search available to show where the observations came from.
+Choose a context in **Settings → Presentation setup**. Select **Operations**, apply the presentation, then open **Situation room**. For these manual exercises, choose **Play continuous loop**, then pause at **Impact** to inspect the figures below. Keep Splunk’s native Search available to show where the observations came from.
 
 ## Scenario catalogue
 
@@ -26,6 +26,8 @@ Choose a context in **Settings → Presentation setup**. Select **Operations**, 
 | Hospitality | Reservation acknowledgement; Property check-in; Guest-service handoff | Oracle OPERA Cloud; Oracle OPERA PMS; Property business-event interfaces | A reservation can exist centrally while the property interface has not received it. |
 
 Product names identify comparable capabilities in a reference design. They do not identify a customer’s installed stack, a bundled connector, a supported vendor integration or an incident involving that vendor. `demo:*` source families belong to this synthetic application; they are not advertised Splunk add-on sourcetypes.
+
+For a click-through presentation that brings each observation into view, use **Start guided walkthrough** and the [guided presentation guide](demo-guide.md).
 
 ## Three demonstrations with concrete evidence
 

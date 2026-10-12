@@ -65,7 +65,7 @@ try {
     await page.locator('input[type=submit],button[type=submit]').first().click();
     await bumped;
   }
-  await page.goto(origin + '/en-US/app/splunk_facility_operations/facility_operations?vertical=retail&audience=executive&usecase=dependency', { waitUntil: 'commit' });
+  await page.goto(origin + '/en-US/app/splunk_facility_operations/facility_operations?vertical=retail&audience=executive&usecase=dependency&replay=loop', { waitUntil: 'commit' });
   await clickButton('Pause'); await clickButton('3 Impact');
   await clickButton('Dependencies');
   await page.getByRole('button', { name: 'Commerce access broker, Critical, inspect evidence', exact: true }).waitFor();

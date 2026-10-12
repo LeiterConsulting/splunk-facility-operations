@@ -108,3 +108,9 @@ The interface renders computed evidence separately from the provider narrative. 
 `operationalCatalogue.ts` defines authored workflows, comparable system roles, dependency paths, source families and research links. `operationalData.ts` generates normalized synthetic aggregates; the build writes them into the recurring lookup. Installed views and the assistant read the `operational` JSON field returned by Splunk, rather than generating local replacement measurements. Keeping the aggregate as one field preserves the relationship between counts, percentile, objective, signature and observation reference when selecting a latest record.
 
 `agent_operational.py` independently normalizes the bounded field contract and computes completion rates and objective comparisons. `inspect_scope` and report artifacts carry these facts alongside the reference design. Source metrics establish observations; the reference design establishes industry context. A production source can omit any measure, and those values remain unreported. See the [live contract](live-data.md#business-transaction-and-diagnostic-observations).
+
+## Guided demo
+
+`demoStory.ts` maps the selected industry, use case and audience to eight story steps and explains returned measures. `GuidedDemo.tsx` is a nonmodal coach using stable evidence markers, keyboard-accessible controls, a highlight and a measured arrow. It scrolls the app canvas, observes resize/scroll changes, respects reduced motion and cleans up listeners, observers and highlight attributes on exit.
+
+App state pins each step's replay clock, waits for all expected entities at that phase and records only visited source snapshots for export. It uses the same Splunk searches as the free replay. Opening the assistant prepares an intent; submitting it remains an explicit user action. Parent state tracks its busy/activity status so the guide can reveal progress and block step changes until completion or Stop. Live mode ends the guide.

@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('Operational briefing hands a component to the assistant and keeps receipt facts traceable', async ({ page }) => {
-  await page.goto('/?vertical=manufacturing&audience=engineering&usecase=facility');
+  await page.goto('/?vertical=manufacturing&audience=engineering&usecase=facility&replay=loop');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
   const briefing = page.getByRole('region', { name: 'Operational briefing', exact: true });
@@ -38,7 +38,7 @@ test('Operational briefing hands a component to the assistant and keeps receipt 
   await page.screenshot({ path: 'artifacts/browser-tests/focused-investigation.png', fullPage: true });
 });
 test('Component preview is explicit and workspace links support browser navigation', async ({ page }) => {
-  await page.goto('/?vertical=retail&audience=executive&usecase=dependency#investigate');
+  await page.goto('/?vertical=retail&audience=executive&usecase=dependency&replay=loop#investigate');
   await expect(page.getByText('Developer component preview', { exact: true })).toBeVisible();
   await expect(page.getByText('Install in Splunk for the native app experience', { exact: true })).toBeVisible();
   await expect(page.getByRole('banner')).toHaveCount(0);
@@ -59,7 +59,7 @@ test('Component preview is explicit and workspace links support browser navigati
 test('Dependency disruption, investigation, evidence exports, and live separation', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/?vertical=public_services');
+  await page.goto('/?vertical=public_services&replay=loop');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
   await page.getByRole('button', { name: 'Explore service dependencies', exact: true }).click();
@@ -82,7 +82,7 @@ test('Dependency disruption, investigation, evidence exports, and live separatio
   expect(errors).toEqual([]);
 });
 test('Provider settings and supervised demo action stay explicit', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?replay=loop');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
@@ -108,7 +108,7 @@ test('Installed settings discover models, inspect capabilities and keep draft ch
   const settings = { provider: 'demo', model: '', ollama_url: 'http://127.0.0.1:11434', aitk_provider: 'Ollama', aitk_connection: '', reasoning_mode: 'adaptive', allow_live_llm: false, key_configured: false, can_configure: true };
   const root = await page.request.get('/');
   const html = await root.body();
-  await page.route('**/app/splunk_facility_operations/facility_operations', (route) => route.fulfill({ contentType: 'text/html', body: html }));
+  await page.route('**/app/splunk_facility_operations/facility_operations*', (route) => route.fulfill({ contentType: 'text/html', body: html }));
   await page.route('**/facility_ops/settings*', async (route) => {
     if (route.request().method() === 'POST') saves++;
     await route.fulfill({ json: settings });
@@ -120,7 +120,7 @@ test('Installed settings discover models, inspect capabilities and keep draft ch
     const model = { id: 'local:latest', tools: true, thinking_values: ['low', 'medium', 'high'], capability_source: 'Ollama /api/show' };
     await route.fulfill({ json: payload.operation === 'inspect' ? { model } : { models: [{ ...model, tools: null, thinking_values: [], capability_source: 'Not inspected' }], source: 'Ollama /api/tags', message: 'Installed models on this server.', truncated: false } });
   });
-  await page.goto('/app/splunk_facility_operations/facility_operations');
+  await page.goto('/app/splunk_facility_operations/facility_operations?replay=loop');
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('combobox', { name: 'LLM provider', exact: true }).selectOption('ollama');
   await page.getByRole('button', { name: 'Refresh available models', exact: true }).click();
@@ -143,7 +143,7 @@ test('Installed settings discover models, inspect capabilities and keep draft ch
   await page.screenshot({ path: 'artifacts/browser-tests/model-discovery-settings.png', fullPage: true });
 });
 test('Verticals and audience workflows adapt, including compact navigation', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?replay=loop');
   await page.getByRole('button', { name: 'Presentation settings', exact: true }).click();
   await page.getByRole('combobox', { name: /Industry \/ vertical/ }).selectOption('distributed_care');
   await page.getByRole('combobox', { name: /Audience/ }).selectOption('isso');
@@ -159,7 +159,7 @@ test('Verticals and audience workflows adapt, including compact navigation', asy
 test('Commercial presentation setup applies atomically, remembers context and keeps the dashboard clean', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  await page.goto('/?replay=loop');
   await expect(page.getByRole('combobox', { name: 'Audience', exact: true })).toHaveCount(0);
   await expect(page.getByRole('combobox', { name: 'Use case', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
@@ -202,7 +202,7 @@ test('Commercial presentation setup applies atomically, remembers context and ke
   await expect(page.getByRole('button', { name: 'Apply presentation', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: 'artifacts/browser-tests/commercial-settings-mobile.png', fullPage: true });
-  await page.goto('/?vertical=public_services&audience=operations&usecase=dependency');
+  await page.goto('/?vertical=public_services&audience=operations&usecase=dependency&replay=loop');
   await expect(page.getByLabel('Current presentation context')).toContainText('Public Services and Benefits');
   await expect(page.getByLabel('Current presentation context')).toContainText('Operations');
   expect(errors).toEqual([]);

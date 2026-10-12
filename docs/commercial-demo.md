@@ -31,7 +31,7 @@ Each of the seven new commercial verticals has six contextual incident stories. 
 
 ## Retail: a five-minute incident story
 
-1. In Presentation setup, choose **Retail and Commerce**, **Operations**, and **Checkout and Fulfillment Access**, then apply. Select Demo, Pause and Normal.
+1. In Presentation setup, choose **Retail and Commerce**, **Operations**, and **Checkout and Fulfillment Access**, then apply. Select Demo, choose Play continuous loop, then Pause and Normal.
 2. Choose Impact. Show online checkout and order fulfillment waiting on the identity path, with store operations represented separately. Do not claim that every store or service is affected.
 3. Open Dependencies, select Commerce access broker and inspect the sign-in symptom, owner and observation time. Open Investigation assistant and ask for dependency impact.
 4. Review chronology, the candidate cause and bounded searches. Explain how current evidence can help clear unrelated candidates and focus the next owner; do not equate a healthy badge with proven innocence.

@@ -1,0 +1,124 @@
+{
+  "target": "PULSE_HQ",
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "native_splunk_chrome_visible",
+      "passed": true
+    },
+    {
+      "name": "native_app_navigation_visible",
+      "passed": true
+    },
+    {
+      "name": "workspace_keyboard_focus_inside_app",
+      "passed": true
+    },
+    {
+      "name": "standard_view_without_custom_template",
+      "passed": true
+    },
+    {
+      "name": "search_handoff_keeps_app_and_scope",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "dashboard_selectors_hidden",
+      "passed": true
+    },
+    {
+      "name": "commercial_settings_and_native_search",
+      "passed": true
+    },
+    {
+      "name": "retail_completion_from_splunk",
+      "passed": true
+    },
+    {
+      "name": "audience_operational_briefing",
+      "passed": true
+    },
+    {
+      "name": "dataset_purpose_and_limits",
+      "passed": true
+    },
+    {
+      "name": "native_search_page_runs_current_scope",
+      "passed": true
+    },
+    {
+      "name": "component_investigation_handoff",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "commercial_investigation_export",
+      "passed": true
+    },
+    {
+      "name": "computed_evidence_and_dataset_grounding",
+      "passed": true
+    },
+    {
+      "name": "current_pass_chronology",
+      "passed": true
+    },
+    {
+      "name": "receipt_evidence_drilldown",
+      "passed": true
+    },
+    {
+      "name": "commercial_facility_sites",
+      "passed": true
+    },
+    {
+      "name": "manufacturing_business_handoffs",
+      "passed": true
+    },
+    {
+      "name": "clinical_business_handoffs",
+      "passed": true
+    },
+    {
+      "name": "clinical_source_and_system_reference",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "presentation_preserves_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "presentation_investigation_navigation",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": true,
+  "candidate_bundle_in_served_asset": true,
+  "local_bundle_sha256": "e2d6f99d96c9b369443faf0266f0e356e51e8f58fc635d036d0fdaa4e71dbb52",
+  "served_bundle_sha256": "92d220abfda788ba86f5278a68715d3bae2774085c3a24a8172011023ec61aa2"
+}

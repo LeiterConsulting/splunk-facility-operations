@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 test('Clinical workflows show measured handoffs, source provenance and competing diagnostic evidence', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/?vertical=distributed_care&audience=operations&usecase=dependency');
+  await page.goto('/?vertical=distributed_care&audience=operations&usecase=dependency&replay=loop');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
   const transactions = page.getByRole('region', { name: 'Business transaction performance' });
@@ -32,7 +32,7 @@ test('Clinical workflows show measured handoffs, source provenance and competing
 });
 
 test('Manufacturing change review carries industry facts into a traceable assistant decision and export', async ({ page }) => {
-  await page.goto('/?vertical=manufacturing&audience=ccb&usecase=change#situation');
+  await page.goto('/?vertical=manufacturing&audience=ccb&usecase=change&replay=loop#situation');
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: '3 Impact', exact: true }).click();
   const transactions = page.getByRole('region', { name: 'Business transaction performance' });

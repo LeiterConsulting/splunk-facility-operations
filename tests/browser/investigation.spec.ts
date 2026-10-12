@@ -21,7 +21,7 @@ async function installedAssistant(page: Page) {
     const answer = '## Decision summary\n\n**Two functions** need attention. Review [Shared identity](evidence:identity).\n\n- Validate `identity` with its owner.\n- Missing evidence stays unknown.\n\n| Component | State |\n| --- | --- |\n| Identity | Critical |\n\n```spl\n| stats count by owner\n```\n\n[Unreturned component](evidence:outside) [Unsafe](javascript:alert(1)) [External](https://example.invalid/)\n\n<img src="https://example.invalid/leak" onerror="alert(1)"><script>alert(1)</script>';
     await route.fulfill({ json: { ...job, status: 'completed', result: { answer, assessment, trace: [{ tool: 'query_events', mode: 'demo', rows: 10 }], results: [{ kind: 'snapshot', rows }, { kind: 'timeline', rows }], provider: 'openai', model: 'gpt-6-luna', mode: 'demo', generated_at: now, scope: { mode: 'demo', vertical: 'retail', usecase: 'dependency', audience: 'operations', clock: 90 } } } });
   });
-  await page.goto('/app/splunk_facility_operations/facility_operations?vertical=retail&audience=operations&usecase=dependency#investigate');
+  await page.goto('/app/splunk_facility_operations/facility_operations?vertical=retail&audience=operations&usecase=dependency&replay=loop#investigate');
   await page.getByLabel('Ask about the current operational context').fill('Investigate dependency impact');
   await page.getByRole('button', { name: 'Investigate', exact: true }).click();
   return state;
