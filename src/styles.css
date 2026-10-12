@@ -66,3 +66,35 @@
 @media(max-width:800px){#facility-operations-root .fo-context-labels{flex-basis:100%;min-width:0}#facility-operations-root .fo-presentation-settings form{grid-template-columns:1fr}#facility-operations-root .fo-presentation-preview{border-left:0;border-top:1px solid var(--border)}#facility-operations-root .fo-presentation-fields{padding:0 18px 18px}}
 
 @media(max-width:1100px){#facility-operations-root .fo-agent-context{display:block}}
+#facility-operations-root .fo-answer-markdown{font-size:13px;line-height:1.75;color:#304f59;margin-top:16px;overflow-wrap:anywhere}
+#facility-operations-root .fo-answer-markdown h3{font-size:18px;line-height:1.45;margin:24px 0 10px;color:#183e4d}
+#facility-operations-root .fo-answer-markdown h4,#facility-operations-root .fo-answer-markdown h5,#facility-operations-root .fo-answer-markdown h6{font-size:14px;line-height:1.5;margin:22px 0 8px;color:#254d58}
+#facility-operations-root .fo-answer-markdown p{margin:10px 0}
+#facility-operations-root .fo-answer-markdown ul,#facility-operations-root .fo-answer-markdown ol{margin:10px 0 16px;padding-left:24px;list-style:revert}
+#facility-operations-root .fo-answer-markdown li{margin:6px 0}
+#facility-operations-root .fo-answer-markdown pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:16px;background:#f1f5f7;border:1px solid #d8e3e7;border-radius:4px;font-size:12px;line-height:1.6}
+#facility-operations-root .fo-answer-markdown code{font-family:ui-monospace,monospace;font-size:.92em;background:#edf3f5;padding:1px 4px;border-radius:3px}
+#facility-operations-root .fo-answer-markdown pre code{padding:0;background:none}
+#facility-operations-root .fo-answer-markdown blockquote{margin:14px 0;padding:4px 16px;border-left:3px solid #809fa9;background:#f5f8f9}
+#facility-operations-root .fo-answer-table-scroll{overflow-x:auto;max-width:100%;border:1px solid #dce6e9;border-radius:4px;margin:14px 0}
+#facility-operations-root .fo-answer-markdown table{width:100%;border-collapse:collapse;min-width:420px}
+#facility-operations-root .fo-answer-markdown th,#facility-operations-root .fo-answer-markdown td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid #dce6e9}
+#facility-operations-root .fo-answer-markdown th{background:#f0f5f7;font-weight:600}
+#facility-operations-root .fo-evidence-link{background:none;border:0;padding:0;color:#00669b;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit;text-align:left}
+#facility-operations-root .fo-evidence-link:focus-visible{outline:2px solid #1478ad;outline-offset:3px}
+#facility-operations-root .fo-answer-evidence{margin:18px 0;padding:16px;border:1px solid #b5d0dc;border-left:4px solid #1478ad;border-radius:4px;background:#f4f9fc;font-size:12px;line-height:1.7}
+#facility-operations-root .fo-answer-evidence>div{display:flex;justify-content:space-between;gap:10px;align-items:center}
+#facility-operations-root .fo-answer-evidence p{margin:8px 0}
+#facility-operations-root .fo-answer-evidence small{display:block;margin-bottom:12px}
+#facility-operations-root .fo-answer-sequence,#facility-operations-root .fo-investigation-activity{margin:18px 0;padding:14px 16px;border:1px solid #d8e4e8;background:#f7fafb;border-radius:4px;font-size:12px;line-height:1.6}
+#facility-operations-root .fo-answer-sequence summary,#facility-operations-root .fo-investigation-activity summary{cursor:pointer;font-weight:600;color:#345b69}
+#facility-operations-root .fo-answer-sequence ol,#facility-operations-root .fo-investigation-activity>ol{padding-left:18px;list-style:decimal;max-height:280px;overflow:auto}
+#facility-operations-root .fo-answer-sequence li{margin:12px 0}
+#facility-operations-root .fo-answer-sequence li time,#facility-operations-root .fo-answer-sequence li span{display:block}
+#facility-operations-root .fo-answer-sequence time{font-size:11px;color:#58717c}
+#facility-operations-root .fo-investigation-activity li{margin:8px 0}
+#facility-operations-root .fo-investigation-activity li>time{font-variant-numeric:tabular-nums;display:inline-block;width:36px;color:#58717c}
+#facility-operations-root .fo-investigation-activity pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;margin:10px 0}
+#facility-operations-root .fo-agent-progress{padding:16px 22px;border-bottom:1px solid #dce6e9}
+#facility-operations-root .fo-agent-progress section[aria-label='Response in progress']{border-top:1px solid #dce6e9;padding-top:18px}
+#facility-operations-root .fo-answer-followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}

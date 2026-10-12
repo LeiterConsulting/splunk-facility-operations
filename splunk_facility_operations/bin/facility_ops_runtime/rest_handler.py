@@ -3,14 +3,16 @@ import json
 import time
 import urllib.parse
 import sys
+import threading
 from pathlib import Path
 from collections import defaultdict, deque
 # Splunk imports persistent handlers by file without adding the app bin directory.
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from agent_tools import Investigation, demo_answer
-from agent_providers import Provider, run_agent, validate_settings
-from agent_models import discover_models, inspect_ollama
-from agent_transport import ProviderError
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from .agent_tools import Investigation, demo_answer
+from .agent_providers import Provider, run_agent, validate_settings
+from .agent_models import discover_models, inspect_ollama
+from .agent_transport import ProviderError
+from .agent_jobs import JobStore, JobProgress, JobError, InvestigationStopped
 try:
     import splunk.rest
     from splunk.persistconn.application import PersistentServerConnectionApplication
@@ -148,6 +150,11 @@ class FacilityOperations(PersistentServerConnectionApplication):
             if not route.endswith("/agent") or method != "POST":
                 raise RequestError(404, "Endpoint not found")
             user = request.get("session", {}).get("user", "")
+            operation = body.get('operation', 'investigate')
+            if operation in ('poll', 'cancel'):
+                return self.response(200, JobStore().read(user, body.get('job_id'), cancel=operation == 'cancel'))
+            if operation not in ('investigate', 'start'):
+                raise RequestError(400, 'Unknown investigation operation')
             now = time.time()
             queue = RATE_LIMIT[user]
             while queue and now - queue[0] > 60:
@@ -161,23 +168,28 @@ class FacilityOperations(PersistentServerConnectionApplication):
             investigation = Investigation(body.get("context"), lambda query: self.search(token, query))
             if investigation.context["mode"] == "live" and settings["provider"] != "demo" and not settings["allow_live_llm"]:
                 raise RequestError(403, "Sending live normalized context to an LLM is disabled in provider settings")
+            history = body.get('history', [])
+            if not isinstance(history, list):
+                raise RequestError(400, 'Invalid conversation history')
+            if operation == 'start':
+                store = JobStore()
+                state = store.create(user)
+                progress = JobProgress(store, user, state)
+                # The caller token and provider credential remain in memory only.
+                worker = threading.Thread(target=self.work, args=(progress, investigation.context, token, settings,
+                                          self.get_secret(system_token), question, history, user), daemon=True)
+                worker.start()
+                return self.response(202, state)
             if settings["provider"] == "demo":
                 investigation.initialize()
                 answer = demo_answer(question, investigation)
             else:
-                history = body.get("history", [])
-                if not isinstance(history, list):
-                    raise RequestError(400, "Invalid conversation history")
                 provider = Provider(settings, self.get_secret(system_token), lambda query: self.search(token, query))
                 answer = run_agent(provider, question, investigation, history)
-            return self.response(200, {
-                "answer": answer, "provider": settings["provider"], "model": settings["model"],
-                "mode": investigation.context["mode"], "generated_at": time.time(),
-                "trace": investigation.trace, "results": investigation.results,
-                "scope": investigation.context, "user": user,
-                "assessment": investigation.assessment, "knowledge": investigation.knowledge(),
-                "calls": provider.diagnostics if settings["provider"] != "demo" else [],
-            })
+            return self.response(200, self.answer_payload(answer, investigation, settings, user,
+                                 provider.diagnostics if settings['provider'] != 'demo' else []))
+        except JobError as error:
+            return self.response(error.status, {'error': error.message})
         except RequestError as error:
             return self.response(error.status, {"error": error.message})
         except ProviderError as error:
@@ -187,6 +199,38 @@ class FacilityOperations(PersistentServerConnectionApplication):
         except Exception:
             # Never return tokens, provider request bodies, or stack traces.
             return self.response(502, {"error": "Investigation unavailable. Check Splunk permissions, provider connectivity, and app configuration."})
+
+    @staticmethod
+    def answer_payload(answer, investigation, settings, user, calls):
+        return {
+                "answer": answer, "provider": settings["provider"], "model": settings["model"],
+                "mode": investigation.context["mode"], "generated_at": time.time(),
+                "trace": investigation.trace, "results": investigation.results,
+                "scope": investigation.context, "user": user,
+                "assessment": investigation.assessment, "knowledge": investigation.knowledge(),
+                "calls": calls,
+            }
+
+    def work(self, progress, context, token, settings, secret, question, history, user):
+        try:
+            investigation = Investigation(context, lambda query: self.search(token, query), progress)
+            calls = []
+            if settings['provider'] == 'demo':
+                investigation.initialize()
+                answer = demo_answer(question, investigation)
+            else:
+                provider = Provider(settings, secret, lambda query: self.search(token, query), progress)
+                answer = run_agent(provider, question, investigation, history)
+                calls = provider.diagnostics
+            progress.finish(self.answer_payload(answer, investigation, settings, user, calls))
+        except InvestigationStopped:
+            pass
+        except Exception as error:
+            message = str(error) if isinstance(error, (ProviderError, JobError)) else 'Investigation unavailable. Check Splunk permissions, provider connectivity and app configuration.'
+            try:
+                progress.finish(error=message)
+            except (InvestigationStopped, JobError):
+                pass
 
     def search(self, token, query):
         return self.rest(

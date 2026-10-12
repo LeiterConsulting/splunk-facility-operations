@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-12",
+  "release": "v0.1.4",
+  "source_tag": "v0.1.4",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.4",
+  "build": 10,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.4.tar.gz",
+      "size_bytes": 306965,
+      "sha256": "def02d2f294665c6145bb53e65339a1e253889a416ba9d7999d2c607d01847e5"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.4.spl",
+      "size_bytes": 306965,
+      "sha256": "def02d2f294665c6145bb53e65339a1e253889a416ba9d7999d2c607d01847e5"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "reproducible_archive": true,
+  "regular_archive_files": 26,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "custom_mako_templates_shipped": false,
+  "local_validation": {
+    "typecheck": "passed",
+    "typescript_tests_passed": 16,
+    "python_tests_passed": 52,
+    "browser_workflows_passed": 10,
+    "browser_method": "all ten passed in one run against the final compiled bundle"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "openai_10_0_checks_passed": 19,
+    "openai_model": "gpt-6-luna",
+    "openai_data": "synthetic demo only",
+    "openai_submitted_questions": 2,
+    "partial_running_samples": 6,
+    "distinct_partial_lengths": [
+      2,
+      466,
+      783,
+      1320,
+      1858,
+      2498
+    ],
+    "deterministic_10_4_browser_checks_passed": 24,
+    "deterministic_10_4_service_checks_passed": 8,
+    "deterministic_10_4_grounding_checks_passed": 12,
+    "read_only_live_pipeline_checks_passed_each_lab": 7,
+    "page_errors": 0,
+    "provider_configuration_preserved_both_labs": true,
+    "other_apps_reported_versions_and_enabled_states_preserved": true
+  },
+  "appinspect": {
+    "version": "4.3.1",
+    "mode": "precert",
+    "errors": 0,
+    "failures": 0,
+    "future_failures": 0,
+    "warnings": 5,
+    "skipped": 1
+  },
+  "qualifications": [
+    "Real OpenAI qualification covers gpt-6-luna and synthetic workflows on standalone 10.0.1; not customer data or every model.",
+    "Ollama streaming and AI Toolkit are protocol/mock-tested; Toolkit token streaming is not implemented.",
+    "Cloud/GovCloud, clusters, other versions, accessibility, production scale and customer sources require separate qualification.",
+    "Actions are simulations, reports are drafts and five-minute progress storage is not an incident archive."
+  ]
+}

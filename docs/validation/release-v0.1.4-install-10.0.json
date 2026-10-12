@@ -1,0 +1,9 @@
+{
+  "target": "standalone-enterprise-10.0",
+  "date": "2026-10-12",
+  "package_sha256": "def02d2f294665c6145bb53e65339a1e253889a416ba9d7999d2c607d01847e5",
+  "version": "10.0.1",
+  "provider_configuration_preserved": true,
+  "other_apps_preserved": true,
+  "installed_version": "0.1.4"
+}

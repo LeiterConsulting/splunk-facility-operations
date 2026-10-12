@@ -14,6 +14,18 @@ Use this walkthrough to demonstrate how Splunk can help a team narrow an investi
 
 To show a different question over the same evidence, select **Engineering**, **CISO**, **ISSO** or **Change Control Board** in Settings. Choosing a different audience clears the previous investigation. Audience selection changes the decision lens and grants no permissions.
 
+## Show a connected investigation
+
+With an administrator-configured OpenAI or Ollama model, keep the same paused Demo scope and ask: “Trace the event sequence and dependency hypothesis. Distinguish observations, counter-evidence and accountable next steps.” Watch **Investigation activity** as the service searches Splunk, computes the receipt, calls the model and executes its permitted tools. Expand an activity to inspect the executed SPL. Incremental public answer text appears as a draft; final exports become available only after completion. AI Toolkit shows search/tool activity and its completed response; token streaming through its `ai` command is not implemented.
+
+![Installed Splunk app with a connected OpenAI answer, computed evidence, readable chronology, cited component and accountable next steps](images/connected-investigation.png)
+
+In the completed answer, select a cited component to inspect frozen returned evidence without leaving the conversation. Expand **Returned abnormal event sequence** to compare timestamps with the hypothesis. **Open current evidence** deliberately leaves the conversation for the workspace's current snapshot; export needed material first.
+
+Choose **Prepare counter-evidence question** or **Prepare decision brief** to fill the composer, review it, and submit. The assistant retains bounded conversation text while querying fresh scoped evidence. **Model calls and resource use** shows the applied reasoning effort, duration and available token counts. Adaptive reasoning can start a brief at low effort and increase effort when tools reveal uncertainty; actual behavior depends on the provider/model.
+
+Use **Stop** to request cancellation. Leaving the assistant or changing audience/data scope also cancels pending work and clears the conversation. Already-running external computation may continue until its timeout. This is a demonstration of investigation and decision support; provider reasoning is private, infrastructure actions remain simulated, and time-to-innocence improvements must be measured in the customer's proof of concept.
+
 ## Decisions by audience
 
 | Audience | Useful discussion | Evidence still needed |

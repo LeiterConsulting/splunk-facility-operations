@@ -6,7 +6,7 @@ Start by identifying whether you are using the local preview or the installed ap
 
 | Symptom | What to check or do |
 | --- | --- |
-| Unsure which GitHub asset to download | Choose `splunk_facility_operations-0.1.3.tar.gz` from [release 0.1.3](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.3). It is the compiled installer. The automatic Source code downloads require a build. |
+| Unsure which GitHub asset to download | Choose `splunk_facility_operations-0.1.4.tar.gz` from [release 0.1.4](https://github.com/LeiterConsulting/splunk-facility-operations/releases/tag/v0.1.4). It is the compiled installer. The automatic Source code downloads require a build. |
 | Download became a folder or an uncompressed `.tar` | Download the named installer again and keep the `.tar.gz` compressed. Splunk's file upload expects the original archive. |
 | Upload rejected the file or the installed interface is empty | Confirm the filename is the named installer, not GitHub's Source code archive; compare its hash with `SHA256SUMS` and download it again if incomplete. Then check the exact Splunk upload error and supported deployment requirements. |
 | Splunk reports that the app already exists | Back up configuration and live inventory using the [upgrade procedure](getting-started.md#update-and-preserve-configuration), then intentionally select Upgrade app. |
@@ -61,7 +61,7 @@ If a request is denied with 401/403, confirm the session and the relevant Splunk
 | Evidence age is missing or implausible | Supply `evidence_at` as numeric epoch seconds. Check for milliseconds, a text timestamp, source clock skew or an absent field. Both event and evidence times must meet the current-state freshness window. |
 | State is Unknown despite numeric measures | Supply one of the documented state values. The app does not independently infer health from latency, temperature or a queue count. |
 | Names, owners or edges look wrong | Compare inventory and event metadata by stable entity ID. Use semicolon-separated dependency IDs in the same vertical and resolve conflicting metadata at the source. |
-| A numeric field shows zero without a measurement | Missing measures currently default to zero in the interface. Treat that as a presentation default, not evidence of a measured zero. |
+| A numeric field shows zero without a measurement | Missing or invalid measures display as unreported. Check the normalized field values; only an explicit valid zero is a measured zero. |
 | Not all entities or events appear | UI and tool result caps are 1,000 entities and 100 rows per tool. Compare with an independent bounded source/inventory count and reduce the evaluation scope. Complete large-inventory support needs further development. |
 | New package removed the expected inventory | Restore the protected customer inventory backup and verify it. Release packages intentionally ship an empty inventory; see [upgrade procedure](getting-started.md#update-and-preserve-configuration). |
 
@@ -71,6 +71,10 @@ Changing the use case does not select a different live incident. The live source
 
 | Symptom | Checks and recovery |
 | --- | --- |
+| No activity, or service-refresh warning after upgrade | Follow Splunk deployment prompts and confirm the backend and static assets are from the same release. An administrator may need to reload app endpoint configuration or restart the affected service during a maintenance window; a browser refresh alone cannot replace cached Python modules. |
+| Investigation unavailable or expired | Progress expires five minutes after creation. Start a new investigation. Check service-account write access to `$SPLUNK_HOME/var/run/splunk/facility_operations` and Python `sqlite3` if every start fails. |
+| Investigation already running or capacity busy | Stop the existing investigation or wait. One active investigation per user and eight per search head are supported; a disconnected browser can leave work running until timeout. |
+| Answer disappears while a new tool starts | Intermediate text belongs to the preceding model turn and is replaced as the investigation advances. The final report becomes exportable only after successful completion. |
 | Save/test buttons disabled or settings POST returns 403 | Configuration and connection tests require `admin_all_objects`. Readers retain search access; ask the administrator to configure the connection. |
 | Test appears to ignore recent edits | Choose Save provider settings first. Test saved connection uses the saved configuration. |
 | Demo data still calls a real provider | Provider choice is separate from the data source. Explicitly select and save Deterministic demo assistant for a presentation without an LLM. |

@@ -80,7 +80,7 @@ def install(client, package, update=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--env-file", type=Path, required=True); parser.add_argument("--prefix", required=True)
-    parser.add_argument("--install", action="store_true"); parser.add_argument("--update", action="store_true"); parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--allow-provider-inference", action="store_true"); parser.add_argument("--install", action="store_true"); parser.add_argument("--update", action="store_true"); parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--package", type=Path, default=ROOT / "artifacts" / ("splunk_facility_operations-" + VERSION + ".spl"), help="Built .spl or .tar.gz installer to check")
     args = parser.parse_args(); client = Client(args.env_file, args.prefix)
     receipt = {"target": args.prefix, "version": client.request("services/server/info")["entry"][0]["content"]["version"], "tls_verified": client.verified, "checks": []}
@@ -100,7 +100,9 @@ def main():
     check("commercial_retail_loop", len(rows) == 10 and any(row["name"] == "Online checkout" for row in rows) and next(row["reason"] for row in rows if row["entity_id"] == "identity") == "Customer and fulfillment sign-in latency")
     try:
         settings = client.request("servicesNS/-/" + APP + "/facility_ops/settings")
-        check("provider_settings", settings.get("provider") == "demo" and settings.get("can_configure"))
+        check("provider_settings", settings.get("provider") in ("demo", "openai", "ollama", "aitk") and settings.get("can_configure"))
+        if settings.get("provider") != "demo" and not args.allow_provider_inference:
+            raise RuntimeError("Configured inference requires --allow-provider-inference; provider settings are preserved")
         context = {"mode":"demo", "vertical":"public_services", "usecase":"dependency", "audience":"operations", "clock":90}
         answer = client.request("servicesNS/-/" + APP + "/facility_ops/agent", {"payload": json.dumps({"message":"Investigate the issue and dependency impact", "context": context})})
         check("investigation_with_evidence", bool(answer.get("answer")) and len(answer.get("trace",[])) >= 2)

@@ -1,0 +1,178 @@
+{
+  "checks": [
+    {
+      "name": "native_splunk_chrome",
+      "passed": true
+    },
+    {
+      "name": "served_candidate_bundle",
+      "passed": true
+    },
+    {
+      "name": "configured_openai_provider",
+      "passed": true
+    },
+    {
+      "name": "actual_partial_answer_before_completion",
+      "passed": true
+    },
+    {
+      "name": "incremental_partial_updates",
+      "passed": true
+    },
+    {
+      "name": "activity_before_completion",
+      "passed": true
+    },
+    {
+      "name": "formatted_answer_headings",
+      "passed": true
+    },
+    {
+      "name": "safe_narrative_surface",
+      "passed": true
+    },
+    {
+      "name": "computed_assessment_grounding",
+      "passed": true
+    },
+    {
+      "name": "actual_function_tools",
+      "passed": true
+    },
+    {
+      "name": "current_pass_chronology",
+      "passed": true
+    },
+    {
+      "name": "model_usage_and_activity_export",
+      "passed": true
+    },
+    {
+      "name": "reasoning_not_exported",
+      "passed": true
+    },
+    {
+      "name": "citation_drilldown",
+      "passed": true
+    },
+    {
+      "name": "followup_prepared_for_review",
+      "passed": true
+    },
+    {
+      "name": "followup_report_tool",
+      "passed": true
+    },
+    {
+      "name": "adaptive_reasoning_in_real_calls",
+      "passed": true
+    },
+    {
+      "name": "saved_endpoint_model_discovery",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": false,
+  "served_bundle_sha256": "77b5a11176a024cf70fa319a3f49198ca5c622a1abb184ddb52faa9fd235b5d7",
+  "local_bundle_sha256": "665126c978c1448c0fdcdf7b4905b3ed6fbe2b8e45cdca676b476b037dea02d2",
+  "candidate_bundle_in_served_asset": true,
+  "provider": "openai",
+  "model": "gpt-6-luna",
+  "calls": [
+    {
+      "turn": 1,
+      "reasoning": "high",
+      "duration_ms": 2094,
+      "usage": {
+        "input_tokens": 6870,
+        "output_tokens": 89,
+        "total_tokens": 6959
+      }
+    },
+    {
+      "turn": 2,
+      "reasoning": "high",
+      "duration_ms": 1225,
+      "usage": {
+        "input_tokens": 12960,
+        "output_tokens": 19,
+        "total_tokens": 12979
+      }
+    },
+    {
+      "turn": 3,
+      "reasoning": "high",
+      "duration_ms": 1024,
+      "usage": {
+        "input_tokens": 14484,
+        "output_tokens": 28,
+        "total_tokens": 14512
+      }
+    },
+    {
+      "turn": 4,
+      "reasoning": "high",
+      "duration_ms": 9746,
+      "usage": {
+        "input_tokens": 19510,
+        "output_tokens": 1038,
+        "total_tokens": 20548
+      }
+    }
+  ],
+  "brief_calls": [
+    {
+      "turn": 1,
+      "reasoning": "low",
+      "duration_ms": 790,
+      "usage": {
+        "input_tokens": 7468,
+        "output_tokens": 15,
+        "total_tokens": 7483
+      }
+    },
+    {
+      "turn": 2,
+      "reasoning": "high",
+      "duration_ms": 4346,
+      "usage": {
+        "input_tokens": 13501,
+        "output_tokens": 382,
+        "total_tokens": 13883
+      }
+    }
+  ],
+  "answer_heading_count": 4,
+  "date": "2026-10-12",
+  "target": "standalone-enterprise-10.0",
+  "data": "synthetic-demo",
+  "submitted_questions": 2,
+  "partial_running_samples": 6,
+  "distinct_partial_lengths": [
+    2,
+    466,
+    783,
+    1320,
+    1858,
+    2498
+  ],
+  "observed_activity_kinds": [
+    "evidence_ready",
+    "model_done",
+    "model_start",
+    "search_done",
+    "search_start",
+    "tool_done",
+    "tool_start"
+  ],
+  "console_error_count": 1,
+  "failed_request_count": 3
+}

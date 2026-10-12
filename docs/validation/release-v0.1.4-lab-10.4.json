@@ -1,0 +1,41 @@
+{
+  "target": "standalone-enterprise-10.4",
+  "version": "10.4.0",
+  "tls_verified": false,
+  "checks": [
+    {
+      "name": "app_installed",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_90",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_450",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_2592090",
+      "passed": true
+    },
+    {
+      "name": "commercial_retail_loop",
+      "passed": true
+    },
+    {
+      "name": "provider_settings",
+      "passed": true
+    },
+    {
+      "name": "investigation_with_evidence",
+      "passed": true
+    },
+    {
+      "name": "other_apps_preserved",
+      "passed": true
+    }
+  ],
+  "package_sha256": "def02d2f294665c6145bb53e65339a1e253889a416ba9d7999d2c607d01847e5",
+  "date": "2026-10-12"
+}

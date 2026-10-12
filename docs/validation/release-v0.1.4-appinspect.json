@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-12",
+  "appinspect_version": "4.3.1",
+  "mode": "precert",
+  "summary": {
+    "error": 0,
+    "failure": 0,
+    "future_failure": 0,
+    "skipped": 1,
+    "not_applicable": 129,
+    "warning": 5,
+    "success": 117
+  },
+  "findings": [
+    {
+      "name": "check_for_splunk_js",
+      "result": "warning",
+      "messages": [
+        {
+          "message": "Splunk has begun gathering telemetry on apps submitted to appinspect, that utilize SplunkJS. Please ignore this warning as it has no impact to your Splunk app. Match: splunkjs/mvc File: appserver/static/facility-operations.js Line Number: 322",
+          "message_filename": "appserver/static/facility-operations.js",
+          "message_line": 322
+        }
+      ]
+    },
+    {
+      "name": "check_for_python_script_existence",
+      "result": "warning",
+      "messages": [
+        {
+          "message": "9 Python files found. Update these Python scripts to be cross-compatible with Python 2 and 3 for Splunk Enterprise 8.0. See https://docs.splunk.com/Documentation/Splunk/latest/Python3Migration/AboutMigration for more information. If you've finished your update, please disregard this message.",
+          "message_filename": "None",
+          "message_line": null
+        }
+      ]
+    },
+    {
+      "name": "check_custom_conf_replication",
+      "result": "warning",
+      "messages": [
+        {
+          "message": "App contains one or more custom configs but does not have a `[shclustering]` stanza in server.conf. File: default/server.conf",
+          "message_filename": "default/server.conf",
+          "message_line": null
+        }
+      ]
+    },
+    {
+      "name": "check_for_valid_package_id",
+      "result": "skipped",
+      "messages": [
+        {
+          "message": "Splunk App packages doesn't contain `app.manifest` file. No `app.manifest` was found.",
+          "message_filename": "None",
+          "message_line": null
+        }
+      ]
+    },
+    {
+      "name": "check_kos_are_accessible",
+      "result": "warning",
+      "messages": [
+        {
+          "message": "In Splunk Cloud, customers have access to the sc_admin role instead of the admin role. Your customers will not be able to access knowledge objects where the only assigned role is admin. Please consider also including the sc_admin role for compatibility with Splunk Cloud. File: metadata/default.meta Line Number: 2",
+          "message_filename": "metadata/default.meta",
+          "message_line": 2
+        },
+        {
+          "message": "In Splunk Cloud, customers have access to the sc_admin role instead of the admin role. Your customers will not be able to access knowledge objects where the only assigned role is admin. Please consider also including the sc_admin role for compatibility with Splunk Cloud. File: metadata/default.meta Line Number: 6",
+          "message_filename": "metadata/default.meta",
+          "message_line": 6
+        }
+      ]
+    },
+    {
+      "name": "check_hostnames_and_ips",
+      "result": "warning",
+      "messages": [
+        {
+          "message": "PRIVATE IP 169.254.169.254 is found in bin/facility_ops_runtime/agent_providers.py:42 File: bin/facility_ops_runtime/agent_providers.py Line Number: 42",
+          "message_filename": "bin/facility_ops_runtime/agent_providers.py",
+          "message_line": "42"
+        }
+      ]
+    }
+  ]
+}

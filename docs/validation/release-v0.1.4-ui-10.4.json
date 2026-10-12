@@ -1,0 +1,111 @@
+{
+  "checks": [
+    {
+      "name": "installed_application_shell",
+      "passed": true
+    },
+    {
+      "name": "native_splunk_chrome_visible",
+      "passed": true
+    },
+    {
+      "name": "native_app_navigation_visible",
+      "passed": true
+    },
+    {
+      "name": "workspace_keyboard_focus_inside_app",
+      "passed": true
+    },
+    {
+      "name": "standard_view_without_custom_template",
+      "passed": true
+    },
+    {
+      "name": "search_handoff_keeps_app_and_scope",
+      "passed": true
+    },
+    {
+      "name": "installed_assets_match_candidate",
+      "passed": true
+    },
+    {
+      "name": "installed_situation_and_demo_search",
+      "passed": true
+    },
+    {
+      "name": "dashboard_selectors_hidden",
+      "passed": true
+    },
+    {
+      "name": "commercial_settings_and_native_search",
+      "passed": true
+    },
+    {
+      "name": "audience_operational_briefing",
+      "passed": true
+    },
+    {
+      "name": "dataset_purpose_and_limits",
+      "passed": true
+    },
+    {
+      "name": "native_search_page_runs_current_scope",
+      "passed": true
+    },
+    {
+      "name": "component_investigation_handoff",
+      "passed": true
+    },
+    {
+      "name": "installed_investigation_service",
+      "passed": true
+    },
+    {
+      "name": "commercial_investigation_export",
+      "passed": true
+    },
+    {
+      "name": "computed_evidence_and_dataset_grounding",
+      "passed": true
+    },
+    {
+      "name": "current_pass_chronology",
+      "passed": true
+    },
+    {
+      "name": "receipt_evidence_drilldown",
+      "passed": true
+    },
+    {
+      "name": "commercial_facility_sites",
+      "passed": true
+    },
+    {
+      "name": "installed_provider_settings",
+      "passed": true
+    },
+    {
+      "name": "presentation_preserves_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "presentation_investigation_navigation",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": true,
+  "served_bundle_sha256": "77b5a11176a024cf70fa319a3f49198ca5c622a1abb184ddb52faa9fd235b5d7",
+  "local_bundle_sha256": "665126c978c1448c0fdcdf7b4905b3ed6fbe2b8e45cdca676b476b037dea02d2",
+  "candidate_bundle_in_served_asset": true,
+  "date": "2026-10-12",
+  "target": "standalone-enterprise-10.4",
+  "console_error_count": 3,
+  "failed_request_count": 3
+}

@@ -2,6 +2,30 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Connected investigation release 0.1.4 (build 10)
+
+October 12, 2026. The assistant now displays real search/model/tool activity, incremental public text, formatted evidence citations and reviewable follow-ups. This release includes real OpenAI qualification against synthetic demo evidence, in addition to deterministic and mocked transport/cancellation checks.
+
+| Check | Result |
+| --- | --- |
+| Type checking and local tests | Passed: 16 TypeScript and 52 Python tests, including user-owned cross-process jobs, cancellation, expiry, bounded SSE/NDJSON, private provider state and UTC serialization |
+| Compiled-bundle browser workflows | All 10 passed in one run; includes incremental responses, safe Markdown, tables, citations, follow-up preparation, cancellation, scope changes and failed-stream export prevention |
+| Exact final archive | 26 regular files; byte-identical `.tar.gz`/`.spl`; reproducible; header-only inventory, no local overrides or custom Mako templates |
+| Enterprise 10.0.1 connected OpenAI | 19 checks passed with the saved `gpt-6-luna` connection; two submitted questions over synthetic evidence, native chrome and exact served candidate bundle |
+| Actual incremental public text | Six running-state samples with distinct lengths of 2, 466, 783, 1,320, 1,858 and 2,498 characters before completion |
+| Actual reasoning and tools | Causal investigation began at high effort; decision brief began at low and escalated to high after tool evidence. Timeline, dependencies and report tools returned scoped evidence; usage counts were exported without provider reasoning |
+| Enterprise 10.4.0 deterministic | 24 native UI, 8 service and 12 read-only grounding checks passed |
+| Generated live SPL fixtures | Seven checks passed on each lab for current/stale/missing/future evidence, missing metrics and reporting denominators; no customer-source qualification |
+| Upgrade preservation | Provider configuration and other apps' reported versions/enabled states preserved on both labs |
+| Application JavaScript errors | Zero in both installed workflows |
+| AppInspect 4.3.1 precertification | 0 errors, 0 failures, 0 future failures; 5 warnings and 1 skipped check |
+
+Installer SHA-256: `def02d2f294665c6145bb53e65339a1e253889a416ba9d7999d2c607d01847e5`. See the [release manifest](validation/release-v0.1.4.json), [OpenAI receipt](validation/release-v0.1.4-openai-10.0.json), [10.4 interface receipt](validation/release-v0.1.4-ui-10.4.json) and [AppInspect summary](validation/release-v0.1.4-appinspect.json). Public receipts omit credentials, private origins, authentication state, raw evidence exports and provider reasoning. The connected screenshot in the [walkthrough](investigation-workflows.md#show-a-connected-investigation) comes from this installed release.
+
+The five inspection warnings concern SplunkJS telemetry, generic Python migration, custom configuration replication, Cloud role compatibility and the metadata-service IP literal in the outbound endpoint blocklist. The skipped check concerns traditional package identity without `app.manifest`. These are recorded findings, not Splunkbase certification.
+
+Real OpenAI qualification is limited to the tested model, synthetic demo workflows and standalone 10.0.1 lab. Ollama streaming and AI Toolkit remain protocol/mock-tested; AI Toolkit does not stream token text. Existing reader/credential policy fixtures retain their earlier validation dates. Customer data, other models/versions, accessibility, load, clusters and Cloud/GovCloud require separate qualification. Progress storage expires after five minutes; browser conversation/export and simulated actions are not durable incident or change records. Time-to-innocence improvement remains a customer evaluation measure.
+
 ## Operational grounding release 0.1.3 (build 9)
 
 October 11, 2026. Audience-specific operational briefings now connect computed impact, dependency hypotheses, healthy counter-evidence, accountable teams and unknown coverage to focused assistant investigations. Dataset purpose, field meanings, audience and selected component accompany each provider request. Live context uses returned function names and does not supply an authored scenario root or action as evidence.

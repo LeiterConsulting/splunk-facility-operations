@@ -1,0 +1,55 @@
+{
+  "target": "standalone-enterprise-10.4",
+  "checks": [
+    {
+      "name": "current_live_state_preserved",
+      "passed": true
+    },
+    {
+      "name": "stale_live_event_unknown",
+      "passed": true
+    },
+    {
+      "name": "missing_live_evidence_unknown",
+      "passed": true
+    },
+    {
+      "name": "future_live_evidence_unknown",
+      "passed": true
+    },
+    {
+      "name": "missing_metric_not_zero",
+      "passed": true
+    },
+    {
+      "name": "summary_has_reporting_denominator",
+      "passed": true
+    },
+    {
+      "name": "summary_does_not_invent_zero",
+      "passed": true
+    },
+    {
+      "name": "audience_and_focus_grounded",
+      "passed": true
+    },
+    {
+      "name": "computed_function_impact_and_queue",
+      "passed": true
+    },
+    {
+      "name": "unknown_separate_from_healthy_counter_evidence",
+      "passed": true
+    },
+    {
+      "name": "no_future_replay_stages",
+      "passed": true
+    },
+    {
+      "name": "draft_report_retains_scope",
+      "passed": true
+    }
+  ],
+  "method": "read-only generated live-pipeline fixtures and authenticated deterministic investigation; no customer source qualification",
+  "date": "2026-10-12"
+}

@@ -4,9 +4,9 @@ import re
 import time
 from pathlib import Path
 from datetime import datetime, timezone
-from agent_assessment import FIELDS, STATES, assess, normalize, related, scalar
+from .agent_assessment import FIELDS, STATES, assess, normalize, related, scalar
 
-APP_ROOT = Path(__file__).resolve().parents[1]
+APP_ROOT = Path(__file__).resolve().parents[2]
 GROUP_FIELDS = ("owner", "site", "state", "layer", "control_id", "entity_id")
 KINDS = ("snapshot", "summary", "timeline")
 LATEST = " | stats latest(_time) as _time " + " ".join("latest(" + field + ") as " + field for field in FIELDS if field not in ("_time", "entity_id")) + " by entity_id"
@@ -72,16 +72,22 @@ def compile_search(context, kind="snapshot", group_by="owner", state="any"):
     return query
 
 class Investigation:
-    def __init__(self, context, search):
+    def __init__(self, context, search, progress=None):
         self.context = validate_context(context)
         self.search = search
         self.trace, self.results, self.snapshot = [], [], []
         self.captured_at = time.time()
         self.assessment = None
+        self.progress = progress
 
     def run_search(self, kind="snapshot", group_by="owner", state="any"):
         query = compile_search(self.context, kind, group_by, state)
+        if self.progress:
+            self.progress.check()
+            self.progress.emit('search_start', search_kind=kind, query=query)
         raw = self.search(query)
+        if self.progress:
+            self.progress.check()
         rows = raw[:100]
         if kind == "snapshot":
             rows = [normalize(row, self.captured_at) for row in rows]
@@ -92,6 +98,8 @@ class Investigation:
         meta = {"rows": len(rows), "truncated": len(raw) > 100, "mode": self.context["mode"], "query": query}
         self.trace.append(dict(meta, tool="query_events"))
         self.results.append({"kind": kind, "rows": rows, "truncated": meta["truncated"], "query": query})
+        if self.progress:
+            self.progress.emit('search_done', search_kind=kind, rows=len(rows), truncated=meta['truncated'])
         return rows
 
     def initialize(self):
@@ -100,6 +108,8 @@ class Investigation:
         if focus and focus not in {row["entity_id"] for row in self.snapshot}:
             raise ValueError("Selected component is not in the returned investigation scope; refresh or refine the scope")
         self.assessment = assess(self.snapshot, self.captured_at)
+        if self.progress:
+            self.progress.emit('evidence_ready', assessment=self.assessment)
         return self.snapshot
 
     def knowledge(self):
@@ -115,6 +125,21 @@ class Investigation:
                 "limits": "At most 100 returned rows per tool. Footprints use returned inventory only. Healthy evidence lowers investigation priority but does not exonerate a component. No measured time-to-innocence, SLA, revenue, change records or verified root cause is supplied."}
 
     def call(self, name, arguments):
+        if self.progress:
+            self.progress.check()
+            if name in ('inspect_scope', 'query_events', 'follow_dependencies', 'draft_report'):
+                self.progress.emit('tool_start', tool=name)
+        try:
+            result = self._call(name, arguments)
+        except (ValueError, TypeError):
+            if self.progress:
+                self.progress.emit('tool_rejected')
+            raise
+        if self.progress:
+            self.progress.emit('tool_done', tool=name, rows=self.trace[-1]['rows'])
+        return result
+
+    def _call(self, name, arguments):
         if not isinstance(arguments, dict):
             raise ValueError("Tool arguments must be an object")
         if name == "inspect_scope" and not arguments:
@@ -199,7 +224,9 @@ def format_demo_answer(investigation):
         lines.append("Synthetic scenario. Proposed actions are simulations; correlation is not causal proof.")
     else:
         lines.append("Live observations. The selected use case is an investigation lens, not evidence of that scenario occurring.")
-    return "\n".join(lines)
+    headings = {'Purpose', 'Decision summary', 'Observed evidence', 'Investigation hypothesis', 'Narrowing the investigation', 'Accountable next step', 'Evidence still needed'}
+    lines[0] = '## ' + lines[0]
+    return "\n\n".join('### ' + line if line in headings or line.startswith('Earliest returned abnormal evidence (') else line for line in lines)
 
 def evidence_time(value):
     if not value:

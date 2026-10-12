@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "splunk_facility_operations" / "bin"))
-from agent_tools import Investigation, compile_search, validate_context
-from agent_providers import Provider, run_agent, validate_settings
-from facility_ops_rest import FacilityOperations
+from facility_ops_runtime.agent_tools import Investigation, compile_search, validate_context
+from facility_ops_runtime.agent_providers import Provider, run_agent, validate_settings
+from facility_ops_runtime.rest_handler import FacilityOperations
 
 CONTEXT = {"mode": "demo", "vertical": "public_services", "usecase": "dependency", "clock": 2000000000}
 SETTINGS = {"provider": "demo", "model": "", "ollama_url": "http://127.0.0.1:11434", "aitk_provider": "Ollama", "allow_live_llm": False}
@@ -45,7 +45,7 @@ class AgentToolsTests(unittest.TestCase):
         settings = validate_settings(dict(SETTINGS, provider="openai", model="test-model"))
         reasoning = {"type": "reasoning", "id": "reasoning-1", "summary": [], "encrypted_content": "opaque-test-state"}
         reply = {"output": [reasoning, {"type": "function_call", "call_id": "call-1", "name": "inspect_scope", "arguments": "{}"}]}
-        with patch("agent_providers.post_json", side_effect=[reply, {"output": []}]) as request:
+        with patch("facility_ops_runtime.agent_providers.post_json", side_effect=[reply, {"output": []}]) as request:
             provider = Provider(settings, "test-secret", lambda query: [])
             conversation = [{"role": "user", "content": "Investigate"}]
             _, calls = provider.complete(conversation)
@@ -63,7 +63,7 @@ class AgentToolsTests(unittest.TestCase):
 
     def test_ollama_adapter_disables_streaming_and_parses_tools(self):
         settings = validate_settings(dict(SETTINGS, provider="ollama", model="test-model"))
-        with patch("agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": []}), patch("agent_providers.post_json", return_value={"message": {"content": "", "tool_calls": [{"function": {"name": "inspect_scope", "arguments": {}}}]}}) as request:
+        with patch("facility_ops_runtime.agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": []}), patch("facility_ops_runtime.agent_providers.post_json", return_value={"message": {"content": "", "tool_calls": [{"function": {"name": "inspect_scope", "arguments": {}}}]}}) as request:
             _, calls = Provider(settings, "", lambda query: []).complete([{"role": "user", "content": "Inspect"}])
             self.assertFalse(request.call_args.args[1]["stream"])
             self.assertEqual(calls[0]["arguments"], {})
@@ -127,7 +127,7 @@ class AuthorizationTests(unittest.TestCase):
 
     def test_live_context_does_not_reach_llm_without_saved_permission(self):
         handler = FakeHandler(provider="openai")
-        with patch("agent_providers.post_json") as provider:
+        with patch("facility_ops_runtime.agent_providers.post_json") as provider:
             status, _ = request(handler, "agent", {"message": "Investigate", "context": dict(CONTEXT, mode="live")})
             self.assertEqual(status, 403)
             provider.assert_not_called()

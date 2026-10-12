@@ -116,6 +116,9 @@ try {
   await clickButton('Investigate priority');
   await page.getByText('Focused on Shared identity [identity]', { exact: true }).waitFor();
   check('component_investigation_handoff', (await page.getByLabel('Ask about the current operational context').inputValue()).includes('[identity]'));
+  const connectedProvider = !(await page.locator('.fo-agent-provider').innerText()).includes('Deterministic demo assistant');
+  if (connectedProvider && !process.argv.includes('--allow-provider-inference')) throw new Error('Configured inference requires --allow-provider-inference; provider settings are preserved.');
+  await page.getByLabel('Ask about the current operational context').fill('Trace the event sequence using query_events timeline and follow_dependencies for Shared identity. Explain dependency impact, counter-evidence and missing evidence.');
   await clickButton('Investigate');
   await page.getByText('Investigation steps', { exact: true }).waitFor();
   check('installed_investigation_service', true);
@@ -138,8 +141,12 @@ try {
   check('commercial_facility_sites', await page.getByRole('heading', { name: 'Central campus', exact: true }).count() === 0);
   receipt.stage = 'settings';
   await clickButton('Settings');
-  await clickButton('Test saved connection');
-  await page.getByRole('status').filter({ hasText: 'Deterministic demo assistant is available' }).waitFor();
+  if (!connectedProvider) {
+    await clickButton('Test saved connection');
+    await page.getByRole('status').filter({ hasText: 'Deterministic demo assistant is available' }).waitFor();
+  } else {
+    await page.getByRole('combobox', { name: 'LLM provider', exact: true }).waitFor();
+  }
   check('installed_provider_settings', true);
   await page.screenshot({ path: output + '/presentation-settings.png', fullPage: true });
   await clickButton('Present');

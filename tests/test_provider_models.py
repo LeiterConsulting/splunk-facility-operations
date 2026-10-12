@@ -7,9 +7,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "splunk_facility_operations/bin"))
-from agent_models import discover_models, inspect_ollama, openai_efforts
-from agent_providers import Provider, reasoning_effort, validate_settings
-from agent_transport import ProviderError, get_json
+from facility_ops_runtime.agent_models import discover_models, inspect_ollama, openai_efforts
+from facility_ops_runtime.agent_providers import Provider, reasoning_effort, validate_settings
+from facility_ops_runtime.agent_transport import ProviderError, get_json
 from test_agent import FakeHandler, SETTINGS, request
 
 
@@ -18,7 +18,7 @@ class ModelDiscoveryTests(unittest.TestCase):
         rows = [{"id": "model-" + str(i), "credential": "hidden"} for i in range(220)]
         rows += [{"id": 'bad" | delete'}, {"id": "model-1"}, {"id": None}]
         settings = validate_settings(dict(SETTINGS, provider="openai"), require_model=False)
-        with patch("agent_models.get_json", return_value={"data": rows}) as read:
+        with patch("facility_ops_runtime.agent_models.get_json", return_value={"data": rows}) as read:
             result = discover_models(settings, "transient-key")
         self.assertEqual(read.call_args.args, ("https://api.openai.com/v1/models", "transient-key"))
         self.assertEqual(len(result["models"]), 200)
@@ -31,7 +31,7 @@ class ModelDiscoveryTests(unittest.TestCase):
         settings = validate_settings(dict(SETTINGS, provider="openai"), require_model=False)
         with self.assertRaises(ProviderError):
             discover_models(settings)
-        with patch("agent_models.get_json", return_value={"data": {}}):
+        with patch("facility_ops_runtime.agent_models.get_json", return_value={"data": {}}):
             with self.assertRaises(ProviderError):
                 discover_models(settings, "key")
         with self.assertRaises(ValueError):
@@ -39,7 +39,7 @@ class ModelDiscoveryTests(unittest.TestCase):
 
     def test_ollama_lists_installed_models_and_inspects_only_the_selected_one(self):
         settings = validate_settings(dict(SETTINGS, provider="ollama", model="local:latest"))
-        with patch("agent_models.get_json", return_value={"models": [{"name": "local:latest"}]}) as read, patch("agent_models.post_json", return_value={"capabilities": ["tools", "thinking"], "thinking": {"values": ["low", "medium", "high"]}, "template": "untrusted template"}) as show:
+        with patch("facility_ops_runtime.agent_models.get_json", return_value={"models": [{"name": "local:latest"}]}) as read, patch("facility_ops_runtime.agent_models.post_json", return_value={"capabilities": ["tools", "thinking"], "thinking": {"values": ["low", "medium", "high"]}, "template": "untrusted template"}) as show:
             result = discover_models(settings)
             show.assert_not_called()
             model = inspect_ollama(settings)
@@ -75,7 +75,7 @@ class ModelDiscoveryTests(unittest.TestCase):
         self.assertIn("list_ai_commander_config", payload["error"])
 
     def test_discovery_requires_admin_and_uses_unsaved_key_without_writes(self):
-        with patch("facility_ops_rest.discover_models", return_value={"models": []}) as discover:
+        with patch("facility_ops_runtime.rest_handler.discover_models", return_value={"models": []}) as discover:
             handler = FakeHandler(admin=False)
             self.assertEqual(request(handler, "models", dict(SETTINGS, provider="openai", api_key="new-key"))[0], 403)
             discover.assert_not_called()
@@ -117,7 +117,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
         phase = {"type": "message", "role": "assistant", "phase": "commentary", "content": [{"type": "output_text", "text": "Checking"}]}
         reasoning = {"type": "reasoning", "encrypted_content": "opaque"}
         call = {"type": "function_call", "call_id": "call-1", "name": "inspect_scope", "arguments": "{}"}
-        with patch("agent_providers.post_json", side_effect=[{"output": [reasoning, phase, call], "usage": {"input_tokens": 10, "output_tokens": 5, "secret": "private"}}, {"output": []}]) as send:
+        with patch("facility_ops_runtime.agent_providers.post_json", side_effect=[{"output": [reasoning, phase, call], "usage": {"input_tokens": 10, "output_tokens": 5, "secret": "private"}}, {"output": []}]) as send:
             provider = Provider(settings, "key", lambda query: [])
             history = [{"role": "user", "content": "Summarize"}]
             _, calls = provider.complete(history)
@@ -135,7 +135,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
 
     def test_unknown_openai_model_does_not_receive_reasoning_controls(self):
         settings = validate_settings(dict(SETTINGS, provider="openai", model="custom-model", reasoning_mode="high"))
-        with patch("agent_providers.post_json", return_value={"output": []}) as send:
+        with patch("facility_ops_runtime.agent_providers.post_json", return_value={"output": []}) as send:
             provider = Provider(settings, "key", lambda query: [])
             provider.complete([{"role": "user", "content": "Investigate"}], use_tools=False)
         self.assertNotIn("reasoning", send.call_args.args[1])
@@ -145,7 +145,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
     def test_incomplete_and_refused_openai_calls_do_not_execute_tools(self):
         settings = validate_settings(dict(SETTINGS, provider="openai", model="gpt-5"))
         for response in [{"status": "incomplete", "output": []}, {"output": [{"content": [{"type": "refusal", "refusal": "private"}]}]}]:
-            with patch("agent_providers.post_json", return_value=response):
+            with patch("facility_ops_runtime.agent_providers.post_json", return_value=response):
                 with self.assertRaises(ProviderError) as error:
                     Provider(settings, "key", lambda query: []).complete([])
                 self.assertNotIn("private", str(error.exception))
@@ -153,7 +153,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
     def test_ollama_uses_advertised_thinking_and_replays_native_message(self):
         settings = validate_settings(dict(SETTINGS, provider="ollama", model="local"))
         message = {"role": "assistant", "content": "", "thinking": "private internal state", "tool_calls": [{"function": {"name": "inspect_scope", "arguments": {}}}]}
-        with patch("agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": ["low", "medium", "high"]}), patch("agent_providers.post_json", side_effect=[{"message": message}, {"message": {"role": "assistant", "content": "Evidence"}}]) as send:
+        with patch("facility_ops_runtime.agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": ["low", "medium", "high"]}), patch("facility_ops_runtime.agent_providers.post_json", side_effect=[{"message": message}, {"message": {"role": "assistant", "content": "Evidence"}}]) as send:
             provider = Provider(settings, "", lambda query: [])
             history = [{"role": "user", "content": "Investigate cause"}]
             _, calls = provider.complete(history)
@@ -167,13 +167,13 @@ class ReasoningAndProtocolTests(unittest.TestCase):
     def test_ollama_boolean_controls_and_legacy_metadata(self):
         settings = validate_settings(dict(SETTINGS, provider="ollama", model="local"))
         for values, expected in [([False, True], False), ([], None)]:
-            with patch("agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": values}), patch("agent_providers.post_json", return_value={"message": {"content": "Summary"}}) as send:
+            with patch("facility_ops_runtime.agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": values}), patch("facility_ops_runtime.agent_providers.post_json", return_value={"message": {"content": "Summary"}}) as send:
                 Provider(settings, "", lambda query: []).complete([{"role": "user", "content": "Summarize"}])
                 self.assertEqual(send.call_args.args[1].get("think"), expected)
-        with patch("agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": []}), patch("agent_providers.post_json", return_value={"message": {"content": "Evidence"}}) as send:
+        with patch("facility_ops_runtime.agent_providers.inspect_ollama", return_value={"tools": True, "thinking_values": []}), patch("facility_ops_runtime.agent_providers.post_json", return_value={"message": {"content": "Evidence"}}) as send:
             Provider(settings, "", lambda query: []).complete([{"role": "user", "content": "Investigate"}])
             self.assertEqual(send.call_args.args[1]["options"]["num_predict"], 4000)
-        with patch("agent_providers.inspect_ollama", return_value={"tools": False, "thinking_values": []}), patch("agent_providers.post_json") as send:
+        with patch("facility_ops_runtime.agent_providers.inspect_ollama", return_value={"tools": False, "thinking_values": []}), patch("facility_ops_runtime.agent_providers.post_json") as send:
             with self.assertRaises(ProviderError):
                 Provider(settings, "", lambda query: []).complete([])
             send.assert_not_called()
@@ -194,7 +194,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
         settings = validate_settings(dict(SETTINGS, provider="openai", model="gpt-5"))
         provider = Provider(settings, "key", lambda query: [])
         provider.deadline = 0
-        with patch("agent_providers.post_json") as send:
+        with patch("facility_ops_runtime.agent_providers.post_json") as send:
             with self.assertRaises(ProviderError):
                 provider.complete([])
             send.assert_not_called()
@@ -203,7 +203,7 @@ class ReasoningAndProtocolTests(unittest.TestCase):
 class TransportTests(unittest.TestCase):
     def test_transport_sanitizes_provider_errors_and_does_not_retry_credentials(self):
         error = urllib.error.HTTPError("https://api.openai.com/v1/models", 401, "private", {}, io.BytesIO(b'{"secret":"private"}'))
-        with patch("agent_transport.urllib.request.build_opener") as opener:
+        with patch("facility_ops_runtime.agent_transport.urllib.request.build_opener") as opener:
             opener.return_value.open.side_effect = error
             with self.assertRaises(ProviderError) as caught:
                 get_json("https://api.openai.com/v1/models", "key")
@@ -212,7 +212,7 @@ class TransportTests(unittest.TestCase):
 
     def test_transport_rejects_oversized_non_json_and_error_responses(self):
         for body in [b'x' * 2_000_001, b'<html>wrong endpoint</html>', b'{"error":"private details"}']:
-            with patch("agent_transport.urllib.request.build_opener") as opener:
+            with patch("facility_ops_runtime.agent_transport.urllib.request.build_opener") as opener:
                 opener.return_value.open.return_value.__enter__.return_value.read.return_value = body
                 with self.assertRaises(ProviderError):
                     get_json("https://example.test/models")

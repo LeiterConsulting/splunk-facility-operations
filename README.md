@@ -36,7 +36,7 @@ New to the terminology? See the [glossary](docs/glossary.md). Initial public sec
 - **Several audiences, one incident:** Operations, Security, Engineering, Executive, Chief Information Security Officer (CISO), Information System Security Officer (ISSO), Change Control Board (CCB), Facilities, Continuity, and Audit and Oversight.
 - **Several operating contexts:** sixteen verticals and six use-case families covering shared dependency disruption, cyber and physical continuity, containment, change readiness, modernization and governed autonomy.
 - **Repeatable presentations:** an eight-phase synthetic incident loop with fresh timestamps, pause, phase selection and presentation mode. No continuously ingested demo source is required.
-- **An investigation assistant grounded in the dataset:** the selected audience, component, data purpose and field meanings accompany computed operational facts. Inspect upstream/downstream relationships, retrieve chronology, draft reports, and export text, JSON evidence and executed SPL.
+- **An investigation assistant grounded in the dataset:** the selected audience, component, data purpose and field meanings accompany computed operational facts. Watch search and model activity, read incremental formatted answers, inspect cited evidence and event sequences, draft briefs, and export text, JSON evidence and executed SPL.
 - **Governance conversations:** examine evidence, approval, rollback and recovery gates through clearly labeled simulations.
 - **A separate live path:** authenticated Splunk searches use the signed-in user's data permissions. Missing or stale telemetry remains unknown.
 
@@ -44,7 +44,7 @@ The catalogue supports commercial and public sector organizations. Retail, manuf
 
 ## Download and install
 
-Download the ready-to-install [Facility Operations 0.1.3 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.3/splunk_facility_operations-0.1.3.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
+Download the ready-to-install [Facility Operations 0.1.4 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.4/splunk_facility_operations-0.1.4.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
 
 In Splunk Web, an administrator opens **Apps → Manage Apps → Install app from file**, selects the downloaded `.tar.gz`, and uploads it. Keep the archive compressed. The release includes the compiled interface and demonstration data; Git, Node.js, npm and a source build are not required to install it.
 
@@ -66,7 +66,7 @@ Open [the local preview](http://127.0.0.1:5174). Open **Settings → Presentatio
 
 A presenter with an already installed app can open **Facility Operations** from the Splunk app menu and follow the same walkthrough. The local preview uses synthetic observations and the deterministic assistant. Real searches and configured model connections require installation in Splunk.
 
-The build creates `artifacts/splunk_facility_operations-0.1.3.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
+The build creates `artifacts/splunk_facility_operations-0.1.4.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
 
 Settings can discover OpenAI account models, installed Ollama models and AI Toolkit's configured LLM connections. Manual identifiers remain available. Direct OpenAI/Ollama connections support adaptive or fixed reasoning where the model permits it; investigation details show call duration and available token counts. Follow the [assistant setup guide](docs/assistant-setup.md) for permissions, capability checks and model qualification.
 
@@ -76,6 +76,6 @@ The native app was checked on Splunk Enterprise **10.0.1 and 10.4.0**, using Spl
 
 Dependency relationships come from the supplied inventory. Chronology and relationships support investigation hypotheses; they do not independently prove cause. Audience selection changes the presentation and grants no permissions. Audience, industry and use case are configured together in Settings and remembered in this browser; the dashboard shows their active labels and keeps the Demo/Live switch visible. Valid shared-link context overrides remembered preferences.
 
-All action execution is a browser-session simulation. Reports are downloadable drafts, and investigations and decisions are not a durable incident record. The deterministic assistant uses templates without an LLM. Connected provider adapters are implemented and tested with mocks; real model inference still requires qualification. Provider failure is shown as an error; presenters can explicitly select and save the deterministic assistant to continue.
+All action execution is a browser-session simulation. Reports are downloadable drafts, and investigations and decisions are not a durable incident record. The deterministic assistant uses templates without an LLM. OpenAI `gpt-6-luna` has been exercised against synthetic demo evidence on the installed lab. Other models, Ollama, AI Toolkit and customer data require separate qualification. Provider failure is shown as an error; presenters can explicitly select and save the deterministic assistant to continue.
 
 For a customer proof of concept, agree the business function, sources, dependency authority, evidence coverage, sampling interval, access roles and success measures before evaluating the live path. [Evaluation guide](docs/operations-value.md#plan-a-customer-proof-of-concept)

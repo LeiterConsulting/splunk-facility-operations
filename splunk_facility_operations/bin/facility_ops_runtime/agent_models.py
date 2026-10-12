@@ -1,6 +1,6 @@
 """Provider inventories and capability metadata, without inference or data searches."""
 import re
-from agent_transport import ProviderError, get_json, post_json
+from .agent_transport import ProviderError, get_json, post_json
 
 MODEL_ID = re.compile(r"[A-Za-z0-9._:/-]{1,160}")
 
