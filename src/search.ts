@@ -1,6 +1,6 @@
 import { createFetchInit, handleResponse } from '@splunk/splunk-utils/fetch';
 import { createRESTURL } from '@splunk/splunk-utils/url';
-import { getUsecase, getVertical, type Mode, type Signal, type State, type Layer } from './catalogue';
+import { getUsecase, getVertical, PHASE_SECONDS, CYCLE_SECONDS, type Mode, type Signal, type State, type Layer } from './catalogue';
 import { normalizeObservation } from './operationalData';
 export function buildSearch(mode: Mode, vertical: string, usecase: string, clock: number): string {
   getVertical(vertical);
@@ -19,6 +19,11 @@ export function buildSearch(mode: Mode, vertical: string, usecase: string, clock
   return base + latest + inventory + ' | eval vertical="' + vertical + '" | table _time entity_id name layer site owner category control_id depends_on state reason latency_ms queue_depth temperature_c control_state evidence_at origin vertical usecase phase operational';
 }
 export const isSplunk = () => /\/app\/splunk_facility_operations(?:\/|$)/.test(window.location.pathname);
+export function buildTimelineSearch(vertical: string, usecase: string, clock: number) {
+  buildSearch('demo', vertical, usecase, clock); // Apply the same scope and clock validation.
+  const phase = Math.floor(clock % CYCLE_SECONDS / PHASE_SECONDS);
+  return '| `facility_ops_demo_events("' + vertical + '","' + usecase + '",' + clock + ')` | where phase<=' + phase + ' | sort 100 _time entity_id | eval vertical="' + vertical + '" | table _time entity_id name layer site owner category control_id depends_on state reason latency_ms queue_depth temperature_c control_state evidence_at origin vertical usecase phase operational';
+}
 function scalar(value: unknown): string {
   return Array.isArray(value) ? String(value[0] ?? '') : String(value ?? '');
 }
@@ -51,11 +56,14 @@ export function normalizeResult(row: Record<string, unknown>, mode: Mode): Signa
   };
 }
 export async function searchSignals(mode: Mode, vertical: string, usecase: string, clock: number, signal: AbortSignal): Promise<Signal[]> {
+  return querySignals(buildSearch(mode, vertical, usecase, clock), mode, signal);
+}
+export async function querySignals(search: string, mode: Mode, signal: AbortSignal): Promise<Signal[]> {
   const endpoint = createRESTURL('search/jobs', { app: 'splunk_facility_operations', owner: '-' });
   const response = await fetch(endpoint, createFetchInit({
     method: 'POST', signal,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-    body: new URLSearchParams({ search: buildSearch(mode, vertical, usecase, clock), exec_mode: 'oneshot', output_mode: 'json', earliest_time: '-60m', latest_time: 'now', count: '1000' }),
+    body: new URLSearchParams({ search, exec_mode: 'oneshot', output_mode: 'json', earliest_time: '-60m', latest_time: 'now', count: '1000' }),
   }));
   if (!response.ok) throw new Error('Splunk search request failed (' + response.status + ').');
   const result = await handleResponse(200)(response) as { results?: Record<string, unknown>[]; messages?: { type: string; text: string }[] };

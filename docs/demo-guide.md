@@ -4,7 +4,7 @@ Start in **Operations story**, then choose **Start guided walkthrough** or **Sta
 
 For business value and evaluation measures, use [operations value](operations-value.md). For concrete clinical, manufacturing and retail examples, use [industry scenarios](industry-scenarios.md).
 
-![Guided impact step with highlighted evidence and native Splunk chrome](images/case-walkthrough.png)
+![Queried authored response, recovery evidence and native Splunk chrome](images/incident-response.png)
 
 ## Choose the presentation length
 
@@ -89,3 +89,22 @@ On compact screens the guide keeps its controls visible, uses the same automatic
 | Live is empty | Onboard inventory and normalized sources using the [live guide](live-data.md). Empty coverage remains unknown. |
 
 Use [troubleshooting](troubleshooting.md) for installation, caches, provider connectivity and data-contract checks.
+
+## Explain the what, why, when and response
+
+Each guided stage now includes an **Incident story explanation**:
+
+- **What changed** names the affected handoff or dependency and its returned completion, response, age or diagnostic values.
+- **Why it matters** connects the authored mechanism to the configured service path, compares baseline/impact/current measurements and identifies a healthy competing diagnostic. The mechanism remains a hypothesis to test.
+- **When it happened** identifies the first returned dependency signal and business impact. **Returned incident chronology** expands the queried stage records, UTC observation times, replay offsets, source family and observation reference.
+- **What was queried?** lists completed dashboard snapshot and incident-chronology searches, their purpose, start/end times and row counts. Expand **View executed SPL** to inspect the exact query. Completed assistant query traces join this list after an investigation. Local component preview explicitly labels its SPL as unexecuted.
+- **How can it be addressed?** shows the proposed response, accountable team, review gate, prechecks, rollback and independent acceptance checks. This opens first at Decision.
+- **How was it addressed?** opens first at Recover and Verify. It identifies the returned synthetic intervention record, concrete response detail, story owner, response reference and application time. It distinguishes this authored incident response from separately recorded presenter approval, simulation or deferral. Before an intervention record is returned, it says that no applied response is available.
+
+The assistant stage leads with query receipts. Decision leads with the proposed response; recovery and verification lead with the authored response and what subsequent measurements establish. Next/Back remain outside the scrolling explanation so additional context does not hide navigation.
+
+The walkthrough queries earlier observations through the selected phase. A short overview can therefore retrieve detection or intervention records without visiting those screens. **Visited steps** still records only the screens actually visited; their chronology contains only earlier/current returned source observations. Back navigation omits later response records, later assistant searches and later presenter decisions from that stage's explanation.
+
+Synthetic replay offsets such as **T+00:45**, **T+01:30** and **T+03:45** identify the authored incident sequence. UTC observation timestamps belong to the queried replay pass and rebase on refresh; query execution timestamps identify when evidence was retrieved. Click duration is not incident elapsed time or measured recovery improvement.
+
+Download story evidence to retain each visited stage's narrative, chronology rows and search receipts. Download customer brief to retain the last captured explanation alongside current workflow facts and the frozen assistant findings. Independent final transaction reconciliation remains a customer proof-of-concept requirement.

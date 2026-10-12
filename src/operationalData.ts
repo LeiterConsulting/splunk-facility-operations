@@ -1,7 +1,7 @@
 import { operationalProfile } from './operationalCatalogue';
 
 export const observationNumbers = ['window_seconds', 'attempted', 'completed', 'p95_ms', 'target_p95_ms', 'target_success_pct', 'oldest_wait_min', 'signal_value', 'signal_limit'] as const;
-export const observationStrings = ['transaction', 'outcome', 'source_type', 'signature', 'observation_ref', 'change_ref', 'signal_label', 'signal_unit', 'signal_direction'] as const;
+export const observationStrings = ['transaction', 'outcome', 'source_type', 'signature', 'observation_ref', 'change_ref', 'signal_label', 'signal_unit', 'signal_direction', 'story_kind', 'story_summary', 'story_explanation', 'response_detail', 'response_action', 'response_owner', 'response_ref', 'response_state', 'response_precheck', 'response_verify'] as const;
 export type OperationalObservation = Record<typeof observationNumbers[number], number | null> & Record<typeof observationStrings[number], string>;
 export function normalizeObservation(input: unknown): OperationalObservation | null {
   let value = input;
@@ -47,6 +47,7 @@ export function operationalObservation(vertical: string, usecase: string, entity
     transaction: '', outcome: '', source_type: '', signature: '', observation_ref: 'DEMO-' + vertical + '-' + usecase + '-' + entity + '-' + phase,
     change_ref: usecase === 'change' && phase >= 1 ? 'DEMO-CHG-' + vertical.toUpperCase() + '-042' : '',
     signal_label: '', signal_unit: '', signal_direction: 'upper',
+    story_kind: '', story_summary: '', story_explanation: '', response_detail: '', response_action: '', response_owner: '', response_ref: '', response_state: '', response_precheck: '', response_verify: '',
   };
   if (business) {
     const index = profile.processes.indexOf(business);

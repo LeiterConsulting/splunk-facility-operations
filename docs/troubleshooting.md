@@ -129,3 +129,11 @@ If you navigate or scroll away, use Return to this step or Show highlighted evid
 - A new walkthrough, applied presentation, Demo/Live change or page refresh clears the current case. Download the customer brief or assistant exports before starting again. Case state is in this page session, not a durable server record.
 - Current recovery values and an earlier frozen investigation can differ. Compare their labeled scope, capture times and replay clocks; the brief retains both without rewriting the earlier findings.
 - Presentation readiness reports observed coverage and saved provider selection. It does not claim that the endpoint was contacted. Test a connected provider in Settings before presenting.
+
+## Incident explanation and chronology
+
+- **Next is disabled after the snapshot appears:** the guide also requires the selected-stage chronology search. Retry stage search if it failed; the app does not synthesize an earlier event or intervention to fill a gap.
+- **UTC times differ after refresh:** the looping synthetic dataset rebases the selected replay pass on each query. Compare T+ offsets for the authored sequence and query timestamps for evidence retrieval. Click duration is not incident elapsed time.
+- **How was it addressed says no applied response:** no intervention record was returned at or before this stage. Inspect the proposed response; recovery records appear later in the fictional chronology. A missing earlier intervention is not inferred from a later healthy snapshot.
+- **A response is shown without presenter approval:** it is a queried authored incident record, labeled separately from local presenter decisions. Navigation does not execute or authorize infrastructure changes.
+- **No assistant searches are listed:** no completed assistant query trace is available at or before the selected stage. The dashboard searches are listed independently. Back navigation omits later investigation context.

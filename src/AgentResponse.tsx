@@ -86,6 +86,6 @@ export function activityLabel(activity: Activity) {
 }
 export function InvestigationActivity({ activities, createdAt, running }: { activities: Activity[]; createdAt: number; running: boolean }) {
   return <details className={uiClass('investigation-activity')} open={running || undefined}><summary>Investigation activity · {running ? 'in progress' : 'completed'} · {Math.max(0, Math.round(((running ? Date.now() / 1000 : activities.at(-1)?.at ?? createdAt) - createdAt)))}s</summary>
-    <ol aria-label="Investigation activity">{activities.map((activity, index) => <li key={index}><time>{Math.max(0, Math.round(activity.at - createdAt))}s</time><span>{activityLabel(activity)}</span>{activity.query && <details><summary>View executed SPL</summary><pre>{activity.query}</pre></details>}</li>)}</ol>
+    <ol aria-label="Investigation activity">{activities.map((activity, index) => <li key={index}><time dateTime={new Date(activity.at * 1000).toISOString()}>{new Date(activity.at * 1000).toISOString().slice(11, 19)} UTC · +{Math.max(0, Math.round(activity.at - createdAt))}s</time><span>{activityLabel(activity)}</span>{activity.query && <details><summary>View executed SPL</summary><pre>{activity.query}</pre></details>}</li>)}</ol>
   </details>;
 }

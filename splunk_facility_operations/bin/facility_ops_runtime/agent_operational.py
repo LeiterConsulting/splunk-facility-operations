@@ -3,7 +3,7 @@ import json
 import math
 
 NUMBERS = ('window_seconds', 'attempted', 'completed', 'p95_ms', 'target_p95_ms', 'target_success_pct', 'oldest_wait_min', 'signal_value', 'signal_limit')
-STRINGS = ('transaction', 'outcome', 'source_type', 'signature', 'observation_ref', 'change_ref', 'signal_label', 'signal_unit', 'signal_direction')
+STRINGS = ('transaction', 'outcome', 'source_type', 'signature', 'observation_ref', 'change_ref', 'signal_label', 'signal_unit', 'signal_direction', 'story_kind', 'story_summary', 'story_explanation', 'response_detail', 'response_action', 'response_owner', 'response_ref', 'response_state', 'response_precheck', 'response_verify')
 
 def normalize_observation(value):
     if isinstance(value, list):

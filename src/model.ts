@@ -1,6 +1,7 @@
 import { CYCLE_SECONDS, PHASE_SECONDS, entitiesFor, getUsecase, phases, type Entity, type Signal, type State } from './catalogue';
 import { operationalObservation } from './operationalData';
 import { operationalProfile } from './operationalCatalogue';
+import { scenarioJournal } from './scenarioJournal';
 export function phaseAt(second: number): number {
   return Math.floor(((second % CYCLE_SECONDS) + CYCLE_SECONDS) % CYCLE_SECONDS / PHASE_SECONDS);
 }
@@ -35,7 +36,7 @@ export function signalsForPhase(verticalId: string, usecaseId: string, phase: nu
       : root && state !== 'healthy' ? scenario.symptom
       : impact && state !== 'healthy' ? 'Affected by ' + entities.find((item) => item.entity_id === scenario.root)?.name
       : phase >= 6 && impact ? 'Recovery validated against fresh telemetry.' : 'Within the expected operating range.';
-    const operational = operationalObservation(verticalId, usecaseId, entity.entity_id, state, phase);
+    const operational = { ...operationalObservation(verticalId, usecaseId, entity.entity_id, state, phase), ...scenarioJournal(scenario, entity, phase, verticalId) };
     return {
       ...entity, _time: time, state, reason, vertical: verticalId, usecase: usecaseId, origin: 'demo',
       phase, latency_ms: entity.layer !== 'facility' && state !== 'unknown' ? (state === 'critical' ? 1840 : state === 'warning' ? 680 : state === 'recovering' ? 280 : 84) : null,

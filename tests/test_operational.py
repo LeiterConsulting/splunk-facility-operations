@@ -52,3 +52,22 @@ class OperationalTests(unittest.TestCase):
         self.assertIsNone(normalize_observation('x' * 12001))
         self.assertIsNone(normalize_observation('{invalid'))
         self.assertIsNone(normalize_observation({'source_type': 'x', 'attempted': True})['attempted'])
+
+    def test_authored_response_fields_are_bounded_and_remain_separate_from_execution(self):
+        row = next(row for row in fixture() if row['entity_id'] == 'identity')
+        op = normalize_observation(row['operational'])
+        self.assertEqual(op['response_state'], 'planned')
+        self.assertEqual(op['response_ref'], '')
+        self.assertIn('Token acquisition', op['story_explanation'])
+        limited = normalize_observation(dict(source_type='x', response_detail='x' * 500, response_owner='owner', secret='drop'))
+        self.assertEqual(len(limited['response_detail']), 240)
+        self.assertNotIn('secret', limited)
+
+    def test_deterministic_investigation_explains_queried_story_records_without_claiming_execution(self):
+        investigation = Investigation(dict(CONTEXT), lambda query: fixture())
+        investigation.captured_at = NOW
+        investigation.initialize()
+        answer = demo_answer('Investigate the timeline, what happened and how it can be addressed', investigation)
+        self.assertIn('Authored incident chronology and response', answer)
+        self.assertIn('synthetic', answer)
+        self.assertIn('Replay UTC timestamps rebase', answer)

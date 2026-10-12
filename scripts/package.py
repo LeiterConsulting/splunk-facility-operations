@@ -26,7 +26,7 @@ RELEASE_FILES = (
     "bin/facility_ops_runtime/agent_jobs.py",
     "bin/facility_ops_runtime/__init__.py",
     "bin/facility_ops_runtime/rest_handler.py",
-    "bin/facility_ops_entry_b15.py",
+    "bin/facility_ops_entry_b16.py",
     "default/app.conf",
     "default/data/ui/nav/default.xml",
     "default/data/ui/views/facility_operations.xml",

@@ -8,7 +8,7 @@ Facility Operations follows specific business handoffs—clinical order acknowle
 
 The intended value is less time spent proving that an unaffected service or team is clear, fewer unnecessary handoffs, and faster, better informed decisions. These are outcomes to measure in a customer proof of concept; this release does not claim measured time savings or return on investment.
 
-![Guided business-impact story inside Splunk](docs/images/case-walkthrough.png)
+![Authored incident response and recovery evidence inside Splunk](docs/images/incident-response.png)
 
 Guided presentation on Splunk Enterprise 10.4 with native chrome, using the Retail and Commerce / Executive context. The default **Operations story** follows one case. Choose **Start guided walkthrough** or **Start three-minute overview**; the desktop guide has its own reading column and the sidebar labels align on the left. The [industry walkthroughs](docs/industry-scenarios.md) show clinical and manufacturing examples. See the [installed investigation assistant](docs/images/case-investigation.png) for the evidence-to-report workflow.
 
@@ -30,6 +30,7 @@ New to the terminology? See the [glossary](docs/glossary.md). Initial public sec
 
 ## What you can demonstrate today
 
+- **Traceable incident stories:** what changed, why the dependency matters, first returned UTC times and replay offsets, actual query receipts/SPL, proposed response and queried authored intervention detail. Recovery records are distinct from presenter approval and actual execution.
 - **One operational case:** a plain-language finding, business consequences, evidence and audience decision; completed investigations remain available across workspaces during the current page session. Download a customer brief with current observations, frozen investigation findings, recorded decisions and customer proof-of-concept requirements.
 - **Business delivery:** completed/attempted transactions, completion objectives, p95 response, aging work and source signatures for three distinct workflows per vertical.
 - **Diagnostic comparison:** token acquisition, gateway failures, database waits, circuit loss, UPS reserve and cooling observations with source evidence.
@@ -47,7 +48,7 @@ The catalogue supports commercial and public sector organizations. Retail, manuf
 
 ## Download and install
 
-Download the ready-to-install [Facility Operations 0.1.7 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.7/splunk_facility_operations-0.1.7.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
+Download the ready-to-install [Facility Operations 0.1.8 `.tar.gz` installer](https://github.com/LeiterConsulting/splunk-facility-operations/releases/download/v0.1.8/splunk_facility_operations-0.1.8.tar.gz), or open [GitHub Releases](https://github.com/LeiterConsulting/splunk-facility-operations/releases/latest) for release notes and assets.
 
 In Splunk Web, an administrator opens **Apps → Manage Apps → Install app from file**, selects the downloaded `.tar.gz`, and uploads it. Keep the archive compressed. The release includes the compiled interface and demonstration data; Git, Node.js, npm and a source build are not required to install it.
 
@@ -69,7 +70,7 @@ Open [the local preview](http://127.0.0.1:5174). Open **Settings → Presentatio
 
 A presenter with an already installed app can open **Facility Operations** from the Splunk app menu and follow the same walkthrough. The local preview uses synthetic observations and the deterministic assistant. Real searches and configured model connections require installation in Splunk.
 
-The build creates `artifacts/splunk_facility_operations-0.1.7.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
+The build creates `artifacts/splunk_facility_operations-0.1.8.tar.gz`, an identical `.spl` installer, and `SHA256SUMS`. These generated files are ignored by Git and distributed through GitHub Releases.
 
 Settings can discover OpenAI account models, installed Ollama models and AI Toolkit's configured LLM connections. Manual identifiers remain available. Direct OpenAI/Ollama connections support adaptive or fixed reasoning where the model permits it; investigation details show call duration and available token counts. Follow the [assistant setup guide](docs/assistant-setup.md) for permissions, capability checks and model qualification.
 

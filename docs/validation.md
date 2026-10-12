@@ -2,6 +2,24 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Incident explanations 0.1.8 (build 16)
+
+October 12, 2026. Each guided stage explains the issue, why the configured dependency matters, first returned UTC times and replay offsets, completed searches, the proposed response and any queried authored intervention. Snapshot and earlier-stage chronology searches run together in Splunk. The same bounded incident/response fields reach the installed assistant. Later context cannot explain an earlier stage.
+
+| Check | Result |
+| --- | --- |
+| Types and local tests | 32 TypeScript and 58 Python tests passed, including all 96 contexts, source journal bounds, onset/impact/application/verification separation and future-context filtering |
+| Final browser workflows | All 21 passed together, including actual query receipts, unexecuted preview labels, failed chronology/retry, authored response visibility, exports, Back navigation and compact controls |
+| Enterprise 10.4.0 | 36 guided, 28 free-exploration UI and 8 service checks passed |
+| Enterprise 10.0.1 / OpenAI | 37 guided checks passed with a real explicit gpt-6-luna investigation against synthetic evidence |
+| Native data grounding | Both final guided checks verify actual snapshot/chronology searches, the new normalized backend incident fields, method/owner/response reference and phase-bounded narrative exports; zero application errors |
+| Exact installer | 27 regular files, 560,944 bytes; reproducible, byte-identical formats, header-only live inventory and no local overrides |
+| AppInspect 4.2.1 precertification | 0 errors, failures or future failures; four warnings and one skipped check |
+
+Installer SHA-256: `a5e16900ff6da05674fd0146349a1affcebe1f3a97b2905a1b3f7f968d9a08c3`. See the [manifest](validation/release-v0.1.8.json), [guided 10.4 receipt](validation/release-v0.1.8-guided-10.4.json), [guided OpenAI 10.0 receipt](validation/release-v0.1.8-guided-openai-10.0.json), [free-exploration receipt](validation/release-v0.1.8-ui-10.4.json), [service receipt](validation/release-v0.1.8-service-10.4.json) and [inspection findings](validation/release-v0.1.8-appinspect.json). Saved provider settings were preserved. The 10.0 qualification records a browser-only certificate exception without changing provider TLS configuration.
+
+The authored incident journal is separate from presenter decisions and actual execution. UTC timestamps rebase with the queried replay pass; T+ offsets describe the authored sequence. Neither click duration nor synthetic transitions measure time-to-innocence or recovery improvement. Independent business reconciliation, durable case management, production/customer sources, formal accessibility, Cloud/GovCloud, clusters, scale and real Ollama/AI Toolkit inference remain outside this qualification. Inspection warnings concern telemetry, Python migration, cluster replication and Cloud roles; package identity is skipped.
+
 ## Case presentations 0.1.7 (build 15)
 
 October 12, 2026. Operations story opens with the business problem and supporting measurements. A page-session case retains completed investigations, citations, exports and local decisions across navigation. Audience decisions select relevant source evidence and deliverables. Presenters can choose a five-stage overview or the full eight-stage investigation; a reserved desktop reading column keeps the guide clear of evidence.

@@ -128,7 +128,7 @@ class Investigation:
                 "operating_reference": dict(profile, interpretation='Authored industry reference design. Example products, workflow steps and pain points do not establish the installed customer stack or a vendor incident.'),
                 "operational_facts": operational_facts(self.snapshot),
                 "scenario": {"label": scenario["label"], "demonstration_only": True, **({key: scenario[key] for key in ("action", "gate", "rollback")} if self.context["mode"] == "demo" else {})},
-                "metric_meanings": {"queue_depth": "Current waiting work by business function, in " + vertical["unit"] + "; sum only reported, current function observations. Items may appear in multiple queues; totals are not unique affected customers. Not throughput, financial loss or a measured saving.", "latency_ms": "Reported legacy latency observation, not a percentile or SLA. Operational p95_ms is separately source-supplied.", "temperature_c": "Environmental reading where reported; any supplied operational signal_limit is a source guide, not an engineering safety determination.", "control_id": "Review association, not proof of compliance.", "state": "Latest observed state; absent, stale or invalid evidence is unknown."},
+                "metric_meanings": {"queue_depth": "Current waiting work by business function, in " + vertical["unit"] + "; sum only reported, current function observations. Items may appear in multiple queues; totals are not unique affected customers. Not throughput, financial loss or a measured saving.", "latency_ms": "Reported legacy latency observation, not a percentile or SLA. Operational p95_ms is separately source-supplied.", "temperature_c": "Environmental reading where reported; any supplied operational signal_limit is a source guide, not an engineering safety determination.", "control_id": "Review association, not proof of compliance.", "state": "Latest observed state; absent, stale or invalid evidence is unknown.", "story_and_response": "story_* and response_* are authored synthetic incident records in Demo, separate from presenter decisions or actual execution. Establish response application time from the first returned timeline intervention record, never a current verification timestamp."},
                 "window": "Current replay pass; synthetic evidence" if self.context["mode"] == "demo" else "Last 60 minutes; current-state freshness 180 seconds",
                 "limits": "At most 100 returned rows per tool. Footprints use returned inventory only. Healthy evidence lowers investigation priority but does not exonerate a component. No measured time-to-innocence, customer SLA, revenue, approved change or verified root cause is supplied. Demo deployment references are synthetic. Operational counts are overlapping-window aggregates; do not sum windows or confuse acknowledgement with final business outcome."}
 
@@ -243,11 +243,20 @@ def format_demo_answer(investigation):
     lines += ['', 'Platform diagnostic comparison']
     for item in facts['diagnostics']:
         lines.append('- ' + item['name'] + ': ' + item['signal_label'] + ' = ' + measure(item['signal_value']) + ' ' + item['signal_unit'] + '; source `' + item['source_type'] + '`; ' + item['signature'] + '.')
+    journal = [row for row in timeline if row.get('operational') and row['operational'].get('story_kind')]
+    if investigation.context['mode'] == 'demo' and journal:
+        lines += ['', 'Authored incident chronology and response']
+        for row in sorted(journal, key=lambda item: item['_time']):
+            op = row['operational']
+            lines.append('- ' + evidence_time(row['_time']) + ' · ' + op['story_kind'] + ': ' + op['story_summary'] + ' Source ' + op['source_type'] + '; reference ' + op['observation_ref'] + '.')
+            if op['story_kind'] == 'intervention':
+                lines.append('Authored response: ' + op['response_action'] + '. ' + op['response_detail'] + '; owner ' + op['response_owner'] + '; ' + op['response_ref'] + '. This queried fictional response is not presenter approval or actual infrastructure execution.')
+        lines.append('Replay UTC timestamps rebase when queried. Overlapping observation windows and click duration do not measure incident resolution time.')
     profile = knowledge['operating_reference']
     if profile.get('mission'):
         lines += ['', 'Operating context', profile['mission'], profile['stakes'], 'Recovery verification: ' + profile['verification']]
     lines.append(facts['interpretation'])
-    headings = {'Purpose', 'Decision summary', 'Observed evidence', 'Investigation hypothesis', 'Narrowing the investigation', 'Accountable next step', 'Evidence still needed', 'Business delivery evidence', 'Platform diagnostic comparison', 'Operating context'}
+    headings = {'Purpose', 'Decision summary', 'Observed evidence', 'Investigation hypothesis', 'Narrowing the investigation', 'Accountable next step', 'Evidence still needed', 'Business delivery evidence', 'Platform diagnostic comparison', 'Operating context', 'Authored incident chronology and response'}
     lines[0] = '## ' + lines[0]
     return "\n\n".join('### ' + line if line in headings or line.startswith('Earliest returned abnormal evidence (') else line for line in lines)
 

@@ -5,7 +5,7 @@ import Button from '@splunk/react-ui/Button';
 import { createFetchInit } from '@splunk/splunk-utils/fetch';
 import { createRESTURL } from '@splunk/splunk-utils/url';
 import { demoHistory, dependents } from './model';
-import { buildSearch, isSplunk } from './search';
+import { buildSearch, buildTimelineSearch, isSplunk } from './search';
 import { audiences, getUsecase, getVertical, type Mode, type Signal } from './catalogue';
 import { audienceQuestion, guideFor } from './datasets';
 import { assessOperations, briefing, type Assessment } from './intelligence';
@@ -97,11 +97,13 @@ export function investigateDemo(message: string, context: Context, signals: Sign
       trace.push({ tool: 'follow_dependencies', entity_id: root.entity_id, rows: rows.length, mode: 'demo' });
     }
     const rows = demoHistory(context.vertical, context.usecase, context.clock, now).filter((row) => row.phase <= Math.floor(context.clock % 360 / 45));
-    const query = '| `facility_ops_demo_events("' + context.vertical + '","' + context.usecase + '",' + context.clock + ')` | where phase<=' + Math.floor(context.clock % 360 / 45) + ' | sort 100 - _time | table _time entity_id name state reason owner site';
+    const query = buildTimelineSearch(context.vertical, context.usecase, context.clock);
     results.push({ kind: 'timeline', rows, query }); trace.push({ tool: 'query_events', query, rows: rows.length, mode: 'demo' });
     const first = new Map<string, Signal>();
     for (const row of rows) if (['critical', 'warning', 'recovering'].includes(row.state) && !first.has(row.entity_id)) first.set(row.entity_id, row);
     sequence = '\n\n### Earliest returned abnormal evidence (current replay pass)\n\n' + ([...first.values()].map((row) => new Date(row._time * 1000).toISOString() + ' · ' + row.name + ' [' + row.entity_id + '] · ' + row.state).join('\n') || 'No abnormal observations returned in this window.');
+    const journal = rows.filter(row => row.operational?.story_kind).sort((a, b) => a._time - b._time);
+    sequence += '\n\n### Authored incident chronology and response\n\n' + journal.map(row => new Date(row._time * 1000).toISOString() + ' · ' + row.operational!.story_kind + ': ' + row.operational!.story_summary + (row.operational!.story_kind === 'intervention' ? ' ' + row.operational!.response_detail + ' Owner: ' + row.operational!.response_owner + '; ' + row.operational!.response_ref + '.' : '')).join('\n\n') + '\n\nThese are queried synthetic story records, separate from presenter approval and real infrastructure execution.';
   } else if (!results.some((item) => item.kind === 'report')) {
     const group = lower.includes('site') ? 'site' : lower.includes('state') ? 'state' : 'owner';
     const counts = new Map<string, number>();

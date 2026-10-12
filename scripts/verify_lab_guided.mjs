@@ -61,6 +61,13 @@ try {
   await guide.getByRole('button', { name: 'Next: Business impact', exact: true }).click();
   await expect(guide).toContainText('2,286/2,472');
   check('business_impact_from_returned_data', true);
+  const explanation = guide.getByRole('region', { name: 'Incident story explanation', exact: true });
+  check('what_why_when_from_returned_chronology', (await explanation.innerText()).includes('640 to 3,960') && (await explanation.innerText()).includes('T+00:45') && (await explanation.innerText()).includes('T+01:30'));
+  await explanation.getByText('What was queried? · 2 searches', { exact: true }).click();
+  check('executed_chronology_receipt_and_spl', (await explanation.innerText()).includes('Executed in Splunk · 30 returned rows') && (await explanation.locator('pre').last().textContent()).includes('where phase<=2'));
+  await explanation.getByText('How was it addressed?', { exact: true }).click();
+  check('no_future_response_before_intervention', (await explanation.innerText()).includes('No applied response has been returned'));
+  await page.screenshot({ path: output + '/story-impact.png', fullPage: false });
   const canvasBounds = await root.locator('#facility-operations-main').boundingBox();
   const guideBounds = await guide.boundingBox();
   check('desktop_guide_has_reserved_column', guideBounds.x >= canvasBounds.x + canvasBounds.width - 2);
@@ -81,6 +88,7 @@ try {
     await root.getByRole('button', { name: 'Export evidence', exact: true }).waitFor({ timeout: 190000 });
     const downloading = page.waitForEvent('download'); await click('Export evidence');
     const evidence = JSON.parse(readFileSync(await (await downloading).path(), 'utf8'));
+    check('new_runtime_carries_incident_source_fields', evidence.knowledge.operational_facts.diagnostics.some(row => row.entity_id === 'identity' && row.story_kind === 'investigation' && row.response_state === 'planned'));
     check('assistant_uses_guided_stage', evidence.scope.clock === 135 && evidence.scope.entity_id === 'identity' && evidence.knowledge.operational_facts.delivery.length === 3);
     check('assistant_chronology_bounded', evidence.results.some(result => result.kind === 'timeline' && result.rows.every(row => Number(row.phase) <= 3)));
     receipt.provider = evidence.provider; receipt.model = evidence.model;
@@ -96,6 +104,8 @@ try {
   check('decision_is_review_not_approval', (await guide.innerText()).includes('without approving or executing') && (await root.locator('.fo-guide-highlight').innerText()).includes('Confirm rollback'));
   await guide.getByRole('button', { name: 'Next: Recover', exact: true }).click();
   await expect(guide).toContainText('98.18%'); check('partial_recovery_distinguished', true);
+  check('authored_response_method_owner_reference', (await explanation.innerText()).includes('DEMO-RESPONSE-RETAIL-DEPENDENCY-005') && (await explanation.innerText()).includes('fictional team moves the client token route') && (await explanation.innerText()).includes('T+03:45'));
+  await page.screenshot({ path: output + '/story-response.png', fullPage: false });
   await guide.getByRole('button', { name: 'Next: Verify', exact: true }).click();
   await expect(guide).toContainText('99.92%');
   const briefDownload = page.waitForEvent('download'); await guide.getByRole('button', { name: 'Download customer brief', exact: true }).click();
@@ -104,6 +114,8 @@ try {
   if (!connected || inference) check('brief_retains_frozen_earlier_investigation', brief.includes('frozen earlier evidence') && brief.includes('replay clock 135'));
   const downloading = page.waitForEvent('download'); await guide.getByRole('button', { name: 'Download story evidence', exact: true }).click();
   const story = JSON.parse(readFileSync(await (await downloading).path(), 'utf8'));
+  const verifyExplanation = story.visited_steps.find(step => step.step === 'verify').narrative;
+  check('export_retains_explanations_queries_and_phase_boundaries', verifyExplanation.events.length === 7 && verifyExplanation.events.every(event => event.phase <= 6) && verifyExplanation.queries.some(query => query.label === 'Incident chronology' && query.rows === 70 && query.execution === 'splunk'));
   check('story_export_retains_eight_visited_stages', story.synthetic && story.visited_steps.length === 8 && story.visited_steps.every(step => step.signals.length === 10 && step.signals.every(row => row.phase === step.phase)));
   await guide.getByRole('button', { name: 'Finish walkthrough', exact: true }).click();
   check('finish_removes_highlight_and_holds_stage', await guide.count() === 0 && await root.locator('.fo-guide-highlight,.fo-guide-arrow').count() === 0 && await root.getByRole('button', { name: '7 Verify', exact: true }).getAttribute('aria-pressed') === 'true');

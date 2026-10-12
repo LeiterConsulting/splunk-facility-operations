@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-12",
+  "release": "v0.1.8",
+  "source_tag": "v0.1.8",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.8",
+  "build": 16,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.8.tar.gz",
+      "size_bytes": 560944,
+      "sha256": "a5e16900ff6da05674fd0146349a1affcebe1f3a97b2905a1b3f7f968d9a08c3"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.8.spl",
+      "size_bytes": 560944,
+      "sha256": "a5e16900ff6da05674fd0146349a1affcebe1f3a97b2905a1b3f7f968d9a08c3"
+    }
+  ],
+  "installer_formats_byte_identical": true,
+  "reproducible_archive": true,
+  "regular_archive_files": 27,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "local_validation": {
+    "typecheck": "passed",
+    "typescript_tests_passed": 32,
+    "python_tests_passed": 58,
+    "browser_workflows_passed": 21,
+    "browser_method": "all twenty-one passed together against final compiled bundle; final Python edit removed only a trailing blank line"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "guided_deterministic_10_4_checks_passed": 36,
+    "guided_openai_10_0_checks_passed": 37,
+    "openai_model": "gpt-6-luna",
+    "openai_data": "synthetic only; one explicitly submitted investigation in the final guided qualification",
+    "free_exploration_10_4_checks_passed": 28,
+    "service_10_4_checks_passed": 8,
+    "provider_settings_preserved": true,
+    "snapshot_and_chronology_queried_in_splunk": true,
+    "backend_source_journal_normalization_verified": true
+  },
+  "appinspect": {
+    "version": "4.2.1",
+    "mode": "precert",
+    "summary": {
+      "error": 0,
+      "failure": 0,
+      "future_failure": 0,
+      "skipped": 1,
+      "not_applicable": 128,
+      "warning": 4,
+      "success": 116
+    }
+  },
+  "scope": "Synthetic incident explanation with returned chronology and actual query receipts. Authored response records are distinct from local presenter decisions and actual infrastructure execution. No measured operational savings, durable incident database, production/customer-source qualification, formal accessibility, Cloud/GovCloud, cluster, scale or real Ollama/AITK inference qualification."
+}

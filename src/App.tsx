@@ -4,8 +4,8 @@ import Button from '@splunk/react-ui/Button';
 import ButtonGroup from '@splunk/react-ui/ButtonGroup';
 import { createURL } from '@splunk/splunk-utils/url';
 import { audiences, entitiesFor, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
-import { demoSnapshot, dependents, impactSummary, phaseAt } from './model';
-import { buildSearch, isSplunk, searchSignals } from './search';
+import { demoSnapshot, demoHistory, dependents, impactSummary, phaseAt } from './model';
+import { buildSearch, buildTimelineSearch, isSplunk, querySignals } from './search';
 import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings, type Answer, providerLabels } from './AgentWorkspace';
 import { assessOperations } from './intelligence';
 import { audienceQuestion } from './datasets';
@@ -17,10 +17,11 @@ import { GuidedDemo } from './GuidedDemo';
 import { guidedSteps, guideQuestion } from './demoStory';
 import { CaseHeader, CaseWorkspace } from './CaseWorkspace';
 import { customerBrief } from './caseModel';
+import { storyNarrative, narrativeMarkdown, type SearchReceipt, type StoryNarrative } from './storyNarrative';
 
 type View = 'story' | 'situation' | 'dependencies' | 'facility' | 'actions' | 'change' | 'evidence' | 'investigate' | 'settings';
 type Policy = 'observe' | 'supervised' | 'automatic';
-type Decision = { time: number; scope: string; case_id: string; action: string; status: string; actor: string; policy: string; origin: 'demo' };
+type Decision = { time: number; clock: number; scope: string; case_id: string; action: string; status: string; actor: string; policy: string; origin: 'demo' };
 const views: { id: View; label: string; icon: string }[] = [
   { id: 'story', label: 'Operations story', icon: '▷' },
   { id: 'situation', label: 'Situation room', icon: '◉' }, { id: 'dependencies', label: 'Dependencies', icon: '⌘' },
@@ -105,6 +106,9 @@ export function App() {
   const [offset, setOffset] = useState(0);
   const [pausedSecond, setPausedSecond] = useState<number | null>(() => new URLSearchParams(window.location.search).get('replay') === 'loop' ? null : 0);
   const [searchRows, setSearchRows] = useState<Signal[]>([]);
+  const [snapshotReceipt, setSnapshotReceipt] = useState<SearchReceipt | null>(null);
+  const [timelineReceipt, setTimelineReceipt] = useState<SearchReceipt | null>(null);
+  const [retainedNarrative, setRetainedNarrative] = useState<StoryNarrative | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [revision, setRevision] = useState(0);
@@ -118,7 +122,7 @@ export function App() {
   const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 800px)').matches);
   const [agentSettings, setAgentSettings] = useState<AgentSettings>(defaultSettings);
   const automaticRuns = useRef(new Set<string>());
-  const guideReceipts = useRef(new Map<string, { step: string; phase: number; clock: number; captured_at: number; signals: Signal[]; search: string }>());
+  const guideReceipts = useRef(new Map<string, { step: string; phase: number; clock: number; captured_at: number; signals: Signal[]; search: string; narrative: StoryNarrative; timeline: SearchReceipt }>());
   const installed = isSplunk();
   const scenarioSecond = pausedSecond ?? now + offset;
   const signals = useMemo(() => mode === 'demo' && !installed
@@ -134,12 +138,8 @@ export function App() {
     const steps = guidedSteps(presentation);
     return guideRoute === 'overview' ? steps.filter(step => ['baseline', 'impact', 'dependency', 'decision', 'verify'].includes(step.id)) : steps;
   }, [presentation, guideRoute]);
-  const guideReady = guideIndex !== null && !error && entitiesFor(vertical).every(entity => signals.some(row => row.entity_id === entity.entity_id && row.phase === story[guideIndex].phase));
-  useEffect(() => {
-    if (guideIndex === null || !guideReady) return;
-    const step = story[guideIndex];
-    guideReceipts.current.set(step.id, { step: step.id, phase: step.phase, clock: scenarioSecond, captured_at: now, signals, search: buildSearch('demo', vertical, usecase, scenarioSecond) });
-  }, [guideIndex, guideReady, signals, story, scenarioSecond, now, vertical, usecase]);
+  const guided = mode === 'demo' && guideIndex !== null;
+  const guideReady = guideIndex !== null && !error && snapshotReceipt?.case_id === caseId && timelineReceipt?.case_id === caseId && snapshotReceipt.clock === scenarioSecond && timelineReceipt.clock === scenarioSecond && entitiesFor(vertical).every(entity => signals.some(row => row.entity_id === entity.entity_id && row.phase === story[guideIndex].phase));
   useEffect(() => {
     const change = () => setViewState(viewFromURL());
     window.addEventListener('popstate', change);
@@ -164,10 +164,13 @@ export function App() {
   useEffect(() => { setApproved(false); setSelected(null); setInvestigationIntent(null); setNotice(''); setSearchRows([]); }, [vertical, usecase, mode]);
   useEffect(() => {
     if (mode === 'demo' && !installed) {
+      const captured = Date.now() / 1000;
+      setSnapshotReceipt({ kind: 'snapshot', case_id: caseId, vertical, usecase, clock: scenarioSecond, started_at: captured, completed_at: captured, search: buildSearch('demo', vertical, usecase, scenarioSecond), rows: demoSnapshot(vertical, usecase, scenarioSecond, now), execution: 'preview' });
+      setTimelineReceipt(guided ? { kind: 'timeline', case_id: caseId, vertical, usecase, clock: scenarioSecond, started_at: captured, completed_at: captured, search: buildTimelineSearch(vertical, usecase, scenarioSecond), rows: demoHistory(vertical, usecase, scenarioSecond, now).filter(row => row.phase <= phaseAt(scenarioSecond)), execution: 'preview' } : null);
       setError(''); setLoading(false); return;
     }
     if (!installed) {
-      setSearchRows([]); setLoading(false);
+      setSearchRows([]); setSnapshotReceipt(null); setTimelineReceipt(null); setLoading(false);
       setError('Live data requires this app to be installed in Splunk. The preview contains no live connection.');
       return;
     }
@@ -176,14 +179,23 @@ export function App() {
     const run = async () => {
       setLoading(true); setError('');
       const timeout = window.setTimeout(() => controller.abort(), 25000);
-      try { const rows = await searchSignals(mode, vertical, usecase, scenarioSecond, controller.signal); if (!finished) setSearchRows(rows); }
-      catch (reason) { if (!finished) { setSearchRows([]); setError(controller.signal.aborted ? 'The search timed out. Check Splunk search capacity and retry.' : reason instanceof Error ? reason.message : 'Search failed'); } }
+      try {
+        const retrieve = async (kind: 'snapshot' | 'timeline', search: string): Promise<SearchReceipt> => {
+          const started_at = Date.now() / 1000;
+          const rows = await querySignals(search, mode, controller.signal);
+          return { kind, case_id: caseId, vertical, usecase, clock: scenarioSecond, started_at, completed_at: Date.now() / 1000, search, rows, execution: 'splunk' };
+        };
+        const [snapshot, timeline] = await Promise.all([retrieve('snapshot', buildSearch(mode, vertical, usecase, scenarioSecond)), guided ? retrieve('timeline', buildTimelineSearch(vertical, usecase, scenarioSecond)) : Promise.resolve(null)]);
+        if (timeline && !timeline.rows.some(row => row.entity_id === getUsecase(usecase, vertical).root && row.phase === phaseAt(scenarioSecond))) throw new Error('Incident chronology did not return the selected stage. Retry the stage search.');
+        if (!finished) { setSearchRows(snapshot.rows); setSnapshotReceipt(snapshot); setTimelineReceipt(timeline); }
+      }
+      catch (reason) { if (!finished) { setSearchRows([]); setSnapshotReceipt(null); setTimelineReceipt(null); setError(controller.signal.aborted ? 'The search timed out. Check Splunk search capacity and retry.' : reason instanceof Error ? reason.message : 'Search failed'); } }
       finally { window.clearTimeout(timeout); if (!finished) setLoading(false); }
     };
     void run();
     return () => { finished = true; controller.abort(); };
     // Installed queries refresh every 15 seconds; local replay advances every five seconds.
-  }, [mode, installed, vertical, usecase, installed ? Math.floor(now / 15) : now, offset, pausedSecond, revision]);
+  }, [mode, installed, vertical, usecase, installed ? Math.floor(now / 15) : now, offset, pausedSecond, revision, guided, caseId]);
   const summary = useMemo(() => impactSummary(signals), [signals]);
   const assessment = useMemo(() => assessOperations(signals, now), [signals, now]);
   function investigate(intent: InvestigationIntent) {
@@ -195,12 +207,19 @@ export function App() {
   const impact = useMemo(() => dependents(signals, scenario.root), [signals, scenario.root]);
   const focused = signals.find((item) => item.entity_id === selected);
   const missionSignals = signals.filter((item) => item.layer === 'mission');
-  const scopedDecisions = decisions.filter((item) => item.scope === scope && item.case_id === caseId);
+  const scopedDecisions = useMemo(() => decisions.filter((item) => item.scope === scope && item.case_id === caseId), [decisions, scope, caseId]);
   const evidenceFresh = signals.length > 0 && signals.every((item) => !impact.has(item.entity_id) || (item.state !== 'unknown' && item.evidence_at > 0 && now - item.evidence_at < 180));
+  const explanation = useMemo(() => guideIndex !== null && guideReady && snapshotReceipt && timelineReceipt ? storyNarrative(story[guideIndex], presentation, signals, snapshotReceipt, timelineReceipt, latestInvestigation, scopedDecisions) : null, [guideIndex, guideReady, snapshotReceipt, timelineReceipt, story, presentation, signals, latestInvestigation, scopedDecisions]);
+  useEffect(() => {
+    if (!explanation || guideIndex === null || !timelineReceipt) return;
+    const step = story[guideIndex];
+    guideReceipts.current.set(step.id, { step: step.id, phase: step.phase, clock: scenarioSecond, captured_at: explanation.captured_at, signals, search: snapshotReceipt!.search, narrative: explanation, timeline: timelineReceipt });
+    setRetainedNarrative(explanation);
+  }, [explanation, guideIndex, timelineReceipt, story, scenarioSecond, signals, snapshotReceipt]);
   const autoAllowed = usecase === 'autonomy' && evidenceFresh;
   const canRun = mode === 'demo' && evidenceFresh && ((policy === 'supervised' && approved) || (policy === 'automatic' && autoAllowed));
   function record(action: string, status: string) {
-    setDecisions((items) => [{ time: now, scope, case_id: caseId, action, status, actor: 'Demo presenter · ' + persona.label, policy, origin: 'demo' as const }, ...items].slice(0, 100));
+    setDecisions((items) => [{ time: now, clock: scenarioSecond, scope, case_id: caseId, action, status, actor: 'Demo presenter · ' + persona.label, policy, origin: 'demo' as const }, ...items].slice(0, 100));
   }
   function runSimulation() {
     if (!canRun) return;
@@ -237,7 +256,7 @@ export function App() {
     setView(step.view);
   }
   function startGuide(route: 'full' | 'overview' = 'full') {
-    setGuideRoute(route); setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null);
+    setGuideRoute(route); setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null); setRetainedNarrative(null);
     const root = document.getElementById('facility-operations-root');
     setGuideTop(Math.max(0, (root?.getBoundingClientRect().top ?? 0) + window.scrollY));
     guideReceipts.current.clear();
@@ -254,11 +273,11 @@ export function App() {
   }
   function changeMode(value: Mode) {
     setGuideIndex(null); setMode(value);
-    if (value !== mode) { setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null); }
+    if (value !== mode) { setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null); setRetainedNarrative(null); }
     if (value === 'demo' && playback === 'guided') setPausedSecond(0);
   }
   function applyPresentation(value: Presentation) {
-    setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null);
+    setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null); setRetainedNarrative(null);
     setGuideIndex(null);
     if (playback === 'guided') setPausedSecond(0);
     setPresentation(value);
@@ -277,7 +296,7 @@ export function App() {
     void navigator.clipboard.writeText(url.href).then(() => setNotice('Presentation link copied with the current audience, vertical, and use case.')).catch(() => setNotice('Presentation link: ' + url.href));
   }
   function exportCustomerBrief() {
-    const content = customerBrief(presentation, mode, caseId, signals, now, latestInvestigation, scopedDecisions);
+    const content = customerBrief(presentation, mode, caseId, signals, now, latestInvestigation, scopedDecisions) + (retainedNarrative ? narrativeMarkdown(retainedNarrative) : '');
     const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = 'operations-customer-brief.md'; link.click(); URL.revokeObjectURL(url);
   }
@@ -327,7 +346,7 @@ export function App() {
         {view === 'settings' && <><PresentationSettings value={presentation} onApply={applyPresentation} /><ProviderSettings settings={agentSettings} setSettings={setAgentSettings} /></>}
         <div role="contentinfo" className={uiClass('footer')}><span>Facility Operations · {currentVertical.label}</span><span>{mode === 'demo' ? 'Synthetic scenario, not a representation of any customer environment' : 'Observed state only; unknown data remains explicit'}</span></div>
       </main>
-    {mode === 'demo' && guideIndex !== null && <GuidedDemo steps={story} index={guideIndex} context={presentation} signals={signals} ready={guideReady} activeView={view} searchError={error} busy={agentBusy} agentHasActivity={agentHasActivity} onStep={showGuideStep} onExit={exitGuide} onRestart={() => startGuide(guideRoute)} onRetry={() => setRevision(value => value + 1)} onBrief={exportCustomerBrief} onExport={() => download('operations-guided-story.json', { generated_at: new Date().toISOString(), context: presentation, case_id: caseId, investigation: latestInvestigation, mode: 'demo', step: story[guideIndex], clock: scenarioSecond, visited_steps: [...guideReceipts.current.values()], signals, search: buildSearch('demo', vertical, usecase, scenarioSecond), decisions: scopedDecisions, synthetic: true })} />}
+    {mode === 'demo' && guideIndex !== null && <GuidedDemo steps={story} index={guideIndex} context={presentation} signals={signals} narrative={explanation} ready={guideReady} activeView={view} searchError={error} busy={agentBusy} agentHasActivity={agentHasActivity} onStep={showGuideStep} onExit={exitGuide} onRestart={() => startGuide(guideRoute)} onRetry={() => setRevision(value => value + 1)} onBrief={exportCustomerBrief} onExport={() => download('operations-guided-story.json', { generated_at: new Date().toISOString(), context: presentation, case_id: caseId, investigation: latestInvestigation, mode: 'demo', step: story[guideIndex], clock: scenarioSecond, visited_steps: [...guideReceipts.current.values()], signals, search: buildSearch('demo', vertical, usecase, scenarioSecond), decisions: scopedDecisions, synthetic: true })} />}
     </div>
   </div>;
 }

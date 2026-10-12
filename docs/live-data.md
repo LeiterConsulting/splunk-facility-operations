@@ -145,3 +145,7 @@ For a workflow proof of concept:
 6. Independently reconcile individual transactions across the source systems before making an end-to-end completion or root-cause claim.
 
 The shipped demo provides aggregate observations and reference correlation-field names. It does not ship individual transaction traces, production vendor connectors or a preconfigured enterprise service model. Use the [industry walkthroughs](industry-scenarios.md) to select a workflow and the [evaluation guide](operations-value.md#plan-a-customer-proof-of-concept) to define acceptance measures.
+
+### Demonstration incident journal
+
+The optional-object normalizers also recognize bounded `story_kind`, `story_summary`, `story_explanation`, `response_action`, `response_detail`, `response_owner`, `response_ref`, `response_state`, `response_precheck` and `response_verify` strings. The shipped Demo uses these for an authored incident chronology and response, with phase/UTC observation time on the containing record. They are not a production change-management or execution integration. Live onboarding should omit demonstration journal fields and supply authoritative incident, change, approval and reconciliation evidence through a separately reviewed mapping. No demo response is substituted for missing live evidence, and the guided fictional chronology is unavailable in Live.

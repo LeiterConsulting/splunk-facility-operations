@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { demoSnapshot } from '../../src/model';
+import { demoSnapshot, demoHistory } from '../../src/model';
 const controls = (page: Page) => page.getByRole('complementary', { name: 'Guided demo controls' });
 
 test('The default demo holds its baseline and walks through visible evidence, assistant and recovery', async ({ page }) => {
@@ -106,8 +106,8 @@ test('Installed stage transitions wait for matching evidence and running inferen
   await page.route('**/search/jobs*', async route => {
     const spl = new URLSearchParams(route.request().postData() ?? '').get('search')!;
     const clock = Number(spl.match(/facility_ops_demo_events\("retail","dependency",(\d+)\)/)![1]);
-    if (clock === 90 && blockImpact) await new Promise<void>(resolve => { releaseImpact = resolve; });
-    await route.fulfill({ json: { results: demoSnapshot('retail', 'dependency', clock, Math.floor(Date.now() / 1000)) } });
+    if (clock === 90 && blockImpact && !spl.includes('where phase<=')) await new Promise<void>(resolve => { releaseImpact = resolve; });
+    await route.fulfill({ json: { results: spl.includes('where phase<=') ? demoHistory('retail', 'dependency', clock, Math.floor(Date.now() / 1000)).filter(row => row.phase <= Math.floor(clock / 45)) : demoSnapshot('retail', 'dependency', clock, Math.floor(Date.now() / 1000)) } });
   });
   await page.route('**/facility_ops/agent*', async route => {
     const payload = JSON.parse(new URLSearchParams(route.request().postData() ?? '').get('payload')!);
