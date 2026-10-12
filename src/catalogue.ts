@@ -1,3 +1,5 @@
+import { operationalProfile } from './operationalCatalogue';
+import type { OperationalObservation } from './operationalData';
 export type State = 'healthy' | 'warning' | 'critical' | 'recovering' | 'unknown';
 export type Layer = 'mission' | 'shared' | 'infrastructure' | 'facility';
 export type Mode = 'demo' | 'live';
@@ -14,9 +16,9 @@ export const audiences = [
   { id: 'audit', label: 'Audit and Oversight', question: 'Can we reconstruct what happened, who decided, and which evidence was available?', focus: 'Traceability, evidence age, accountable decisions' },
 ] as const;
 export const verticals = [
-  { id: 'public_services', label: 'Public Services and Benefits', description: 'Public-facing services, eligibility, payment operations, and partner exchange.', services: ['Benefits access', 'Eligibility processing', 'Payment operations'], unit: 'transactions' },
+  { id: 'public_services', label: 'Public Services and Benefits', description: 'Public-facing services, eligibility, payment operations, and partner exchange.', services: ['Eligibility and enrollment', 'Prior authorization exchange', 'Payment reconciliation'], unit: 'transactions' },
   { id: 'enterprise', label: 'Enterprise Shared Services', description: 'Workforce collaboration, finance approvals, employee support and shared technology.', services: ['Workforce collaboration', 'Finance approvals', 'Employee support'], unit: 'requests' },
-  { id: 'distributed_care', label: 'Distributed Healthcare', description: 'Remote sites, clinical systems, interoperability, and continuity of care.', services: ['Clinical workflow', 'Records exchange', 'Remote consultation'], unit: 'encounters' },
+  { id: 'distributed_care', label: 'Distributed Healthcare', description: 'Remote sites, clinical systems, interoperability, and continuity of care.', services: ['Clinical orders and results', 'Clinical record exchange', 'Remote clinic access'], unit: 'work items' },
   { id: 'regulated_science', label: 'Regulated Science and Research', description: 'Laboratory operations, submission systems, data integrity, and environmental controls.', services: ['Laboratory workflow', 'Submission review', 'Research data access'], unit: 'work items' },
   { id: 'mission_support', label: 'Defense and Mission Support', description: 'Mission coordination, logistics, communications, and resilient installation operations.', services: ['Mission coordination', 'Logistics workflow', 'Secure communications'], unit: 'tasks' },
   { id: 'oversight', label: 'Oversight and Accountability', description: 'Case work, evidence availability, audit traceability, and public accountability.', services: ['Case management', 'Evidence review', 'Public reporting'], unit: 'cases' },
@@ -53,6 +55,7 @@ export interface Signal extends Entity {
   _time: number; state: State; reason: string; latency_ms: number | null; queue_depth: number | null;
   temperature_c: number | null; control_state: string; origin: Mode; vertical: string;
   usecase: string; phase: number; evidence_at: number;
+  operational?: OperationalObservation | null;
 }
 export const entityTemplate: Entity[] = [
   { entity_id: 'service-1', name: '', layer: 'mission', site: 'Central campus', owner: 'Service delivery', depends_on: ['identity', 'gateway'], category: 'Business function', control_id: 'CP-2' },
@@ -76,16 +79,21 @@ export function getUsecase(id: string, verticalId?: string): Usecase {
   if (!value) throw new Error('Unknown use case');
   if (verticalId) getVertical(verticalId);
   const story = verticalId ? commercialProfiles[verticalId]?.stories[id] : undefined;
-  return story ? { ...value, ...story } : value;
+  if (!verticalId) return value;
+  const profile = operationalProfile(verticalId);
+  const rootName = profile.platform[['identity', 'gateway', 'database'].indexOf(value.root)] ?? entityTemplate.find((item) => item.entity_id === value.root)!.name;
+  const symptom = { dependency: 'Token exchange timeouts at ', facility: 'Return-air temperature exceeds the demo guide at ', containment: 'Client-certificate request rejections at ', change: 'Transaction lock waits after synthetic change at ', modernization: 'Packet loss on the remote circuit supporting ', autonomy: 'Standby connection-pool saturation at ' }[id] + rootName;
+  return { ...value, ...(story ?? {}), symptom, why: profile.stakes + ' ' + profile.continuity };
 }
 export function entitiesFor(verticalId: string): Entity[] {
   const vertical = getVertical(verticalId);
-  const profile = commercialProfiles[verticalId];
+  const operating = operationalProfile(verticalId);
   const originalSites = ['Central campus', 'Regional center', 'Remote site'];
   return entityTemplate.map((entity, index) => ({
-    ...entity, depends_on: [...entity.depends_on], name: index < 3 ? vertical.services[index] : entity.name,
-    owner: profile && index < 3 ? profile.owners[index] : entity.owner,
-    site: profile ? profile.sites[originalSites.indexOf(entity.site)] : entity.site,
+    ...entity, depends_on: index < 3 ? [...operating.processes[index].depends_on] : [...entity.depends_on],
+    name: index < 3 ? vertical.services[index] : index < 6 ? operating.platform[index - 3] : entity.name,
+    owner: index < 3 ? operating.owners[index] : entity.owner,
+    site: operating.sites[originalSites.indexOf(entity.site)],
   }));
 }
 

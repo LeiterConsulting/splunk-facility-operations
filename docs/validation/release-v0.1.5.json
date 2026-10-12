@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-12",
+  "release": "v0.1.5",
+  "source_tag": "v0.1.5",
+  "app_id": "splunk_facility_operations",
+  "version": "0.1.5",
+  "build": 13,
+  "installers": [
+    {
+      "filename": "splunk_facility_operations-0.1.5.tar.gz",
+      "size_bytes": 453149,
+      "sha256": "fa539f12793162b4bb8ddedd793d456c41b9c7d287798f02b8d2b5fdf5a30328"
+    },
+    {
+      "filename": "splunk_facility_operations-0.1.5.spl",
+      "size_bytes": 453149,
+      "sha256": "fa539f12793162b4bb8ddedd793d456c41b9c7d287798f02b8d2b5fdf5a30328"
+    }
+  ],
+  "checksums_asset": "SHA256SUMS",
+  "installer_formats_byte_identical": true,
+  "reproducible_archive": true,
+  "regular_archive_files": 27,
+  "live_inventory": "header only; customer inventory excluded",
+  "local_overrides": "excluded",
+  "local_validation": {
+    "typecheck": "passed",
+    "typescript_tests_passed": 20,
+    "python_tests_passed": 56,
+    "browser_workflows_passed": 12,
+    "browser_method": "all twelve passed in one run against the final compiled bundle"
+  },
+  "native_validation": {
+    "enterprise_versions": [
+      "10.0.1",
+      "10.4.0"
+    ],
+    "openai_10_0_checks_passed": 22,
+    "openai_model": "gpt-6-luna",
+    "openai_data": "synthetic demo only",
+    "openai_submitted_questions": 2,
+    "deterministic_10_4_browser_checks_passed": 28,
+    "deterministic_10_4_service_checks_passed": 8,
+    "grounding_10_4_checks_passed": 13,
+    "generated_live_pipeline_10_0_checks_passed": 8,
+    "provider_settings_preserved": true
+  },
+  "appinspect": {
+    "version": "4.2.1",
+    "mode": "precert",
+    "summary": {
+      "error": 0,
+      "failure": 0,
+      "future_failure": 0,
+      "skipped": 1,
+      "not_applicable": 128,
+      "warning": 4,
+      "success": 116
+    }
+  },
+  "scope": "Synthetic industry aggregates and representative native workflows; no production connector, customer source, individual transaction trace, real Ollama/AITK inference, Cloud/GovCloud, cluster or production-scale qualification."
+}

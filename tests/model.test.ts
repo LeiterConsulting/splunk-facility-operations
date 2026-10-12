@@ -5,6 +5,7 @@ import { CYCLE_SECONDS, PHASE_SECONDS, verticals, usecases, phases, entitiesFor,
 import { demoSnapshot, demoHistory, dependents, impactSummary, phaseAt, narrative } from '../src/model';
 import { buildSearch, normalizeResult } from '../src/search';
 import { investigateDemo } from '../src/AgentWorkspace';
+import { operationalProfile } from '../src/operationalCatalogue';
 import { loadPresentation } from '../src/presentation';
 
 test('Unknown live evidence cannot become a healthy or recovered briefing', () => {
@@ -93,8 +94,8 @@ test('Commercial stories retain a valid dependency path, local ownership and dis
     const entities = entitiesFor(vertical);
     const ids = new Set(entities.map((entity) => entity.entity_id));
     assert.ok(entities.every((entity) => entity.depends_on.every((id) => ids.has(id))));
-    assert.deepEqual(entities.slice(0, 3).map((entity) => entity.owner), profile.owners);
-    assert.ok(entities.every((entity) => profile.sites.includes(entity.site)));
+    assert.deepEqual(entities.slice(0, 3).map((entity) => entity.owner), operationalProfile(vertical).owners);
+    assert.ok(entities.every((entity) => operationalProfile(vertical).sites.includes(entity.site)));
     assert.equal(usecasesFor(vertical).length, 6);
     for (const scenario of usecasesFor(vertical)) {
       const rows = demoSnapshot(vertical, scenario.id, 2 * PHASE_SECONDS, 2000000000);

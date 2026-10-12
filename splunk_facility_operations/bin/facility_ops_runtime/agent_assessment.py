@@ -1,9 +1,10 @@
 """Computed operational facts; no LLM-generated scores or causal assertions."""
 import math
 from datetime import datetime
+from .agent_operational import normalize_observation
 
 STATES = ("healthy", "warning", "critical", "recovering", "unknown")
-FIELDS = ("_time", "entity_id", "name", "layer", "owner", "site", "category", "depends_on", "control_id", "control_state", "evidence_at", "state", "reason", "latency_ms", "queue_depth", "temperature_c", "phase")
+FIELDS = ("_time", "entity_id", "name", "layer", "owner", "site", "category", "depends_on", "control_id", "control_state", "evidence_at", "state", "reason", "latency_ms", "queue_depth", "temperature_c", "phase", "operational")
 
 def scalar(value):
     return value[0] if isinstance(value, list) and value else value
@@ -43,6 +44,7 @@ def normalize(row, now, current=True):
     state = result.get("state")
     fresh = all(0 < result[field] <= now + 30 and now - result[field] <= 180 for field in ("_time", "evidence_at"))
     result["state"] = state if state in STATES and (fresh or not current) else "unknown"
+    result['operational'] = normalize_observation(row.get('operational'))
     return result
 
 def related(rows, root, upstream=False):

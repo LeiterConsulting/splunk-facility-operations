@@ -5,6 +5,7 @@ import Button from '@splunk/react-ui/Button';
 import { uiClass } from './classes';
 import type { Signal } from './catalogue';
 import type { Assessment } from './intelligence';
+import { ObservationDetails } from './OperationalWorkspace';
 
 type EvidenceResult = { kind: string; rows: unknown[]; upstream?: Signal[] };
 const markdownPlugins = [remarkGfm];
@@ -59,6 +60,7 @@ export function RetrievedFindings({ assessment, results, inspect, children }: {
     <p>Observed: {evidenceTime(evidence._time)} · Evidence: {evidenceTime(evidence.evidence_at)}</p>
     <p>Dependencies: {evidence.depends_on?.join(', ') || 'None in returned inventory'}</p>
     <small>Frozen returned evidence. The evidence workspace shows the current operating snapshot.</small>
+    {evidence.operational && <ObservationDetails row={evidence} vertical={evidence.vertical} mode={evidence.origin} />}
     <Button appearance="subtle" onClick={() => inspect(evidence.entity_id)}>Open current evidence</Button>
   </section>}{timeline && <details className={uiClass('answer-sequence')}><summary>Returned abnormal event sequence · {rows.length} observations</summary>
     <p>Earliest returned evidence is not necessarily the first occurrence. Configured dependencies and event order support hypotheses.</p>

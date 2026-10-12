@@ -99,3 +99,49 @@ Normalize queue observations to the selected vertical's displayed unit (for exam
 The UI requests at most 1,000 entity results. Investigation tools return at most 100 rows per tool and use the selected vertical and last hour. These caps are not a completeness guarantee for larger inventories. Start with a small reviewed scope and compare result counts; pagination and explicit completeness indicators are future work.
 
 Expected inventory and missing telemetry were exercised with isolated fixtures on both labs. Actual customer ingestion, source-specific state calculations, scale and clock/sampling contracts still need evaluation. Search troubleshooting is in [troubleshooting](troubleshooting.md#live-observations).
+
+## Business transaction and diagnostic observations
+
+The existing entity, inventory, state and freshness contract remains required. To populate the business delivery cards and diagnostic comparison, add an optional **`operational` JSON string** to the normalized event. Choose a bounded aggregate window and compute the values in the accountable source pipeline. The latest whole observation is selected per entity; keep its counts, percentile and objective together in this field.
+
+Example for a receiving-system acknowledgement aggregate, with an objective approved for this illustrative service:
+
+```json
+{
+  "source_type": "organization:order_ack_aggregate",
+  "transaction": "Order acknowledgement",
+  "outcome": "Requests acknowledged by the receiving system",
+  "window_seconds": 300,
+  "attempted": 500,
+  "completed": 495,
+  "p95_ms": 1200,
+  "target_p95_ms": 1500,
+  "target_success_pct": 99.5,
+  "oldest_wait_min": 4,
+  "signature": "ACK_TIMEOUT",
+  "observation_ref": "approved-aggregate-reference"
+}
+```
+
+| Fields | Meaning and validation |
+| --- | --- |
+| `source_type`, `observation_ref` | Source family and an attributable observation reference. Source family is required for the optional object to be accepted. This is not a raw-event or individual-transaction identifier. |
+| `transaction`, `outcome` | Precisely name the step counted as complete. An acknowledgement does not establish settlement, shipment completion or a clinical outcome. |
+| `window_seconds`, `attempted`, `completed` | Aggregate window and whole-number counts; attempted must be at least one and completed cannot exceed attempted. Missing or invalid values stay null. Completion percentage is computed from these returned values. |
+| `p95_ms`, `oldest_wait_min` | Source-computed percentile in milliseconds and age of the oldest waiting item in minutes. Supply a meaningful population/window; legacy `latency_ms` is a separate measure. |
+| `target_p95_ms`, `target_success_pct` | Source-supplied operational objectives, with percentage from 0–100. Obtain service-owner approval; absent targets remain unreported. |
+| `signal_label`, `signal_value`, `signal_unit`, `signal_limit`, `signal_direction` | Alternative diagnostic measure and its optional guide. Direction `lower` means at least the limit; other values use an upper guide. Negative values are allowed for the observed diagnostic value. |
+| `signature`, `change_ref` | Bounded source signature and optional change association. The authoritative change, approval, implementation diff and causal verification are separate records. |
+
+Strings are limited to 240 characters, JSON input to 12,000 characters and finite numeric magnitudes to 10^12. Unrecognized keys are removed before display and model use. Do not place secrets, personal data or raw payloads in these fields. Unknown/stale entity evidence cannot establish current performance even when a retained operational object is present. No demonstration measurements or objectives are substituted for missing live values.
+
+For a workflow proof of concept:
+
+1. Agree on one named business handoff and its completion condition with its owner.
+2. Identify the accountable source, expected entity inventory and correlation identifiers available for that handoff. Keep raw identifiers and protected content in the governed source environment.
+3. Calculate completion counts, p95, age and a source reference in a bounded window. Record the objective and population definition separately with the service owner.
+4. Inspect the normalized object in **Evidence and controls → Operational evidence ledger**, and use **Open current search in Splunk** to check the returned source data.
+5. Ask the assistant to compare business completion with diagnostic counter-evidence. Confirm every quoted measure against the evidence export.
+6. Independently reconcile individual transactions across the source systems before making an end-to-end completion or root-cause claim.
+
+The shipped demo provides aggregate observations and reference correlation-field names. It does not ship individual transaction traces, production vendor connectors or a preconfigured enterprise service model. Use the [industry walkthroughs](industry-scenarios.md) to select a workflow and the [evaluation guide](operations-value.md#plan-a-customer-proof-of-concept) to define acceptance measures.

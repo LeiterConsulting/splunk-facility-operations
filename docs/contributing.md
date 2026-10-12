@@ -136,3 +136,7 @@ python3 scripts/verify_lab_models.py --env-file /absolute/path/to/private-lab.en
 ```
 
 The fixture reads the caller capability before interpreting the toolkit result: missing read permission must produce an explicit permission error; otherwise it records inventory success or a clearly handled unavailable service. A handled unavailable service is not a passed inventory/inference qualification. It never grants or revokes toolkit roles. Browser tests mock provider inventory and capability responses; those checks establish UI behavior, not real model inference.
+
+## Persistent runtime upgrades
+
+The installed persistent REST runtime uses a build-specific entry point (`facility_ops_entry_b13.py`) and a private `facility_ops_runtime_b13` import namespace. Splunk can retain imported modules across app updates and restmap reloads. When changing backend code for a later build, rename the entry point, update its namespace, the three restmap registrations and the package allowlist together. The packaging test ties the entry-point name to `[install] build`. This leaves earlier in-flight module references intact instead of mutating another build's imports. Qualify the installed assistant after every upgrade; installed app version alone does not prove that the new runtime loaded. Follow Splunk's deployment/restart prompts in the target environment.

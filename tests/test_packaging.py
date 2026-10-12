@@ -23,6 +23,19 @@ preview = load_script("serve_preview")
 
 
 class PackagingTests(unittest.TestCase):
+    def test_upgrade_entrypoint_isolated_from_existing_runtime_imports(self):
+        import importlib
+        import sys
+        from configparser import ConfigParser
+        config = ConfigParser()
+        config.read(ROOT / package.APP_ID / 'default/app.conf')
+        name = 'facility_ops_entry_b' + config['install']['build']
+        sys.path.insert(0, str(ROOT / package.APP_ID / 'bin'))
+        entry = importlib.import_module(name)
+        self.assertEqual(entry.FacilityOperations.__module__, 'facility_ops_runtime_b13.rest_handler')
+        self.assertIn('facility_ops_runtime_b13.agent_operational', sys.modules)
+        self.assertIn('handler = ' + name + '.FacilityOperations', (ROOT / package.APP_ID / 'default/restmap.conf').read_text())
+
     def test_installed_host_retains_chrome_and_uses_valid_dashboard_identifiers(self):
         view = ElementTree.parse(ROOT / package.APP_ID / 'default/data/ui/views/facility_operations.xml').getroot()
         self.assertEqual(view.tag, 'dashboard')

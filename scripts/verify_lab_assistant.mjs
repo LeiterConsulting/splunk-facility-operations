@@ -67,13 +67,14 @@ try {
   }
   await page.goto(origin + '/en-US/app/splunk_facility_operations/facility_operations?vertical=retail&audience=executive&usecase=dependency', { waitUntil: 'commit' });
   await clickButton('Pause'); await clickButton('3 Impact');
-  await page.getByRole('button', { name: 'Shared identity, Critical, inspect evidence', exact: true }).waitFor();
+  await clickButton('Dependencies');
+  await page.getByRole('button', { name: 'Commerce access broker, Critical, inspect evidence', exact: true }).waitFor();
   check('native_splunk_chrome', await page.getByRole('banner').first().isVisible() && !(await page.locator('#facility-operations-root [role=banner]').count()));
   check('served_candidate_bundle', receipt.candidate_bundle_in_served_asset);
   await clickButton('Investigation assistant');
   receipt.provider_label = await page.locator('.fo-agent-provider').innerText();
   check('configured_openai_provider', receipt.provider_label.includes('OpenAI'));
-  await page.getByLabel('Ask about the current operational context').fill('Trace the event sequence using query_events timeline and follow_dependencies for Shared identity. Distinguish observed facts, the dependency hypothesis, counter-evidence and accountable next steps.');
+  await page.getByLabel('Ask about the current operational context').fill('Trace the event sequence using query_events timeline and follow_dependencies for Commerce access broker. Also report online checkout completed/attempted counts, completion percentage, p95 and source signature from operational_facts. Compare token p95 with the database lock-wait signal. Distinguish observations, the dependency hypothesis, counter-evidence and accountable next steps.');
   await clickButton('Investigate');
   await page.getByRole('button', { name: 'Export evidence', exact: true }).waitFor({ timeout: 190000 });
   await Promise.all(pendingOutputs);
@@ -87,6 +88,9 @@ try {
   const downloading = page.waitForEvent('download'); await clickButton('Export evidence');
   const evidence = JSON.parse(readFileSync(await (await downloading).path(), 'utf8'));
   check('computed_assessment_grounding', evidence.assessment.queue === 520 && evidence.assessment.observed === 9 && evidence.assessment.affected_functions.length === 2);
+  check('business_measures_retrieved', evidence.knowledge.operational_facts.delivery.some((row) => row.entity_id === 'service-1' && row.attempted === 2472 && row.completed === 2286));
+  check('business_measures_in_answer', /2,?286/.test(evidence.answer) && /2,?472/.test(evidence.answer));
+  check('diagnostic_counter_evidence_retrieved', evidence.knowledge.operational_facts.diagnostics.some((row) => row.entity_id === 'database' && row.signal_value === 18));
   check('actual_function_tools', evidence.trace.some((step) => step.tool === 'follow_dependencies') && evidence.results.some((result) => result.kind === 'timeline'));
   check('current_pass_chronology', evidence.results.find((result) => result.kind === 'timeline').rows.every((row) => Number(row.phase) <= 2));
   check('model_usage_and_activity_export', evidence.calls.length > 0 && evidence.calls.every((call) => call.usage.output_tokens > 0) && evidence.activities.length > 0);

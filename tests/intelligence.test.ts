@@ -16,7 +16,7 @@ test('Operational facts match every scenario without treating missing evidence a
     assert.equal(a.candidate?.entity.entity_id, scenario.root);
     assert.equal(a.observed, 9);
     assert.equal(a.unknown[0].entity_id, 'access');
-    assert.equal(a.queue, a.affected_functions.length * 260);
+    assert.equal(a.queue, rows.filter((row) => row.layer === 'mission').reduce((sum, row) => sum + (row.queue_depth ?? 0), 0));
     assert.equal(a.queue_reporting, 3);
     assert.ok(a.lower_priority.every((row) => row.state === 'healthy' && row.entity_id !== 'access'));
     assert.ok(guideFor(scenario.id).needed.length > 40);
@@ -59,7 +59,7 @@ test('Focused investigations follow the chosen component and omit future replay 
   assert.equal(timeline.length, 30);
   assert.ok(timeline.every((row) => row.phase <= 2));
   assert.match(result.answer, /Facilities operational brief/);
-  assert.match(result.answer, /Plant data-platform cooling loss/);
+  assert.match(result.answer, /Return-air temperature exceeds the demo guide/);
   assert.throws(() => investigateDemo('Investigate', { ...context, entity_id: 'not-in-scope' }, demoSnapshot('manufacturing', 'facility', 90, now), now));
 });
 test('Footprint gaps and dependency cycles remain visible and bounded', () => {

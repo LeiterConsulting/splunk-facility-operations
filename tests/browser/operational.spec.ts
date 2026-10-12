@@ -1,0 +1,56 @@
+import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+test('Clinical workflows show measured handoffs, source provenance and competing diagnostic evidence', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/?vertical=distributed_care&audience=operations&usecase=dependency');
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: '3 Impact', exact: true }).click();
+  const transactions = page.getByRole('region', { name: 'Business transaction performance' });
+  await expect(transactions).toContainText('Clinical orders and results');
+  await expect(transactions).toContainText('92.16%');
+  await expect(transactions).toContainText('Clinical record exchange');
+  await expect(transactions).toContainText('Outside objective');
+  await expect(transactions).toContainText('Within objective');
+  await transactions.locator('article').first().getByRole('button').click();
+  const source = page.getByRole('region', { name: 'Operational source observation' });
+  await expect(source).toContainText('demo:hl7:order_ack');
+  await expect(source).toContainText('Epic interfaces / Oracle Health interfaces');
+  await expect(source).toContainText('Expected correlation field');
+  await source.getByText('Inspect normalized source record').click();
+  await expect(source.locator('pre')).toContainText('DEMO-distributed_care-dependency-service-1-2');
+  const diagnostics = page.getByRole('region', { name: 'Platform diagnostic comparison' });
+  await expect(diagnostics).toContainText('4,200');
+  await expect(diagnostics).toContainText('Transaction lock wait p95');
+  await expect(diagnostics).toContainText('WITHIN_DEMO_GUIDE');
+  await page.getByText('Industry context and source references').click();
+  await expect(page.getByRole('link', { name: 'Healthcare resilience practices' })).toHaveAttribute('href', /hhscyber.hhs.gov/);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('Manufacturing change review carries industry facts into a traceable assistant decision and export', async ({ page }) => {
+  await page.goto('/?vertical=manufacturing&audience=ccb&usecase=change#situation');
+  await page.getByRole('button', { name: 'Pause', exact: true }).click();
+  await page.getByRole('button', { name: '3 Impact', exact: true }).click();
+  const transactions = page.getByRole('region', { name: 'Business transaction performance' });
+  await expect(transactions).toContainText('Quality release');
+  await transactions.locator('article').nth(1).getByRole('button').click();
+  await expect(page.getByRole('region', { name: 'Operational source observation' })).toContainText('DEMO-CHG-MANUFACTURING-042');
+  await page.getByRole('button', { name: 'Prepare this operational decision', exact: true }).click();
+  await expect(page.getByLabel('Ask about the current operational context')).toHaveValue(/rollback and acceptance evidence/);
+  await page.getByRole('button', { name: 'Investigate', exact: true }).click();
+  await expect(page.locator('.fo-answer-markdown')).toContainText('demo:qms:release');
+  await expect(page.locator('.fo-answer-markdown')).toContainText('1900');
+  await expect(page.locator('.fo-answer-markdown')).toContainText('production dispatch');
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export evidence', exact: true }).click();
+  const file = await downloading;
+  const evidence = JSON.parse(await readFile((await file.path())!, 'utf8'));
+  expect(evidence.scope.audience).toBe('ccb');
+  const quality = evidence.results[0].rows.find((row: { entity_id: string }) => row.entity_id === 'service-2');
+  expect(quality.operational.source_type).toBe('demo:qms:release');
+  expect(quality.operational.completed).toBe(107);
+});

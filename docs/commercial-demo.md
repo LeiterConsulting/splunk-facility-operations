@@ -2,6 +2,8 @@
 
 Facility Operations can now present ordinary commercial business functions alongside the original public sector contexts. The incidents are authored fictional stories; they demonstrate investigation and decision workflows rather than claim industry findings, customer outages or measured losses.
 
+For measured retail and manufacturing walkthroughs, source provenance and comparable systems across all sixteen verticals, use [Industry operating scenarios](industry-scenarios.md).
+
 ## Set up a clean presentation
 
 Open **Settings → Presentation setup** or the dashboard's **Presentation settings** button. Choose the audience, industry and use case, review the preview, and choose **Apply presentation**. The dashboard shows the active context without selection dropdowns. Demo/Live and replay controls remain available.
@@ -31,7 +33,7 @@ Each of the seven new commercial verticals has six contextual incident stories. 
 
 1. In Presentation setup, choose **Retail and Commerce**, **Operations**, and **Checkout and Fulfillment Access**, then apply. Select Demo, Pause and Normal.
 2. Choose Impact. Show online checkout and order fulfillment waiting on the identity path, with store operations represented separately. Do not claim that every store or service is affected.
-3. Select Shared identity and inspect the sign-in symptom, owner and observation time. Open Investigation assistant and ask for dependency impact.
+3. Open Dependencies, select Commerce access broker and inspect the sign-in symptom, owner and observation time. Open Investigation assistant and ask for dependency impact.
 4. Review chronology, the candidate cause and bounded searches. Explain how current evidence can help clear unrelated candidates and focus the next owner; do not equate a healthy badge with proven innocence.
 5. Export the reviewed evidence or report draft. Apply Executive through Settings for the consequence briefing, or Change Control Board for the recovery decision.
 

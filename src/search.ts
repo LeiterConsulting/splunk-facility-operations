@@ -1,6 +1,7 @@
 import { createFetchInit, handleResponse } from '@splunk/splunk-utils/fetch';
 import { createRESTURL } from '@splunk/splunk-utils/url';
 import { getUsecase, getVertical, type Mode, type Signal, type State, type Layer } from './catalogue';
+import { normalizeObservation } from './operationalData';
 export function buildSearch(mode: Mode, vertical: string, usecase: string, clock: number): string {
   getVertical(vertical);
   getUsecase(usecase);
@@ -8,14 +9,14 @@ export function buildSearch(mode: Mode, vertical: string, usecase: string, clock
   if (!Number.isSafeInteger(clock) || clock < 0) throw new Error('Invalid scenario clock');
   const base = mode === 'demo'
     ? '| `facility_ops_demo_events("' + vertical + '","' + usecase + '",' + clock + ')`'
-    : 'search `facility_ops_live_events` vertical="' + vertical + '" earliest=-60m latest=now';
-  const latest = ' | stats latest(_time) as _time latest(state) as state latest(reason) as reason latest(latency_ms) as latency_ms latest(queue_depth) as queue_depth latest(temperature_c) as temperature_c latest(control_state) as control_state latest(evidence_at) as evidence_at latest(phase) as phase latest(origin) as origin latest(usecase) as usecase latest(name) as name latest(layer) as layer latest(site) as site latest(owner) as owner latest(category) as category latest(control_id) as control_id latest(depends_on) as depends_on by entity_id';
+    : 'search `facility_ops_live_events` vertical="' + vertical + '" earliest=-60m latest=now | eval operational=coalesce(operational,"{}")';
+  const latest = ' | stats latest(_time) as _time latest(state) as state latest(reason) as reason latest(latency_ms) as latency_ms latest(queue_depth) as queue_depth latest(temperature_c) as temperature_c latest(control_state) as control_state latest(evidence_at) as evidence_at latest(phase) as phase latest(origin) as origin latest(usecase) as usecase latest(name) as name latest(layer) as layer latest(site) as site latest(owner) as owner latest(category) as category latest(control_id) as control_id latest(depends_on) as depends_on latest(operational) as operational by entity_id';
   const inventory = mode === 'live'
     ? ' | append [ | inputlookup facility_ops_live_inventory.csv | search enabled=1 vertical="' + vertical + '" | fields entity_id name layer site owner category control_id depends_on ]'
-      + ' | stats max(_time) as _time values(state) as state values(reason) as reason max(latency_ms) as latency_ms max(queue_depth) as queue_depth max(temperature_c) as temperature_c values(control_state) as control_state max(evidence_at) as evidence_at values(phase) as phase values(usecase) as usecase values(name) as name values(layer) as layer values(site) as site values(owner) as owner values(category) as category values(control_id) as control_id values(depends_on) as depends_on by entity_id'
+      + ' | stats max(_time) as _time values(state) as state values(reason) as reason max(latency_ms) as latency_ms max(queue_depth) as queue_depth max(temperature_c) as temperature_c values(control_state) as control_state max(evidence_at) as evidence_at values(phase) as phase values(usecase) as usecase values(name) as name values(layer) as layer values(site) as site values(owner) as owner values(category) as category values(control_id) as control_id values(depends_on) as depends_on values(operational) as operational by entity_id'
       + ' | eval origin="live", state=if(isnull(_time) OR now()-_time>180 OR _time>now()+30 OR isnull(evidence_at) OR now()-evidence_at>180 OR evidence_at>now()+30,"unknown",state), reason=if(state="unknown","Missing or stale live telemetry",reason)'
     : '';
-  return base + latest + inventory + ' | eval vertical="' + vertical + '" | table _time entity_id name layer site owner category control_id depends_on state reason latency_ms queue_depth temperature_c control_state evidence_at origin vertical usecase phase';
+  return base + latest + inventory + ' | eval vertical="' + vertical + '" | table _time entity_id name layer site owner category control_id depends_on state reason latency_ms queue_depth temperature_c control_state evidence_at origin vertical usecase phase operational';
 }
 export const isSplunk = () => /\/app\/splunk_facility_operations(?:\/|$)/.test(window.location.pathname);
 function scalar(value: unknown): string {
@@ -46,6 +47,7 @@ export function normalizeResult(row: Record<string, unknown>, mode: Mode): Signa
     temperature_c: metric(row.temperature_c, false), control_state: scalar(row.control_state) || 'Unreviewed',
     evidence_at: Number(row.evidence_at) || 0, origin: mode, vertical: scalar(row.vertical),
     usecase: scalar(row.usecase), phase: Number(row.phase) || 0,
+    operational: normalizeObservation(row.operational),
   };
 }
 export async function searchSignals(mode: Mode, vertical: string, usecase: string, clock: number, signal: AbortSignal): Promise<Signal[]> {

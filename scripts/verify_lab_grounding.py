@@ -46,6 +46,11 @@ check('summary_has_reporting_denominator', len(grouped) == 1 and grouped[0].get(
 missing = client.search(fixture + ' | search fixture=5' + summary_pipeline)
 check('summary_does_not_invent_zero', len(missing) == 1 and missing[0].get('queue_reporting') == '0' and missing[0].get('queued_work') in (None, ''))
 
+missing_latest = '| makeresults count=2 | streamstats count as fixture | eval entity_id="missing-latest", _time=now()-if(fixture=1,60,0), name="Fixture only", layer="mission", state="healthy", evidence_at=_time, operational=if(fixture=1,"{\\\"source_type\\\":\\\"fixture:old\\\",\\\"attempted\\\":10,\\\"completed\\\":9}",null())'
+latest_pipeline = compiled[compiled.index(' | eval operational='):]
+latest_rows = client.search(missing_latest + latest_pipeline)
+check('missing_latest_observation_does_not_inherit_old_measures', len(latest_rows) == 1 and latest_rows[0].get('operational') == '{}')
+
 if not args.pipeline_only:
     context = dict(context, mode='demo', entity_id='identity')
     answer = client.request('servicesNS/-/' + APP + '/facility_ops/agent', {'payload': json.dumps({'message': 'Prepare an executive decision brief with dependency impact', 'context': context})})

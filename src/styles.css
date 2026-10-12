@@ -98,3 +98,58 @@
 #facility-operations-root .fo-agent-progress{padding:16px 22px;border-bottom:1px solid #dce6e9}
 #facility-operations-root .fo-agent-progress section[aria-label='Response in progress']{border-top:1px solid #dce6e9;padding-top:18px}
 #facility-operations-root .fo-answer-followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+
+#facility-operations-root .fo-operational-overview{display:grid;gap:22px;margin-bottom:24px}
+#facility-operations-root .fo-industry-story{padding:24px;border-top:3px solid var(--green)}
+#facility-operations-root .fo-industry-story h2{font-size:23px;line-height:1.4;color:#214b50}
+#facility-operations-root .fo-industry-story>p{font-size:13px;line-height:1.8;margin:12px 0;color:#536b76;max-width:1000px}
+#facility-operations-root .fo-workflow-ribbon{display:flex;gap:10px;padding:0;margin:22px 0;list-style:none;flex-wrap:wrap}
+#facility-operations-root .fo-workflow-ribbon li{flex:1;min-width:130px;padding:12px;background:#eef5f4;font-size:12px;line-height:1.6;border-radius:4px;color:#2e5b55}
+#facility-operations-root .fo-workflow-ribbon li>span{display:block;font-size:10px;font-weight:600;margin-bottom:4px;color:#587e78}
+#facility-operations-root .fo-section-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+#facility-operations-root .fo-section-intro>span{font-size:11px;color:var(--muted);max-width:240px;line-height:1.6}
+#facility-operations-root .fo-delivery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#facility-operations-root .fo-delivery-card{padding:20px;border-top:3px solid #6a9d8f;display:flex;flex-direction:column;min-width:0}
+#facility-operations-root .fo-delivery-card.fo-needs-attention{border-top-color:#c16a3b}
+#facility-operations-root .fo-delivery-heading h3{font-size:17px;margin:0 0 8px;line-height:1.5}
+#facility-operations-root .fo-delivery-heading>span{font-size:10px;font-weight:600;color:#366d5f}
+#facility-operations-root .fo-needs-attention .fo-delivery-heading>span{color:#a14b26}
+#facility-operations-root .fo-delivery-card>p{font-size:12px;line-height:1.7;margin:12px 0;color:#61737c}
+#facility-operations-root .fo-completion-value{margin:8px 0 12px}
+#facility-operations-root .fo-completion-value strong{font-size:34px;font-weight:500;font-variant-numeric:tabular-nums;color:#284f55}
+#facility-operations-root .fo-completion-value>span{display:block;font-size:11px;margin-top:6px;line-height:1.6;color:var(--muted)}
+#facility-operations-root .fo-delivery-card meter{width:100%;height:8px;accent-color:#418e77}
+#facility-operations-root .fo-delivery-measures,#facility-operations-root .fo-source-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px;margin:20px 0}
+#facility-operations-root .fo-delivery-measures dt,#facility-operations-root .fo-source-facts dt{font-size:10px;color:var(--muted);margin-bottom:6px}
+#facility-operations-root .fo-delivery-measures dd,#facility-operations-root .fo-source-facts dd{margin:0;font-size:13px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;line-height:1.6}
+#facility-operations-root .fo-delivery-card .fo-objective-line{font-size:10px;padding:10px;background:#f4f7f8;margin:0 0 14px}
+#facility-operations-root .fo-delivery-signature{margin-top:auto;overflow-wrap:anywhere;font-size:10px;line-height:1.7;padding-bottom:18px}
+#facility-operations-root .fo-diagnostic-panel{padding-bottom:12px}
+#facility-operations-root .fo-text-button{background:none;border:0;padding:0;color:#00669b;text-align:left;text-decoration:underline;text-underline-offset:3px}
+#facility-operations-root .fo-diagnostic-panel td,#facility-operations-root .fo-operational-ledger td{vertical-align:top;white-space:normal;overflow-wrap:anywhere}
+#facility-operations-root .fo-diagnostic-panel code,#facility-operations-root .fo-operational-ledger code{font-size:11px}
+#facility-operations-root .fo-operational-decision{padding:24px;grid-column:1 / -1}
+#facility-operations-root .fo-operational-decision>.fo-panel-heading{padding:0 0 12px}
+#facility-operations-root .fo-operational-decision p{font-size:13px;line-height:1.8;color:#536b76}
+#facility-operations-root .fo-decision-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:22px 0}
+#facility-operations-root .fo-decision-columns h3{font-size:14px;margin:0 0 8px;color:#315f5b}
+#facility-operations-root .fo-industry-references{margin-top:22px;font-size:12px;line-height:1.8}
+#facility-operations-root .fo-industry-references summary,#facility-operations-root .fo-source-observation summary{cursor:pointer;color:#315f6b;font-weight:600}
+#facility-operations-root .fo-industry-references ul{padding-left:20px;list-style:disc}
+#facility-operations-root .fo-industry-references li{margin:8px 0}
+#facility-operations-root .fo-industry-references p{margin:12px 0}
+#facility-operations-root .fo-industry-references a{color:#00669b;text-decoration:underline}
+#facility-operations-root .fo-source-observation{background:#f6fafb;border:1px solid #b7d2dc;border-left:4px solid #427f91;border-radius:4px;padding:22px;margin:18px 0;font-size:12px;line-height:1.7;min-width:0}
+#facility-operations-root .fo-source-observation>.fo-panel-heading{padding:0;display:flex;justify-content:space-between;gap:12px}
+#facility-operations-root .fo-source-observation h3{font-size:18px;margin:4px 0 12px}
+#facility-operations-root .fo-source-observation pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;padding:16px;background:#edf3f5}
+#facility-operations-root .fo-system-reference{padding:14px 16px;margin:16px;background:#f0f5f7;border-radius:4px;font-size:12px;line-height:1.7}
+#facility-operations-root .fo-source-observation .fo-system-reference{margin:16px 0}
+#facility-operations-root .fo-system-reference p{margin:8px 0}
+#facility-operations-root .fo-operational-ledger{margin-bottom:22px}
+#facility-operations-root .fo-operational-ledger>.fo-source-observation{margin:20px}
+#facility-operations-root .fo-workspace-links{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+@media(max-width:1200px){#facility-operations-root .fo-delivery-grid{grid-template-columns:1fr}#facility-operations-root .fo-delivery-card{display:block}#facility-operations-root .fo-delivery-measures{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:650px){#facility-operations-root .fo-section-intro{display:block}#facility-operations-root .fo-section-intro>span{display:block;margin-top:10px}#facility-operations-root .fo-delivery-measures,#facility-operations-root .fo-source-facts,#facility-operations-root .fo-decision-columns{grid-template-columns:1fr 1fr}#facility-operations-root .fo-decision-columns{grid-template-columns:1fr}#facility-operations-root .fo-industry-story,#facility-operations-root .fo-operational-decision{padding:18px}#facility-operations-root .fo-industry-story h2{font-size:20px}}
+
+#facility-operations-root :is(.fo-delivery-signature,.fo-diagnostic-panel,.fo-operational-ledger,.fo-source-observation) code{color:#355b69;background:#edf3f5;padding:2px 4px;border-radius:3px;overflow-wrap:anywhere}

@@ -107,3 +107,10 @@ Keep private hostnames, API keys, passwords, session tokens, customer event cont
 **A chosen reasoning policy has no effect:** inspect **Model calls and resource use**. Unknown OpenAI models use provider defaults; Ollama uses only advertised thinking values; AI Toolkit options are managed in its Connections page. **High** can take longer and consume more output tokens. Refine scope or choose a different qualified model if output or time limits are reached.
 
 **AI Toolkit returns a JSON protocol error:** verify the same user can run the documented `ai` command and choose a model that returns the requested JSON shape. Connection confirmation alone does not qualify tool use.
+
+## Business metrics or industry context are missing
+
+- In Demo, open Situation room, select Impact and wait for the Splunk refresh. A current release should show three business completion cards and a diagnostic comparison. Use the native Search handoff and check that the returned rows include the `operational` JSON field.
+- If new dashboard metrics appear but the assistant export lacks `knowledge.operational_facts`, confirm that the complete release was installed. The REST entry point and restmap registrations must match the app build. Follow deployment prompts and reload/restart procedures for your Splunk topology; an app version label alone does not verify a loaded persistent Python runtime.
+- In Live, an unreported measure or objective means the normalized source did not supply a valid value, or state evidence is unverified. Check the [optional observation contract](live-data.md#business-transaction-and-diagnostic-observations), entity ID and freshness. Adding inventory or selecting a vertical does not generate real transaction measurements.
+- Comparable product names and workflow steps are reference context. Confirm the actual customer products, add-ons, source permissions and correlation fields during onboarding.

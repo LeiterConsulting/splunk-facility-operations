@@ -1,4 +1,6 @@
 import { CYCLE_SECONDS, PHASE_SECONDS, entitiesFor, getUsecase, phases, type Entity, type Signal, type State } from './catalogue';
+import { operationalObservation } from './operationalData';
+import { operationalProfile } from './operationalCatalogue';
 export function phaseAt(second: number): number {
   return Math.floor(((second % CYCLE_SECONDS) + CYCLE_SECONDS) % CYCLE_SECONDS / PHASE_SECONDS);
 }
@@ -33,13 +35,15 @@ export function signalsForPhase(verticalId: string, usecaseId: string, phase: nu
       : root && state !== 'healthy' ? scenario.symptom
       : impact && state !== 'healthy' ? 'Affected by ' + entities.find((item) => item.entity_id === scenario.root)?.name
       : phase >= 6 && impact ? 'Recovery validated against fresh telemetry.' : 'Within the expected operating range.';
+    const operational = operationalObservation(verticalId, usecaseId, entity.entity_id, state, phase);
     return {
       ...entity, _time: time, state, reason, vertical: verticalId, usecase: usecaseId, origin: 'demo',
       phase, latency_ms: entity.layer !== 'facility' && state !== 'unknown' ? (state === 'critical' ? 1840 : state === 'warning' ? 680 : state === 'recovering' ? 280 : 84) : null,
-      queue_depth: entity.layer === 'mission' && state !== 'unknown' ? (impact && phase >= 2 && phase <= 4 ? 146 + phase * 57 : phase === 5 && impact ? 48 : 0) : null,
-      temperature_c: entity.entity_id === 'cooling' ? (scenario.root === 'cooling' && phase >= 2 && phase <= 4 ? 33.7 : 21.4) : null,
+      queue_depth: entity.layer === 'mission' && state !== 'unknown' ? (impact && phase >= 2 && phase <= 4 ? verticalId === 'retail' ? 146 + phase * 57 : Math.round(operationalProfile(verticalId).processes.find((item) => item.entity_id === entity.entity_id)!.volume * (0.12 + phase * 0.025)) : phase === 5 && impact ? 48 : 0) : null,
+      temperature_c: entity.entity_id === 'cooling' ? operational.signal_value : null,
       control_state: state === 'unknown' ? 'Evidence missing' : state === 'critical' ? 'Review required' : 'Evidence available',
       control_id: entity.control_id, evidence_at: state === 'unknown' ? time - 3600 : time,
+      operational,
     };
   });
 }

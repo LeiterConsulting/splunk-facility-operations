@@ -2,6 +2,25 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Industry operating scenarios 0.1.5 (build 13)
+
+October 12, 2026. The situation room now starts with named business handoffs and their measured completion, response and waiting-work evidence. Sixteen authored vertical designs supply distinct workflow volumes, source families, system equivalents, topology, ownership and recovery questions. The assistant receives normalized source observations and independently computed delivery facts.
+
+| Check | Result |
+| --- | --- |
+| Type checking and local tests | Passed: 20 TypeScript and 56 Python tests; covers all 7,680 recurring observations, distinct vertical contracts, diagnostic signatures, normalization, missing values and runtime namespace isolation |
+| Compiled-bundle browser workflows | All 12 passed together against the final bundle, including clinical source provenance, compact layout, manufacturing change-to-assistant handoff, evidence exports, streaming, citations and cancellation |
+| Exact archive | 27 regular files; 453,149 bytes; reproducible, byte-identical installer formats, header-only live inventory and no local overrides |
+| Enterprise 10.4.0 | 28 native UI checks, 8 service checks and 13 grounding checks passed; screenshots cover retail, manufacturing and healthcare |
+| Enterprise 10.0.1 / OpenAI | 22 connected checks passed with the existing gpt-6-luna configuration and synthetic evidence, including actual completion counts in the response, diagnostic counter-evidence, tools, streaming, follow-up report and adaptive reasoning |
+| Generated live SPL fixtures on 10.0.1 | 8 checks passed, including a newest observation without measures not inheriting an older aggregate |
+| Upgrade | Both labs retain saved provider settings; build-specific entry point/import namespace loads the new runtime across persistent-handler updates |
+| AppInspect 4.2.1 precertification | 0 errors, failures or future failures; 4 warnings and 1 skipped check |
+
+Installer SHA-256: `fa539f12793162b4bb8ddedd793d456c41b9c7d287798f02b8d2b5fdf5a30328`. See the [release manifest](validation/release-v0.1.5.json), [connected OpenAI receipt](validation/release-v0.1.5-openai-10.0.json), [native interface receipt](validation/release-v0.1.5-ui-10.4.json) and [inspection findings](validation/release-v0.1.5-appinspect.json). Public receipts exclude credentials, private origins, raw exports and provider reasoning. The browser-only lab certificate exception is recorded separately from provider transport; provider settings were preserved.
+
+Inspection warnings cover SplunkJS telemetry, legacy Python migration, custom-configuration cluster replication and Cloud role compatibility. The package identity check is skipped. This is standalone Enterprise proof-of-concept validation; it does not qualify production customer sources, individual transaction tracing, vendor connectors, real Ollama/AI Toolkit inference, Cloud/GovCloud, clusters, production scale or every model. Completion refers to the named handoff, not a final clinical, settlement or fulfillment outcome. Objectives and change references are authored demo values. Time-to-innocence improvement still requires a customer evaluation.
+
 ## Connected investigation release 0.1.4 (build 10)
 
 October 12, 2026. The assistant now displays real search/model/tool activity, incremental public text, formatted evidence citations and reviewable follow-ups. This release includes real OpenAI qualification against synthetic demo evidence, in addition to deterministic and mocked transport/cancellation checks.

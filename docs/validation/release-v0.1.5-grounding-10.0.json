@@ -1,0 +1,38 @@
+{
+  "target": "PULSE_SPOKE1",
+  "checks": [
+    {
+      "name": "current_live_state_preserved",
+      "passed": true
+    },
+    {
+      "name": "stale_live_event_unknown",
+      "passed": true
+    },
+    {
+      "name": "missing_live_evidence_unknown",
+      "passed": true
+    },
+    {
+      "name": "future_live_evidence_unknown",
+      "passed": true
+    },
+    {
+      "name": "missing_metric_not_zero",
+      "passed": true
+    },
+    {
+      "name": "summary_has_reporting_denominator",
+      "passed": true
+    },
+    {
+      "name": "summary_does_not_invent_zero",
+      "passed": true
+    },
+    {
+      "name": "missing_latest_observation_does_not_inherit_old_measures",
+      "passed": true
+    }
+  ],
+  "method": "read-only generated live-pipeline fixtures; no customer source qualification"
+}

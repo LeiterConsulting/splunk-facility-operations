@@ -33,7 +33,7 @@ class GroundingTests(unittest.TestCase):
                 result = assess(rows, NOW)
                 self.assertEqual(result['candidate']['entity']['entity_id'], usecase['root'])
                 self.assertEqual(result['observed'], 9)
-                self.assertEqual(result['queue'], len(result['affected_functions']) * 260)
+                self.assertEqual(result['queue'], sum(row['queue_depth'] or 0 for row in rows if row['layer'] == 'mission'))
                 self.assertEqual(result['queue_reporting'], 3)
                 self.assertEqual(result['unknown'][0]['entity_id'], 'access')
 

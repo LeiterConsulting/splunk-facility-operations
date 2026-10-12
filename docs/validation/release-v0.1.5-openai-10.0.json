@@ -1,0 +1,1245 @@
+{
+  "target": "PULSE_SPOKE1",
+  "checks": [
+    {
+      "name": "native_splunk_chrome",
+      "passed": true
+    },
+    {
+      "name": "served_candidate_bundle",
+      "passed": true
+    },
+    {
+      "name": "configured_openai_provider",
+      "passed": true
+    },
+    {
+      "name": "actual_partial_answer_before_completion",
+      "passed": true
+    },
+    {
+      "name": "incremental_partial_updates",
+      "passed": true
+    },
+    {
+      "name": "activity_before_completion",
+      "passed": true
+    },
+    {
+      "name": "formatted_answer_headings",
+      "passed": true
+    },
+    {
+      "name": "safe_narrative_surface",
+      "passed": true
+    },
+    {
+      "name": "computed_assessment_grounding",
+      "passed": true
+    },
+    {
+      "name": "business_measures_retrieved",
+      "passed": true
+    },
+    {
+      "name": "business_measures_in_answer",
+      "passed": true
+    },
+    {
+      "name": "diagnostic_counter_evidence_retrieved",
+      "passed": true
+    },
+    {
+      "name": "actual_function_tools",
+      "passed": true
+    },
+    {
+      "name": "current_pass_chronology",
+      "passed": true
+    },
+    {
+      "name": "model_usage_and_activity_export",
+      "passed": true
+    },
+    {
+      "name": "reasoning_not_exported",
+      "passed": true
+    },
+    {
+      "name": "citation_drilldown",
+      "passed": true
+    },
+    {
+      "name": "followup_prepared_for_review",
+      "passed": true
+    },
+    {
+      "name": "followup_report_tool",
+      "passed": true
+    },
+    {
+      "name": "adaptive_reasoning_in_real_calls",
+      "passed": true
+    },
+    {
+      "name": "saved_endpoint_model_discovery",
+      "passed": true
+    },
+    {
+      "name": "no_application_page_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": false,
+  "served_bundle_sha256": "f585fff3eadcfcc2c5f7d5d70a1c746fb57e26eeb0bd5e8303d12c4b1a627283",
+  "local_bundle_sha256": "9c0191c505cbb117013a6b413d29316ac0ebd891adfcd8a95652166b2e5bb5b0",
+  "candidate_bundle_in_served_asset": true,
+  "provider": "openai",
+  "model": "gpt-6-luna",
+  "calls": [
+    {
+      "turn": 1,
+      "reasoning": "high",
+      "duration_ms": 1659,
+      "usage": {
+        "input_tokens": 14576,
+        "output_tokens": 69,
+        "total_tokens": 14645
+      }
+    },
+    {
+      "turn": 2,
+      "reasoning": "high",
+      "duration_ms": 1344,
+      "usage": {
+        "input_tokens": 28167,
+        "output_tokens": 28,
+        "total_tokens": 28195
+      }
+    },
+    {
+      "turn": 3,
+      "reasoning": "high",
+      "duration_ms": 1109,
+      "usage": {
+        "input_tokens": 38633,
+        "output_tokens": 19,
+        "total_tokens": 38652
+      }
+    },
+    {
+      "turn": 4,
+      "reasoning": "high",
+      "duration_ms": 28251,
+      "usage": {
+        "input_tokens": 41068,
+        "output_tokens": 2878,
+        "total_tokens": 43946
+      }
+    }
+  ],
+  "brief_calls": [
+    {
+      "turn": 1,
+      "reasoning": "low",
+      "duration_ms": 1007,
+      "usage": {
+        "input_tokens": 15540,
+        "output_tokens": 15,
+        "total_tokens": 15555
+      }
+    },
+    {
+      "turn": 2,
+      "reasoning": "high",
+      "duration_ms": 5275,
+      "usage": {
+        "input_tokens": 29092,
+        "output_tokens": 411,
+        "total_tokens": 29503
+      }
+    }
+  ],
+  "progress_samples": [
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 0,
+      "kinds": []
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 4,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 4,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 8,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 8,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 14,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 14,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 0,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 2,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 436,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 803,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 1246,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 1558,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 1922,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 2209,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 2669,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 3092,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 3655,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "running",
+      "text_length": 4051,
+      "activity_count": 18,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start"
+      ]
+    },
+    {
+      "status": "completed",
+      "text_length": 0,
+      "activity_count": 19,
+      "kinds": [
+        "search_start",
+        "search_done",
+        "evidence_ready",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "search_start",
+        "search_done",
+        "tool_done",
+        "model_start",
+        "model_done",
+        "tool_start",
+        "tool_done",
+        "model_start",
+        "model_done"
+      ]
+    }
+  ],
+  "answer_heading_count": 3
+}

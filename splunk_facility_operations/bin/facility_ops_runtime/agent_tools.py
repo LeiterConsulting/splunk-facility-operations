@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 from datetime import datetime, timezone
 from .agent_assessment import FIELDS, STATES, assess, normalize, related, scalar
+from .agent_operational import operational_facts
 
 APP_ROOT = Path(__file__).resolve().parents[2]
 GROUP_FIELDS = ("owner", "site", "state", "layer", "control_id", "entity_id")
@@ -54,7 +55,7 @@ def compile_search(context, kind="snapshot", group_by="owner", state="any"):
         if kind == "timeline":
             query += " | where phase<=" + str(context["clock"] % 360 // 45)
     else:
-        query = 'search `facility_ops_live_events` vertical=' + json.dumps(vertical) + ' earliest=-60m latest=now'
+        query = 'search `facility_ops_live_events` vertical=' + json.dumps(vertical) + ' earliest=-60m latest=now | eval operational=coalesce(operational,"{}")'
     if kind != "timeline":
         query += LATEST
         if context["mode"] == "live":
@@ -95,6 +96,9 @@ class Investigation:
             rows = [normalize(row, self.captured_at, current=False) for row in rows]
         else:
             rows = [{key: row[key] for key in (group_by, "entities", "queue_reporting", "queued_work", "max_latency_ms") if key in row} for row in rows]
+        if kind in ("snapshot", "timeline"):
+            for row in rows:
+                row.update(vertical=self.context['vertical'], usecase=self.context['usecase'], origin=self.context['mode'])
         meta = {"rows": len(rows), "truncated": len(raw) > 100, "mode": self.context["mode"], "query": query}
         self.trace.append(dict(meta, tool="query_events"))
         self.results.append({"kind": kind, "rows": rows, "truncated": meta["truncated"], "query": query})
@@ -119,10 +123,14 @@ class Investigation:
             vertical = dict(vertical, services=[row["name"] for row in self.snapshot if row["layer"] == "mission"])
         audience = next(item for item in catalogue["audiences"] if item["id"] == self.context["audience"])
         scenario = next(item for group in catalogue["scenarios"] if group["vertical"] == vertical["id"] for item in group["usecases"] if item["id"] == self.context["usecase"])
-        return {"vertical": vertical, "audience": audience, "dataset": catalogue["datasetGuides"][self.context["usecase"]], "scenario": {"label": scenario["label"], "demonstration_only": True, **({key: scenario[key] for key in ("action", "gate", "rollback")} if self.context["mode"] == "demo" else {})},
-                "metric_meanings": {"queue_depth": "Current waiting work by business function, in " + vertical["unit"] + "; sum only reported, current function observations. Items may appear in multiple queues; totals are not unique affected customers. Not throughput, financial loss or a measured saving.", "latency_ms": "Reported latency observation, not a percentile or SLA.", "temperature_c": "Environmental reading where reported; no engineering threshold is supplied.", "control_id": "Review association, not proof of compliance.", "state": "Latest observed state; absent, stale or invalid evidence is unknown."},
+        profile = catalogue.get('operationalProfiles', {}).get(vertical['id'], {})
+        return {"vertical": vertical, "audience": audience, "dataset": catalogue["datasetGuides"][self.context["usecase"]],
+                "operating_reference": dict(profile, interpretation='Authored industry reference design. Example products, workflow steps and pain points do not establish the installed customer stack or a vendor incident.'),
+                "operational_facts": operational_facts(self.snapshot),
+                "scenario": {"label": scenario["label"], "demonstration_only": True, **({key: scenario[key] for key in ("action", "gate", "rollback")} if self.context["mode"] == "demo" else {})},
+                "metric_meanings": {"queue_depth": "Current waiting work by business function, in " + vertical["unit"] + "; sum only reported, current function observations. Items may appear in multiple queues; totals are not unique affected customers. Not throughput, financial loss or a measured saving.", "latency_ms": "Reported legacy latency observation, not a percentile or SLA. Operational p95_ms is separately source-supplied.", "temperature_c": "Environmental reading where reported; any supplied operational signal_limit is a source guide, not an engineering safety determination.", "control_id": "Review association, not proof of compliance.", "state": "Latest observed state; absent, stale or invalid evidence is unknown."},
                 "window": "Current replay pass; synthetic evidence" if self.context["mode"] == "demo" else "Last 60 minutes; current-state freshness 180 seconds",
-                "limits": "At most 100 returned rows per tool. Footprints use returned inventory only. Healthy evidence lowers investigation priority but does not exonerate a component. No measured time-to-innocence, SLA, revenue, change records or verified root cause is supplied."}
+                "limits": "At most 100 returned rows per tool. Footprints use returned inventory only. Healthy evidence lowers investigation priority but does not exonerate a component. No measured time-to-innocence, customer SLA, revenue, approved change or verified root cause is supplied. Demo deployment references are synthetic. Operational counts are overlapping-window aggregates; do not sum windows or confuse acknowledgement with final business outcome."}
 
     def call(self, name, arguments):
         if self.progress:
@@ -224,7 +232,22 @@ def format_demo_answer(investigation):
         lines.append("Synthetic scenario. Proposed actions are simulations; correlation is not causal proof.")
     else:
         lines.append("Live observations. The selected use case is an investigation lens, not evidence of that scenario occurring.")
-    headings = {'Purpose', 'Decision summary', 'Observed evidence', 'Investigation hypothesis', 'Narrowing the investigation', 'Accountable next step', 'Evidence still needed'}
+    facts = knowledge['operational_facts']
+    def measure(value):
+        return str(value) if value is not None else 'unreported'
+    lines += ['', 'Business delivery evidence']
+    for item in facts['delivery']:
+        lines.append('- **' + item['name'] + '**: ' + measure(item['completed']) + '/' + measure(item['attempted']) + ' successful ' + item['transaction'].lower() + ' observations in ' + measure(item['window_seconds']) + ' seconds; ' + (format(item['completion_pct'], '.2f') + '% completion' if item['completion_pct'] is not None else 'completion unreported') + '; p95 ' + measure(item['p95_ms']) + ' ms; oldest waiting work ' + measure(item['oldest_wait_min']) + ' min. Source `' + item['source_type'] + '`; signature ' + item['signature'] + '.')
+    if not facts['delivery']:
+        lines.append('Transaction completion, response objectives and aging-work measures are unreported in the returned evidence.')
+    lines += ['', 'Platform diagnostic comparison']
+    for item in facts['diagnostics']:
+        lines.append('- ' + item['name'] + ': ' + item['signal_label'] + ' = ' + measure(item['signal_value']) + ' ' + item['signal_unit'] + '; source `' + item['source_type'] + '`; ' + item['signature'] + '.')
+    profile = knowledge['operating_reference']
+    if profile.get('mission'):
+        lines += ['', 'Operating context', profile['mission'], profile['stakes'], 'Recovery verification: ' + profile['verification']]
+    lines.append(facts['interpretation'])
+    headings = {'Purpose', 'Decision summary', 'Observed evidence', 'Investigation hypothesis', 'Narrowing the investigation', 'Accountable next step', 'Evidence still needed', 'Business delivery evidence', 'Platform diagnostic comparison', 'Operating context'}
     lines[0] = '## ' + lines[0]
     return "\n\n".join('### ' + line if line in headings or line.startswith('Earliest returned abnormal evidence (') else line for line in lines)
 

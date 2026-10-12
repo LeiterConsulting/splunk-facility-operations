@@ -14,12 +14,14 @@ For the value discussion and customer success measures, use [operations value](o
 
 Opening statement: “This is a native Splunk app demonstrating the art of the possible with synthetic operational evidence. We will follow an interruption from business impact to evidence and the next operational decision. The same workflow can be evaluated against your own functions and observations.”
 
+For complete clinical, manufacturing and retail stories with exact expected observations, comparable systems and research references, use [Industry operating scenarios](industry-scenarios.md). Start with business completion, compare diagnostic evidence, then explore the dependency map.
+
 ## A five-minute walkthrough
 
 | Step | Show | Say | Expected result |
 | --- | --- | --- | --- |
-| 1. Establish context | Normal in Situation room | “These functions rely on shared technology and physical conditions.” | The functions and baseline observations are visible |
-| 2. Establish impact | Impact; open Dependencies; select Shared identity | “A shared dependency can create symptoms across several services.” | Shared identity is critical; dependent paths and evidence are visible |
+| 1. Establish context | Normal in Situation room | “These functions rely on shared technology and physical conditions.” | Named business handoffs, completed/attempted counts, p95 and authored objectives are visible |
+| 2. Establish impact | Impact; open Dependencies; select Benefits access broker | “A shared dependency can create symptoms across several services.” | Benefits access broker is critical; dependent paths and evidence are visible |
 | 3. Narrow the investigation | Investigation assistant → Investigate the current issue and its dependency impact | “We can inspect scope, relationships and chronology, and explain the next owner to engage.” | Response with expandable investigation steps, row counts and bounded searches |
 | 4. Explain time to innocence | Expand a search and discuss current observations outside the affected path | “This helps teams narrow candidates with evidence. Missing observations still need investigation.” | Source, time window and limits can be reviewed; no automatic clearance claim |
 | 5. Brief the decision | Export report or Export evidence; apply Executive in Settings | “An investigation and a business briefing can use the same evidence.” | Downloaded draft or JSON, followed by a consequence-focused view |
