@@ -1,0 +1,39 @@
+import { useState } from 'react';
+import Button from '@splunk/react-ui/Button';
+import { uiClass } from './classes';
+import type { Signal, Mode } from './catalogue';
+import type { Presentation } from './presentation';
+import type { InvestigationIntent } from './OperationsBriefing';
+import { caseQuestion, deliverySentence, displayNumber, operationalCase, type RetainedInvestigation } from './caseModel';
+import { completionRate } from './operationalData';
+import { ObservationDetails } from './OperationalWorkspace';
+
+export function CaseHeader({ caseId, investigation, openInvestigation, exportBrief }: { caseId: string; investigation: RetainedInvestigation | null; openInvestigation: () => void; exportBrief: () => void }) {
+  return <section className={uiClass('case-header')} aria-label="Current operational case"><div><span className={uiClass('mini-label')}>CURRENT CASE · {caseId}</span>{investigation && <span className={uiClass('retained-note')}>Investigation retained · {new Date(investigation.generated_at * 1000).toLocaleTimeString()} · {investigation.scope.audience} lens · frozen evidence</span>}</div><div>{investigation && <Button onClick={openInvestigation}>Return to investigation</Button>}<Button onClick={exportBrief}>Download customer brief</Button></div></section>;
+}
+export function CaseWorkspace({ context, mode, signals, now, investigate, openEvidence, openDecision, openDetails }: { context: Presentation; mode: Mode; signals: Signal[]; now: number; investigate: (intent: InvestigationIntent) => void; openEvidence: () => void; openDecision: () => void; openDetails: () => void }) {
+  const state = operationalCase(signals, context, now);
+  const [selected, setSelected] = useState('');
+  const selectedRow = state.rows.find(row => row.entity_id === selected);
+  return <div className={uiClass('case-workspace')}>
+    <section className={uiClass('panel case-story')} aria-label="Operational story"><span className={uiClass('eyebrow')}>WHAT IS HAPPENING</span><h2>{state.finding}</h2><p>{state.profile.mission}</p><div className={uiClass('case-consequence')}><strong>Why this matters</strong><p>{{ distributed_care: 'Delayed order acknowledgement can interrupt handoffs between care teams, interface operators and remote sites.', manufacturing: 'A delayed quality release can hold the next production handoff and create reconciliation work across production and quality teams.', retail: 'Slow checkout and delayed order allocation leave customers waiting and fulfillment teams reconciling what was accepted.' }[context.vertical] || state.profile.pain_points[0]}</p></div>
+      <div className={uiClass('case-delivery-grid')}>{state.business.map(row => {
+        const op = row.state === 'unknown' ? null : row.operational;
+        const rate = completionRate(op);
+        return <article key={row.entity_id} data-demo-target={'delivery:' + row.entity_id} className={uiClass('case-delivery')}><h3>{row.name}</h3><span>{row.state === 'unknown' ? 'Current evidence unverified' : state.outside.some(item => item.entity_id === row.entity_id) ? 'Outside reported objective' : row.state === 'recovering' ? 'Recovery in progress' : 'Current observation'}</span><strong>{rate === null ? '—' : displayNumber(rate, 2) + '%'}</strong><p>{displayNumber(op?.completed)} of {displayNumber(op?.attempted)} attempts completed</p><dl><div><dt>p95 response</dt><dd>{displayNumber(op?.p95_ms)} ms</dd></div><div><dt>Oldest waiting work</dt><dd>{displayNumber(op?.oldest_wait_min)} min</dd></div></dl><small>Completion objective {displayNumber(op?.target_success_pct, 2)}% · response objective {displayNumber(op?.target_p95_ms)} ms · window {displayNumber(op?.window_seconds)} s</small><Button appearance="subtle" onClick={() => setSelected(row.entity_id)}>Inspect {row.name.toLowerCase()}</Button></article>;
+      })}</div>
+      {!state.business.length && <p>No business observations were returned. Establish inventory and source coverage before assessing performance.</p>}
+      <div className={uiClass('case-next')}><strong>Next question for this audience</strong><p>{state.lens.question}</p><div><Button appearance="primary" disabled={!signals.length} onClick={() => investigate({ question: caseQuestion(context, 'explain') })}>Explain this situation</Button><Button onClick={openDecision}>Review next decision</Button></div></div>
+    </section>
+    <section className={uiClass('panel case-evidence')} aria-label="Evidence and competing explanations"><div className={uiClass('panel-heading')}><span className={uiClass('eyebrow')}>WHAT THE EVIDENCE SUPPORTS</span><h2>{state.root ? 'Test the path through ' + state.root.name : 'Compare the supporting observations'}</h2></div><div className={uiClass('case-diagnostics')}>{state.rows.filter(row => row.layer !== 'mission').map(row => {
+      const op = row.state === 'unknown' ? null : row.operational;
+      return <div key={row.entity_id} data-demo-target={'diagnostic:' + row.entity_id}><button className={uiClass('text-button')} onClick={() => setSelected(row.entity_id)}>{row.name}</button><span>{op ? op.signal_label + ': ' + displayNumber(op.signal_value, 1) + ' ' + op.signal_unit : 'Current diagnostic unreported'}</span><small>{row.state} · {row.owner}</small></div>;
+    })}</div><details><summary>What remains uncertain?</summary><p>{state.uncertainty}</p><p>{state.lens.check}</p></details><div className={uiClass('case-buttons')}><Button disabled={!signals.length} onClick={() => investigate({ question: caseQuestion(context, 'compare') })}>Compare explanations</Button><Button onClick={openEvidence}>Inspect source evidence</Button><Button appearance="subtle" onClick={openDetails}>Open detailed situation room</Button></div></section>
+    {selectedRow && <ObservationDetails row={selectedRow} vertical={context.vertical} mode={mode} />}
+    <section className={uiClass('panel case-capability')} aria-label="How Splunk supports this case"><h2>How Splunk supports this</h2><ol><li><strong>Observe</strong><span>Retrieve workflow and diagnostic records.</span></li><li><strong>Connect</strong><span>Compare timing, ownership and configured dependencies.</span></li><li><strong>Investigate</strong><span>Use scoped searches and inspectable assistant evidence.</span></li><li><strong>Decide</strong><span>Retain a reviewed handoff and recovery checks.</span></li></ol><details><summary>Working capabilities and customer requirements</summary><dl><dt>Working in the installed app</dt><dd>Authenticated Splunk searches, returned observations, scoped assistant tools, citations and local exports.</dd><dt>Simulated in Demo</dt><dd>Incident progression, example objectives, dependency relationships and recovery actions. No external infrastructure changes.</dd><dt>Customer extension</dt><dd>Authoritative source onboarding, validated ownership and relationships, approved workflow integrations and agreed success measures. Example products represent system roles.</dd></dl><p>{mode === 'demo' ? 'All displayed observations are synthetic. ' : ''}Overlapping windows must not be summed. Operational acknowledgement does not establish final business completion.</p></details></section>
+  </div>;
+}
+export function InvestigationFinding({ signals, context, capturedAt }: { signals: Signal[]; context: Presentation; capturedAt: number }) {
+  const state = operationalCase(signals, context, capturedAt);
+  return <section className={uiClass('investigation-finding')} aria-label="Investigation finding summary"><span className={uiClass('mini-label')}>COMPUTED FROM FROZEN RETURNED EVIDENCE</span><h3>Finding</h3><p>{state.finding}</p><h4>Supporting evidence</h4><p>{state.primary ? deliverySentence(state.primary) : 'No workflow measures were returned.'}</p><h4>Uncertainty</h4><p>{state.uncertainty}</p><h4>Next check</h4><p>{state.lens.check}</p></section>;
+}

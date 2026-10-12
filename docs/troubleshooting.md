@@ -120,3 +120,12 @@ Keep private hostnames, API keys, passwords, session tokens, customer event cont
 The default demo holds Normal until you start a guided walkthrough or choose continuous playback. A stationary phase is expected. Next waits for the complete matching demo stage and is also disabled during an active investigation. Use Retry stage search after a search failure, or Stop in the assistant before changing stages.
 
 If you navigate or scroll away, use Return to this step or Show highlighted evidence. The guide's scrolling stays inside the app workspace to retain native Splunk chrome. Exit guide/Finish walkthrough removes its arrow and highlight and keeps the phase paused. Apply a new presentation to end the current guide, or switch to Live to remove it. Detailed context is expandable in Presenter notes. Story exports contain the stage snapshots actually visited; assistant exports are separate.
+
+
+## Case presentation and retained investigations
+
+- The default destination is Operations story. Situation room and other detailed workspaces remain in the left menu; Present or compact layouts use Workspace view. Menu icons and labels should share a consistent left alignment.
+- Return to investigation appears after a completed answer. Navigation keeps running work and completed citations available. Use Stop to cancel a running investigation.
+- A new walkthrough, applied presentation, Demo/Live change or page refresh clears the current case. Download the customer brief or assistant exports before starting again. Case state is in this page session, not a durable server record.
+- Current recovery values and an earlier frozen investigation can differ. Compare their labeled scope, capture times and replay clocks; the brief retains both without rewriting the earlier findings.
+- Presentation readiness reports observed coverage and saved provider selection. It does not claim that the endpoint was contacted. Test a connected provider in Settings before presenting.

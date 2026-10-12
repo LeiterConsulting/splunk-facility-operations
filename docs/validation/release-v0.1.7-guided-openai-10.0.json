@@ -1,0 +1,138 @@
+{
+  "target": "PULSE_SPOKE1",
+  "checks": [
+    {
+      "name": "native_chrome_visible",
+      "passed": true
+    },
+    {
+      "name": "default_demo_paused_at_baseline",
+      "passed": true
+    },
+    {
+      "name": "sidebar_labels_share_left_alignment",
+      "passed": true
+    },
+    {
+      "name": "default_operations_story",
+      "passed": true
+    },
+    {
+      "name": "guided_camera_preserves_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "baseline_highlight_in_view",
+      "passed": true
+    },
+    {
+      "name": "early_signal_explained",
+      "passed": true
+    },
+    {
+      "name": "business_impact_from_returned_data",
+      "passed": true
+    },
+    {
+      "name": "desktop_guide_has_reserved_column",
+      "passed": true
+    },
+    {
+      "name": "highlight_and_arrow_visible",
+      "passed": true
+    },
+    {
+      "name": "dependency_view_and_owner",
+      "passed": true
+    },
+    {
+      "name": "scoped_question_prepared",
+      "passed": true
+    },
+    {
+      "name": "no_automatic_inference",
+      "passed": true
+    },
+    {
+      "name": "running_investigation_blocks_step_change",
+      "passed": true
+    },
+    {
+      "name": "assistant_uses_guided_stage",
+      "passed": true
+    },
+    {
+      "name": "assistant_chronology_bounded",
+      "passed": true
+    },
+    {
+      "name": "completed_investigation_reenables_navigation",
+      "passed": true
+    },
+    {
+      "name": "long_response_arrow_stays_below_native_chrome",
+      "passed": true
+    },
+    {
+      "name": "audience_decision_has_relevant_evidence",
+      "passed": true
+    },
+    {
+      "name": "decision_is_review_not_approval",
+      "passed": true
+    },
+    {
+      "name": "partial_recovery_distinguished",
+      "passed": true
+    },
+    {
+      "name": "readable_customer_brief_and_poc_requirements",
+      "passed": true
+    },
+    {
+      "name": "brief_retains_frozen_earlier_investigation",
+      "passed": true
+    },
+    {
+      "name": "story_export_retains_eight_visited_stages",
+      "passed": true
+    },
+    {
+      "name": "finish_removes_highlight_and_holds_stage",
+      "passed": true
+    },
+    {
+      "name": "investigation_export_survives_recovery_navigation",
+      "passed": true
+    },
+    {
+      "name": "short_overview_without_inference",
+      "passed": true
+    },
+    {
+      "name": "new_case_clears_old_findings_and_skipped_stages",
+      "passed": true
+    },
+    {
+      "name": "continuous_loop_still_available",
+      "passed": true
+    },
+    {
+      "name": "candidate_asset_verified",
+      "passed": true
+    },
+    {
+      "name": "no_application_errors",
+      "passed": true
+    }
+  ],
+  "page_error_count": 0,
+  "runtime_architecture": "arm64",
+  "browser_tls_exception": true,
+  "lab_secure_origin_exception": false,
+  "submitted_investigations": 1,
+  "candidate_bundle_in_served_asset": true,
+  "local_bundle_sha256": "1524719274370dbfab76e61673378b23fba4bc279b44e33a01ab80ec39a53bb1",
+  "provider": "openai",
+  "model": "gpt-6-luna"
+}

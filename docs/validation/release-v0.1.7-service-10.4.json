@@ -1,0 +1,40 @@
+{
+  "target": "PULSE_HQ",
+  "version": "10.4.0",
+  "checks": [
+    {
+      "name": "app_installed",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_90",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_450",
+      "passed": true
+    },
+    {
+      "name": "loop_clock_2592090",
+      "passed": true
+    },
+    {
+      "name": "commercial_retail_loop",
+      "passed": true
+    },
+    {
+      "name": "provider_settings",
+      "passed": true
+    },
+    {
+      "name": "investigation_with_evidence",
+      "passed": true
+    },
+    {
+      "name": "other_apps_preserved",
+      "passed": true
+    }
+  ],
+  "package_sha256": "f5c46cc6e8b9f8c0261417d629d39bd11e620d0b9b97120b213e9001baec606e",
+  "tls_verified": false
+}

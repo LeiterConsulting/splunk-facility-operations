@@ -7,10 +7,10 @@ import type { Presentation } from './presentation';
 
 type Point = { x: number; y: number };
 type FocusPosition = { start: Point; end: Point };
-export function GuidedDemo({ steps, index, context, signals, ready, activeView, searchError, busy, agentHasActivity, onStep, onExit, onRestart, onRetry, onExport }: {
+export function GuidedDemo({ steps, index, context, signals, ready, activeView, searchError, busy, agentHasActivity, onStep, onExit, onRestart, onRetry, onExport, onBrief }: {
   steps: GuideStep[]; index: number; context: Presentation; signals: Signal[];
   ready: boolean; activeView: string; searchError: string; busy: boolean; agentHasActivity: boolean;
-  onStep: (index: number) => void; onExit: () => void; onRestart: () => void; onRetry: () => void; onExport: () => void;
+  onStep: (index: number) => void; onExit: () => void; onRestart: () => void; onRetry: () => void; onExport: () => void; onBrief: () => void;
 }) {
   const step = steps[index];
   const activeTarget = step.id === 'assistant' && agentHasActivity ? 'assistant-activity' : step.target;
@@ -38,9 +38,13 @@ export function GuidedDemo({ steps, index, context, signals, ready, activeView, 
         if (!card.current) return;
         const focus = target.getBoundingClientRect();
         const coach = card.current.getBoundingClientRect();
-        if (window.innerWidth < 800 || focus.bottom < 70 || focus.top > window.innerHeight - 80) { setPosition(null); return; }
-        const end = { x: Math.min(window.innerWidth - 22, focus.right - 12), y: Math.max(90, Math.min(coach.top - 24, focus.top + Math.min(focus.height / 2, 100))) };
-        setPosition({ start: { x: coach.right - 24, y: coach.top - 6 }, end });
+        const bounds = canvas?.getBoundingClientRect();
+        if (!bounds) { setPosition(null); return; }
+        const visibleTop = Math.max(bounds.top + 16, focus.top);
+        const visibleBottom = Math.min(bounds.bottom - 16, focus.bottom);
+        if (window.innerWidth < 800 || visibleBottom <= visibleTop) { setPosition(null); return; }
+        const end = { x: Math.max(bounds.left + 12, Math.min(bounds.right - 12, focus.right - 8)), y: visibleTop + Math.min((visibleBottom - visibleTop) / 2, 60) };
+        setPosition({ start: { x: coach.left - 8, y: Math.min(coach.bottom - 30, Math.max(coach.top + 110, end.y)) }, end });
       });
     };
     const observer = new ResizeObserver(update);
@@ -65,11 +69,11 @@ export function GuidedDemo({ steps, index, context, signals, ready, activeView, 
       <div className={uiClass('guide-body')}>
         {!ready ? <div className={uiClass('guide-wait')}><p role={searchError ? 'alert' : 'status'}>{searchError ? 'This stage could not load. Retry its search or exit the guide.' : 'Loading this stage’s evidence… Complete stage evidence is required before advancing.'}</p><Button appearance="subtle" onClick={onRetry}>Retry stage search</Button></div> : <ul aria-label="Evidence for this step">{evidence.map(item => <li key={item}>{item}</li>)}</ul>}
         {busy && <p role="status">The investigation is running. Wait for the answer or use Stop before changing steps.</p>}
-        <p id="guided-demo-description">{step.summary}</p><details><summary>Presenter notes</summary><p>{step.explanation}</p></details>
+        <strong className={uiClass('guide-learning-label')}>What we learned</strong><p id="guided-demo-description">{step.summary}</p><details><summary>Presenter notes</summary><p>{step.explanation}</p></details>
       </div>
       {ready && <Button appearance="subtle" onClick={() => { onStep(index); setReveal(value => value + 1); }}>{found ? 'Show highlighted evidence' : 'Return to this step'}</Button>}
       <div className={uiClass('guide-navigation')}><Button disabled={index === 0 || busy || !ready} onClick={() => onStep(index - 1)}>Back</Button><Button appearance="primary" disabled={busy || !ready} onClick={() => index === steps.length - 1 ? onExit() : onStep(index + 1)}>{index === steps.length - 1 ? 'Finish walkthrough' : 'Next: ' + steps[index + 1].label}</Button></div>
-      {index === steps.length - 1 && <div className={uiClass('guide-completion')}><Button disabled={!ready} onClick={onExport}>Download story evidence</Button><Button appearance="subtle" onClick={onRestart}>Restart story</Button></div>}
+      {index === steps.length - 1 && <div className={uiClass('guide-completion')}><Button disabled={!ready} onClick={onBrief}>Download customer brief</Button><Button disabled={!ready} onClick={onExport}>Download story evidence</Button><Button appearance="subtle" onClick={onRestart}>Restart story</Button></div>}
     </aside>
   </>;
 }

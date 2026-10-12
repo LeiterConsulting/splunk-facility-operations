@@ -191,3 +191,77 @@
 #facility-operations-root .fo-guide-body details summary{cursor:pointer;font-weight:600}
 #facility-operations-root .fo-guide-body details p{margin:8px 0}
 @media(max-width:800px){#facility-operations-root .fo-guide-body{max-height:210px}}
+
+/* Splunk Button has an inner flex wrapper; align both icon and label consistently. */
+#facility-operations-root .fo-sidebar nav button>span{justify-content:flex-start}
+#facility-operations-root .fo-sidebar nav [data-test="label"]{flex:1 1 auto;text-align:left}
+#facility-operations-root .fo-sidebar .fo-nav-icon{margin:0;flex:0 0 20px}
+#facility-operations-root [hidden]{display:none!important}
+#facility-operations-root .fo-case-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:14px 0 20px;padding:14px 18px;background:#eaf2f1;border-left:3px solid #28766b}
+#facility-operations-root .fo-case-header p{font-size:12px;line-height:1.6;margin:5px 0;color:#4c656b}
+#facility-operations-root .fo-case-header>div:last-child,#facility-operations-root .fo-case-buttons,#facility-operations-root .fo-case-next>div{display:flex;flex-wrap:wrap;gap:8px}
+#facility-operations-root .fo-retained-note{font-size:11px;color:#49686b}
+#facility-operations-root .fo-case-workspace{display:grid;gap:18px}
+#facility-operations-root .fo-case-story{padding:24px}
+#facility-operations-root .fo-case-story>h2{font-size:25px;line-height:1.35;max-width:950px}
+#facility-operations-root .fo-case-story>p{margin:12px 0;line-height:1.7;font-size:14px;max-width:950px;color:#536970}
+#facility-operations-root .fo-case-consequence{margin:18px 0;font-size:13px;line-height:1.7}
+#facility-operations-root .fo-case-consequence p{color:#566a71;margin-top:5px}
+#facility-operations-root .fo-case-delivery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:24px 0}
+#facility-operations-root .fo-case-delivery{min-width:0;border-top:3px solid #739b91;padding:14px 0}
+#facility-operations-root .fo-case-delivery h3{font-size:17px;margin:0 0 6px}
+#facility-operations-root .fo-case-delivery>span{font-size:12px;color:#536d73}
+#facility-operations-root .fo-case-delivery>strong{display:block;font-size:30px;color:#285650;margin:16px 0 5px;font-variant-numeric:tabular-nums}
+#facility-operations-root .fo-case-delivery p{font-size:13px;line-height:1.5}
+#facility-operations-root .fo-case-delivery dl{display:flex;flex-wrap:wrap;gap:12px;margin:14px 0}
+#facility-operations-root .fo-case-delivery dt{margin:0;color:#596b75;font-size:11px}
+#facility-operations-root .fo-case-delivery dd{font-variant-numeric:tabular-nums;font-size:14px}
+#facility-operations-root .fo-case-delivery small{font-size:11px;line-height:1.7;margin:0 0 10px}
+#facility-operations-root .fo-case-next{padding-top:18px;border-top:1px solid var(--border);font-size:13px}
+#facility-operations-root .fo-case-next p{margin:8px 0 14px;line-height:1.7}
+#facility-operations-root .fo-case-diagnostics{padding:12px 22px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
+#facility-operations-root .fo-case-diagnostics>div{padding:10px 0;border-bottom:1px solid var(--border);min-width:0}
+#facility-operations-root .fo-case-diagnostics span{display:block;font-size:12px;line-height:1.7;margin-top:5px}
+#facility-operations-root .fo-case-evidence>details,#facility-operations-root .fo-case-buttons{margin:18px 22px}
+#facility-operations-root .fo-case-workspace details{font-size:12px;line-height:1.7}
+#facility-operations-root .fo-case-workspace details summary{cursor:pointer;font-weight:600}
+#facility-operations-root .fo-case-workspace details p{margin:10px 0}
+#facility-operations-root .fo-case-capability{padding:22px}
+#facility-operations-root .fo-case-capability>ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0;list-style:none;gap:20px;margin:20px 0}
+#facility-operations-root .fo-case-capability li{font-size:13px;line-height:1.7}
+#facility-operations-root .fo-case-capability li>span{display:block;margin-top:5px;color:#536970}
+#facility-operations-root .fo-investigation-finding{background:#eef5f3;padding:20px;margin:12px 0;line-height:1.7;font-size:13px;border-left:3px solid #28766b}
+#facility-operations-root .fo-investigation-finding h3{font-size:19px;margin:8px 0}
+#facility-operations-root .fo-investigation-finding h4{font-size:12px;margin:15px 0 5px}
+@media(max-width:1100px){#facility-operations-root .fo-case-delivery-grid{grid-template-columns:1fr}#facility-operations-root .fo-case-capability>ol{grid-template-columns:repeat(2,minmax(0,1fr))}#facility-operations-root .fo-case-header{align-items:flex-start;flex-direction:column}}
+@media(max-width:600px){#facility-operations-root .fo-case-story{padding:18px}#facility-operations-root .fo-case-story>h2{font-size:21px}#facility-operations-root .fo-case-diagnostics,#facility-operations-root .fo-case-capability>ol{grid-template-columns:1fr}}
+
+/* Reserve a reading column for the guide, so it never covers the evidence. */
+@media(min-width:801px){
+#facility-operations-root .fo-guided-demo{position:relative;right:auto;bottom:auto;width:340px;max-height:none;align-self:stretch;flex:0 0 340px;overflow-y:auto;border:0;border-left:1px solid var(--border);border-radius:0;box-shadow:none;padding:20px;z-index:2;background:#fff}
+#facility-operations-root .fo-guide-active #facility-operations-main{padding-bottom:40px}
+#facility-operations-root .fo-guide-active .fo-case-delivery-grid{grid-template-columns:1fr}
+#facility-operations-root .fo-guide-active .fo-agent-layout{grid-template-columns:1fr}
+#facility-operations-root .fo-guide-active .fo-agent-context{display:none}
+#facility-operations-root .fo-guide-active .fo-case-capability>ol{grid-template-columns:repeat(2,minmax(0,1fr))}
+#facility-operations-root .fo-guide-active .fo-case-diagnostics{grid-template-columns:1fr}
+#facility-operations-root .fo-guide-active .fo-guide-body{max-height:none;overflow:visible}
+}
+#facility-operations-root .fo-guide-learning-label{font-size:12px;display:block;margin-top:16px;color:#335f60}
+@media(min-width:801px) and (max-width:1200px){#facility-operations-root .fo-guide-active .fo-sidebar{width:174px}#facility-operations-root .fo-guided-demo{width:300px;flex-basis:300px;padding:16px}}
+#facility-operations-root .fo-role-evidence{margin:20px 22px;font-size:13px;line-height:1.7}
+#facility-operations-root .fo-role-evidence>p{margin:8px 0}
+#facility-operations-root .fo-role-evidence ul{padding:0;list-style:none}
+#facility-operations-root .fo-role-evidence li{border-top:1px solid var(--border);padding:12px 0}
+#facility-operations-root .fo-role-evidence li>span{display:block;font-size:12px}
+#facility-operations-root .fo-recommended-stories{border:1px solid var(--border);padding:16px;margin:0 0 20px;min-width:0;font-size:12px;line-height:1.7}
+#facility-operations-root .fo-recommended-stories legend{font-weight:600;padding:0 8px}
+#facility-operations-root .fo-recommended-stories button{margin:4px 4px 4px 0;max-width:100%;white-space:normal}
+#facility-operations-root .fo-presentation-readiness{grid-column:1/-1;font-size:12px;line-height:1.7}
+#facility-operations-root .fo-presentation-readiness summary{cursor:pointer;font-weight:600}
+#facility-operations-root .fo-presentation-readiness p{margin:8px 0}
+#facility-operations-root .fo-guide-launch{grid-template-columns:minmax(0,1fr) minmax(280px,430px);padding:16px 20px;gap:12px 20px}
+#facility-operations-root .fo-guide-launch>div:nth-child(2){display:flex;flex-wrap:wrap;align-content:center;gap:8px}
+#facility-operations-root .fo-case-header{padding:10px 14px;margin:10px 0 16px;min-height:52px}
+#facility-operations-root .fo-retained-note{display:block;margin-top:5px}
+@media(max-width:1000px){#facility-operations-root .fo-guide-launch{grid-template-columns:1fr}}

@@ -96,6 +96,7 @@ try {
   await page.getByRole('combobox', { name: 'Industry / vertical', exact: true }).selectOption('retail');
   await page.getByRole('combobox', { name: 'Audience', exact: true }).selectOption('executive');
   await clickButton('Apply presentation');
+  await clickButton('Situation room');
   await page.getByRole('heading', { name: 'Online checkout', exact: true }).waitFor();
   await page.getByRole('region', { name: 'Platform diagnostic comparison' }).getByText('TOKEN_EXCHANGE_TIMEOUT', {exact:true}).waitFor();
   check('commercial_settings_and_native_search', (await page.getByLabel('Current presentation context').innerText()).includes('Retail and Commerce'));
@@ -131,6 +132,7 @@ try {
   check('commercial_investigation_export', evidence.scope.vertical === 'retail' && evidence.scope.audience === 'executive' && evidence.results.some((result) => result.rows.some((row) => row.name === 'Online checkout')));
   check('computed_evidence_and_dataset_grounding', evidence.scope.entity_id === 'identity' && evidence.assessment.queue === 520 && evidence.assessment.observed === 9 && evidence.knowledge.audience.id === 'executive' && evidence.knowledge.vertical.unit === 'orders');
   check('current_pass_chronology', evidence.results.find((result) => result.kind === 'timeline').rows.every((row) => Number(row.phase) <= 2));
+  await page.getByText('Inspect retrieved scope and evidence', { exact: true }).click();
   check('receipt_evidence_drilldown', await page.getByRole('region', { name: 'Retrieved evidence summary', exact: true }).isVisible());
   await page.screenshot({ path: output + '/investigation.png', fullPage: true });
   receipt.stage = 'manufacturing';
@@ -139,6 +141,7 @@ try {
   await page.getByRole('combobox', { name: 'Audience', exact: true }).selectOption('facilities');
   await page.getByRole('combobox', { name: 'Use case', exact: true }).selectOption('facility');
   await clickButton('Apply presentation');
+  await clickButton('Sites and facilities');
   await page.getByRole('heading', { name: 'Manufacturing plant', exact: true }).waitFor();
   check('commercial_facility_sites', await page.getByRole('heading', { name: 'Central campus', exact: true }).count() === 0);
   await clickButton('Situation room');
@@ -150,6 +153,7 @@ try {
   await page.getByRole('combobox',{name:'Audience',exact:true}).selectOption('operations');
   await page.getByRole('combobox',{name:'Use case',exact:true}).selectOption('dependency');
   await clickButton('Apply presentation');
+  await clickButton('Situation room');
   const clinical=page.getByRole('region',{name:'Business transaction performance'});
   await clinical.getByRole('heading',{name:'Clinical orders and results',exact:true}).waitFor();
   check('clinical_business_handoffs',(await clinical.innerText()).includes('247 / 268'));

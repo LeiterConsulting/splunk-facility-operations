@@ -6,7 +6,7 @@ import { createURL } from '@splunk/splunk-utils/url';
 import { audiences, entitiesFor, phases, PHASE_SECONDS, CYCLE_SECONDS, getVertical, getUsecase, type Mode, type Signal, type State } from './catalogue';
 import { demoSnapshot, dependents, impactSummary, phaseAt } from './model';
 import { buildSearch, isSplunk, searchSignals } from './search';
-import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings } from './AgentWorkspace';
+import { AgentWorkspace, ProviderSettings, agentRequest, defaultSettings, type AgentSettings, type Answer, providerLabels } from './AgentWorkspace';
 import { assessOperations } from './intelligence';
 import { audienceQuestion } from './datasets';
 import { OperationsBriefing, type InvestigationIntent } from './OperationsBriefing';
@@ -15,11 +15,14 @@ import { loadPresentation, PRESENTATION_KEY, type Presentation } from './present
 import { ObservationDetails, OperationalDecision, OperationalDiagnostics, OperationalEvidence, OperationalOverview, SystemReference } from './OperationalWorkspace';
 import { GuidedDemo } from './GuidedDemo';
 import { guidedSteps, guideQuestion } from './demoStory';
+import { CaseHeader, CaseWorkspace } from './CaseWorkspace';
+import { customerBrief } from './caseModel';
 
-type View = 'situation' | 'dependencies' | 'facility' | 'actions' | 'change' | 'evidence' | 'investigate' | 'settings';
+type View = 'story' | 'situation' | 'dependencies' | 'facility' | 'actions' | 'change' | 'evidence' | 'investigate' | 'settings';
 type Policy = 'observe' | 'supervised' | 'automatic';
-type Decision = { time: number; scope: string; action: string; status: string; actor: string; policy: string; origin: 'demo' };
+type Decision = { time: number; scope: string; case_id: string; action: string; status: string; actor: string; policy: string; origin: 'demo' };
 const views: { id: View; label: string; icon: string }[] = [
+  { id: 'story', label: 'Operations story', icon: '▷' },
   { id: 'situation', label: 'Situation room', icon: '◉' }, { id: 'dependencies', label: 'Dependencies', icon: '⌘' },
   { id: 'facility', label: 'Sites and facilities', icon: '▦' }, { id: 'actions', label: 'Action workspace', icon: '↗' },
   { id: 'change', label: 'Change readiness', icon: '⇄' }, { id: 'evidence', label: 'Evidence and controls', icon: '▤' },
@@ -27,7 +30,7 @@ const views: { id: View; label: string; icon: string }[] = [
 ];
 function viewFromURL(): View {
   const id = window.location.hash.slice(1);
-  return views.find((item) => item.id === id)?.id ?? 'situation';
+  return views.find((item) => item.id === id)?.id ?? (new URLSearchParams(window.location.search).get('replay') === 'loop' ? 'situation' : 'story');
 }
 const stateLabel: Record<State, string> = { healthy: 'Healthy', warning: 'Degraded', critical: 'Critical', recovering: 'Recovering', unknown: 'Unknown' };
 const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -90,6 +93,10 @@ export function App() {
   }
   const [mode, setMode] = useState<Mode>('demo');
   const [playback, setPlayback] = useState<'guided' | 'explore' | 'loop'>(() => new URLSearchParams(window.location.search).get('replay') === 'loop' ? 'loop' : 'guided');
+  const [guideRoute, setGuideRoute] = useState<'full' | 'overview'>('full');
+  const [caseEpoch, setCaseEpoch] = useState(Date.now);
+  const [latestInvestigation, setLatestInvestigation] = useState<Answer | null>(null);
+  const caseId = 'FO-' + caseEpoch.toString(36).toUpperCase();
   const [guideIndex, setGuideIndex] = useState<number | null>(null);
   const [guideTop, setGuideTop] = useState(0);
   const [agentBusy, setAgentBusy] = useState(false);
@@ -123,7 +130,10 @@ export function App() {
   const scenario = getUsecase(usecase, vertical);
   const persona = audiences.find((item) => item.id === audience)!;
   const scope = vertical + ':' + usecase;
-  const story = useMemo(() => guidedSteps(presentation), [presentation]);
+  const story = useMemo(() => {
+    const steps = guidedSteps(presentation);
+    return guideRoute === 'overview' ? steps.filter(step => ['baseline', 'impact', 'dependency', 'decision', 'verify'].includes(step.id)) : steps;
+  }, [presentation, guideRoute]);
   const guideReady = guideIndex !== null && !error && entitiesFor(vertical).every(entity => signals.some(row => row.entity_id === entity.entity_id && row.phase === story[guideIndex].phase));
   useEffect(() => {
     if (guideIndex === null || !guideReady) return;
@@ -185,12 +195,12 @@ export function App() {
   const impact = useMemo(() => dependents(signals, scenario.root), [signals, scenario.root]);
   const focused = signals.find((item) => item.entity_id === selected);
   const missionSignals = signals.filter((item) => item.layer === 'mission');
-  const scopedDecisions = decisions.filter((item) => item.scope === scope);
+  const scopedDecisions = decisions.filter((item) => item.scope === scope && item.case_id === caseId);
   const evidenceFresh = signals.length > 0 && signals.every((item) => !impact.has(item.entity_id) || (item.state !== 'unknown' && item.evidence_at > 0 && now - item.evidence_at < 180));
   const autoAllowed = usecase === 'autonomy' && evidenceFresh;
   const canRun = mode === 'demo' && evidenceFresh && ((policy === 'supervised' && approved) || (policy === 'automatic' && autoAllowed));
   function record(action: string, status: string) {
-    setDecisions((items) => [{ time: now, scope, action, status, actor: 'Demo presenter · ' + persona.label, policy, origin: 'demo' as const }, ...items].slice(0, 100));
+    setDecisions((items) => [{ time: now, scope, case_id: caseId, action, status, actor: 'Demo presenter · ' + persona.label, policy, origin: 'demo' as const }, ...items].slice(0, 100));
   }
   function runSimulation() {
     if (!canRun) return;
@@ -198,16 +208,16 @@ export function App() {
     setNotice('Simulation recorded. Review the recovery phase and fresh evidence; no external system was changed.');
     setApproved(false);
     const recoveryTime = Math.floor(scenarioSecond / CYCLE_SECONDS) * CYCLE_SECONDS + 5 * PHASE_SECONDS;
-    if (guideIndex !== null) showGuideStep(6);
+    if (guideIndex !== null) showGuideStep(Math.max(0, story.findIndex(step => step.id === (guideRoute === 'overview' ? 'verify' : 'recovery'))));
     else if (pausedSecond !== null) setPausedSecond(recoveryTime); else setOffset(recoveryTime - now);
   }
   useEffect(() => {
-    const runKey = scope + ':' + Math.floor(scenarioSecond / CYCLE_SECONDS);
+    const runKey = caseId + ':' + scope + ':' + Math.floor(scenarioSecond / CYCLE_SECONDS);
     if (mode === 'demo' && policy === 'automatic' && usecase === 'autonomy' && phase === 4 && autoAllowed && !automaticRuns.current.has(runKey)) {
       automaticRuns.current.add(runKey);
       runSimulation();
     }
-  }, [mode, policy, usecase, phase, autoAllowed, scope, scenarioSecond]);
+  }, [mode, policy, usecase, phase, autoAllowed, scope, scenarioSecond, caseId]);
   function goPhase(next: number) {
     setPlayback('explore');
     const time = Math.floor(scenarioSecond / CYCLE_SECONDS) * CYCLE_SECONDS + next * PHASE_SECONDS;
@@ -226,7 +236,8 @@ export function App() {
     } else if (step.id !== 'assistant') setInvestigationIntent(null);
     setView(step.view);
   }
-  function startGuide() {
+  function startGuide(route: 'full' | 'overview' = 'full') {
+    setGuideRoute(route); setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null);
     const root = document.getElementById('facility-operations-root');
     setGuideTop(Math.max(0, (root?.getBoundingClientRect().top ?? 0) + window.scrollY));
     guideReceipts.current.clear();
@@ -243,9 +254,11 @@ export function App() {
   }
   function changeMode(value: Mode) {
     setGuideIndex(null); setMode(value);
+    if (value !== mode) { setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null); }
     if (value === 'demo' && playback === 'guided') setPausedSecond(0);
   }
   function applyPresentation(value: Presentation) {
+    setCaseEpoch(value => Math.max(Date.now(), value + 1)); setLatestInvestigation(null);
     setGuideIndex(null);
     if (playback === 'guided') setPausedSecond(0);
     setPresentation(value);
@@ -254,7 +267,7 @@ export function App() {
     setSelected(null);
     setInvestigationIntent(null);
     try { window.localStorage.setItem(PRESENTATION_KEY, JSON.stringify(value)); } catch { /* Apply in memory even if browser storage is unavailable. */ }
-    setView(value.audience === 'ccb' ? 'change' : value.audience === 'isso' || value.audience === 'audit' ? 'evidence' : value.audience === 'facilities' ? 'facility' : 'situation');
+    setView('story');
   }
   function share() {
     const url = new URL(window.location.href);
@@ -263,12 +276,17 @@ export function App() {
     if (!navigator.clipboard) { setNotice('Presentation link: ' + url.href); return; }
     void navigator.clipboard.writeText(url.href).then(() => setNotice('Presentation link copied with the current audience, vertical, and use case.')).catch(() => setNotice('Presentation link: ' + url.href));
   }
+  function exportCustomerBrief() {
+    const content = customerBrief(presentation, mode, caseId, signals, now, latestInvestigation, scopedDecisions);
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/markdown;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'operations-customer-brief.md'; link.click(); URL.revokeObjectURL(url);
+  }
   const noData = mode === 'live' && !loading && !error && signals.length === 0;
   return <div className={uiClass('app-shell' + (presenter ? ' presenter' : '') + (guideIndex !== null ? ' guide-active' : ''))} style={{ '--fo-native-top': guideTop + 'px' } as React.CSSProperties}>
     <a className={uiClass("skip-link")} href="#facility-operations-main" onClick={(event) => { event.preventDefault(); const main = document.getElementById('facility-operations-main'); main?.focus(); main?.scrollIntoView({ block: 'start' }); }}>Skip to workspace</a>
     <div className={uiClass('workspace-toolbar')} aria-label="Demonstration controls"><div><strong>{installed ? 'Splunk proof of concept' : 'Developer component preview'}</strong><span>{installed ? 'Facility Operations · Art of the possible' : 'Install in Splunk for the native app experience'}</span></div><div className={uiClass('toolbar-actions')}><span className={uiClass('clock')}>{formatTime(now)}</span><Button appearance="subtle" onClick={() => setPresenter(!presenter)}>{presenter ? 'Exit presentation' : 'Present'}</Button></div></div>
     <div className={uiClass("workspace")}>
-      <aside className={uiClass("sidebar")}><div className={uiClass("sidebar-heading")}>OPERATIONS WORKSPACE</div><nav aria-label="Workspace views">{views.map((item) => <Button key={item.id} appearance="subtle" inline={false} className={uiClass(view === item.id ? 'active' : '')} aria-current={view === item.id ? 'page' : undefined} onClick={() => setView(item.id)}><span className={uiClass('nav-icon')} aria-hidden="true">{item.icon}</span>{item.label}</Button>)}</nav>
+      <aside className={uiClass("sidebar")}><div className={uiClass("sidebar-heading")}>OPERATIONS WORKSPACE</div><nav aria-label="Workspace views">{views.map((item) => <Button key={item.id} appearance="subtle" inline={false} icon={<span className={uiClass('nav-icon')} aria-hidden="true">{item.icon}</span>} label={item.label} className={uiClass(view === item.id ? 'active' : '')} aria-current={view === item.id ? 'page' : undefined} onClick={() => setView(item.id)} />)}</nav>
         <div className={uiClass("sidebar-note")}><span className={uiClass("mini-label")}>CONTEXT, THEN ACTION</span><p>Connect business functions to the systems and spaces that keep them running.</p><span>Splunk Enterprise 10.0+</span></div>
       </aside>
       <main id="facility-operations-main" tabIndex={-1}>
@@ -280,11 +298,13 @@ export function App() {
         </div>
         {installed && <div className={uiClass('search-handoff')}><span>Evidence is queried in this Splunk app with your search permissions.</span><Button appearance="subtle" openInNewContext to={createURL('app/splunk_facility_operations/search', { q: buildSearch(mode, vertical, usecase, scenarioSecond), earliest: '-60m', latest: 'now' })}>Open current search in Splunk</Button></div>}
         <div className={uiClass('source-strip ' + mode)}><div><span className={uiClass("source-dot")} /><strong>{mode === 'demo' ? guideIndex !== null || playback === 'guided' ? 'GUIDED DEMO' : pausedSecond === null ? 'LOOPING DEMO' : 'PAUSED DEMO' : 'LIVE SPLUNK DATA'}</strong><span>{mode === 'demo' ? 'Synthetic scenario · current timestamps · actions are simulated' : 'Authenticated Splunk searches · last 60 minutes · actions require integration'}</span></div><span>{loading ? 'Refreshing…' : signals.length ? (mode === 'demo' && !installed ? 'Local replay' : 'Splunk search') + ' · ' + signals.length + ' entities' : 'No signals'}</span></div>
-        {mode === 'demo' && guideIndex === null && view !== 'settings' && <section className={uiClass('guide-launch')} aria-label="Guided demo introduction"><div><span className={uiClass('eyebrow')}>AN OPERATIONS STORY YOU CAN FOLLOW</span><h2>{playback === 'guided' ? 'Walk through ' + scenario.label : 'Follow the story with a guide'}</h2><p>Eight steps bring each change into view: business impact, the evidence, an assistant investigation, and the recovery decision. Advance at your own pace.</p></div><div><Button id="guided-demo-start" appearance="primary" disabled={agentBusy} onClick={startGuide}>Start guided walkthrough</Button><Button appearance="subtle" disabled={agentBusy} onClick={playLoop}>Play continuous loop</Button></div></section>}
+        {mode === 'demo' && guideIndex === null && view !== 'settings' && <section className={uiClass('guide-launch')} aria-label="Guided demo introduction"><div><span className={uiClass('eyebrow')}>AN OPERATIONS STORY YOU CAN FOLLOW</span><h2>{playback === 'guided' ? 'Walk through ' + scenario.label : 'Follow the story with a guide'}</h2><p>Choose a three-minute overview or an eight-step investigation. Follow one case from business impact to evidence, a reviewed decision and recovery checks.</p></div><div><Button id="guided-demo-start" appearance="primary" disabled={agentBusy} onClick={() => startGuide()}>Start guided walkthrough</Button><Button disabled={agentBusy} onClick={() => startGuide('overview')}>Start three-minute overview</Button><Button appearance="subtle" disabled={agentBusy} onClick={() => { setPlayback('explore'); setView('story'); }}>Explore freely</Button><Button appearance="subtle" disabled={agentBusy} onClick={playLoop}>Play continuous loop</Button></div><details className={uiClass('presentation-readiness')}><summary>Presentation readiness</summary><p>{signals.length ? signals.length + ' returned observations in the selected scope.' : 'No observations returned yet; check data coverage.'} {error || ''}</p><p>{providerLabels[agentSettings.provider]}{agentSettings.model ? ' · ' + agentSettings.model : ''}. {agentSettings.provider === 'demo' ? 'No external provider is needed for the deterministic assistant.' : 'Saved configuration is selected. Use Provider settings to test the connection before presenting.'}</p><p>Guided navigation does not start inference. Synthetic actions remain simulations.</p></details></section>}
         {mode === 'demo' && guideIndex === null && <div className={uiClass("replay-bar")}><span className={uiClass("mini-label")}>SCENARIO REPLAY</span><div className={uiClass("phase-buttons")}>{phases.map((name, index) => <button key={name} className={uiClass(phase === index ? 'current' : '')} aria-pressed={phase === index} onClick={() => goPhase(index)}>{index + 1}<span>{name}</span></button>)}</div><Button appearance="subtle" onClick={() => pausedSecond === null ? (setPausedSecond(scenarioSecond), setPlayback('explore')) : playLoop()}>{pausedSecond === null ? 'Pause' : 'Resume'}</Button></div>}
         {error && <div role="alert" className={uiClass("message error")}><strong>Data connection needs attention</strong><p>{error}</p><Button onClick={() => setRevision((value) => value + 1)}>Retry search</Button></div>}
         {notice && <div role="status" className={uiClass("message success")}>{notice}<button aria-label="Dismiss notification" onClick={() => setNotice('')}>×</button></div>}
         {noData && <div className={uiClass("message")}><strong>Establish the live operational baseline</strong><p>No inventory or matching telemetry is available for this vertical. Configure facility_ops_live_inventory.csv and the facility_ops_live_events macro. Empty results are unknown coverage, not healthy operations.</p></div>}
+        {view !== 'settings' && <CaseHeader caseId={caseId} investigation={latestInvestigation} openInvestigation={() => setView('investigate')} exportBrief={exportCustomerBrief} />}
+        {view === 'story' && <CaseWorkspace key={caseId} context={presentation} mode={mode} signals={signals} now={now} investigate={investigate} openEvidence={() => setView('evidence')} openDecision={() => setView('change')} openDetails={() => setView('situation')} />}
         {view === 'situation' && <><OperationalOverview key={scope} vertical={vertical} audience={audience} mode={mode} signals={signals} investigate={investigate} /><OperationsBriefing assessment={assessment} audience={audience} vertical={vertical} usecase={usecase} mode={mode} investigate={investigate} inspect={inspectEvidence} /><div className={uiClass('export-row')}><Button onClick={() => setView('dependencies')}>Explore service dependencies</Button><Button onClick={() => setView('evidence')}>Review operational evidence</Button></div></>}
         {view === 'dependencies' && <>
           <div className={uiClass("metric-grid")}><div><span>Business functions affected</span><strong>{signals.length ? assessment.affected_functions.length : '—'}<small> / {missionSignals.length || '—'}</small></strong><p>Dependency impact in this scope</p></div><div><span>Waiting work ({currentVertical.unit})</span><strong>{assessment.queue === null ? '—' : assessment.queue.toLocaleString()}</strong><p>{assessment.queue_reporting} of {assessment.functions} function queues reporting · may overlap{mode === 'demo' ? ' · illustrative' : ''}</p></div><div><span>Evidence coverage</span><strong>{signals.length ? Math.round(assessment.observed / assessment.total * 100) + '%' : '—'}</strong><p>{assessment.unknown.length} {assessment.unknown.length === 1 ? 'component' : 'components'} with unverified state</p></div><div><span>Critical components</span><strong className={uiClass(summary.critical ? 'critical-number' : '')}>{signals.length ? summary.critical : '—'}</strong><p>{persona.focus}</p></div></div>
@@ -303,11 +323,11 @@ export function App() {
           <Panel title="Decision history" eyebrow="TRACEABLE OPERATIONS" className={uiClass("full-width")}>{scopedDecisions.length === 0 ? <p className={uiClass("panel-description")}>Record a demo approval, simulated execution, or deferral to build the decision trail.</p> : scopedDecisions.map((item, index) => <div className={uiClass("decision-record")} key={index}><small>{formatTime(item.time)} · {item.actor}</small><strong>{item.action}</strong><span>{item.status} · {item.policy}</span></div>)}</Panel>
         </div>}
         {view === 'evidence' && <><OperationalEvidence key={scope} signals={signals} vertical={vertical} mode={mode} /><div className={uiClass("evidence-banner")}><strong>Control evidence supports review; it does not establish compliance.</strong><p>Inspect the source, age, owner, and missing observations. The control associations in demo mode are illustrative.</p></div><Panel title="Current evidence and accountability" eyebrow="CONTINUOUS MONITORING"><EvidenceTable signals={signals} select={setSelected} />{focused && <div className={uiClass("evidence-detail")}><strong>{focused.name}</strong><p>{focused.reason}</p><span>Control: {focused.control_id} · Owner: {focused.owner} · Source: {focused.origin}</span><Button onClick={() => investigate({ entity_id: focused.entity_id, question: 'Review the evidence for ' + focused.name + ' [' + focused.entity_id + '], its control mapping, freshness, ownership and limitations.' })}>Investigate this evidence</Button></div>}</Panel><div className={uiClass("export-row")}><Button onClick={() => download('facility-operations-evidence.json', { generated_at: new Date().toISOString(), mode, vertical, usecase, audience, signals, decisions: scopedDecisions })}>Export current evidence</Button><span>Includes mode, timestamps, ownership, observations, and local demo decisions.</span></div></>}
-        {view === 'investigate' && <AgentWorkspace context={{ mode, vertical, usecase, audience, clock: scenarioSecond, ...(selected ? { entity_id: selected } : {}) }} intent={investigationIntent} inspect={inspectEvidence} clearFocus={() => { setSelected(null); setInvestigationIntent(null); }} signals={signals} settings={agentSettings} openSettings={() => setView('settings')} onBusyChange={setAgentBusy} onActivityChange={setAgentHasActivity} />}
+        <div hidden={view !== 'investigate'}><AgentWorkspace key={caseId + ':' + mode + ':' + vertical + ':' + usecase} context={{ mode, vertical, usecase, audience, clock: scenarioSecond, ...(selected ? { entity_id: selected } : {}) }} intent={investigationIntent} inspect={inspectEvidence} clearFocus={() => { setSelected(null); setInvestigationIntent(null); }} signals={signals} settings={agentSettings} openSettings={() => setView('settings')} onBusyChange={setAgentBusy} onActivityChange={setAgentHasActivity} onComplete={setLatestInvestigation} /></div>
         {view === 'settings' && <><PresentationSettings value={presentation} onApply={applyPresentation} /><ProviderSettings settings={agentSettings} setSettings={setAgentSettings} /></>}
         <div role="contentinfo" className={uiClass('footer')}><span>Facility Operations · {currentVertical.label}</span><span>{mode === 'demo' ? 'Synthetic scenario, not a representation of any customer environment' : 'Observed state only; unknown data remains explicit'}</span></div>
       </main>
+    {mode === 'demo' && guideIndex !== null && <GuidedDemo steps={story} index={guideIndex} context={presentation} signals={signals} ready={guideReady} activeView={view} searchError={error} busy={agentBusy} agentHasActivity={agentHasActivity} onStep={showGuideStep} onExit={exitGuide} onRestart={() => startGuide(guideRoute)} onRetry={() => setRevision(value => value + 1)} onBrief={exportCustomerBrief} onExport={() => download('operations-guided-story.json', { generated_at: new Date().toISOString(), context: presentation, case_id: caseId, investigation: latestInvestigation, mode: 'demo', step: story[guideIndex], clock: scenarioSecond, visited_steps: [...guideReceipts.current.values()], signals, search: buildSearch('demo', vertical, usecase, scenarioSecond), decisions: scopedDecisions, synthetic: true })} />}
     </div>
-    {mode === 'demo' && guideIndex !== null && <GuidedDemo steps={story} index={guideIndex} context={presentation} signals={signals} ready={guideReady} activeView={view} searchError={error} busy={agentBusy} agentHasActivity={agentHasActivity} onStep={showGuideStep} onExit={exitGuide} onRestart={startGuide} onRetry={() => setRevision(value => value + 1)} onExport={() => download('operations-guided-story.json', { generated_at: new Date().toISOString(), context: presentation, mode: 'demo', step: story[guideIndex], clock: scenarioSecond, visited_steps: [...guideReceipts.current.values()], signals, search: buildSearch('demo', vertical, usecase, scenarioSecond), decisions: scopedDecisions, synthetic: true })} />}
   </div>;
 }

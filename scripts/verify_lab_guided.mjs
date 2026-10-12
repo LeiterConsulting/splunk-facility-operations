@@ -48,6 +48,9 @@ try {
   const chrome = page.getByRole('banner').first();
   check('native_chrome_visible', await chrome.isVisible());
   check('default_demo_paused_at_baseline', await root.getByRole('button', { name: '1 Normal', exact: true }).getAttribute('aria-pressed') === 'true');
+  const menuLefts = await root.getByRole('navigation', { name: 'Workspace views' }).locator('[data-test=label]').evaluateAll(labels => labels.map(label => label.getBoundingClientRect().left));
+  check('sidebar_labels_share_left_alignment', menuLefts.length === 9 && Math.max(...menuLefts) - Math.min(...menuLefts) < 1);
+  check('default_operations_story', await root.getByRole('region', { name: 'Operational story', exact: true }).isVisible());
   await click('Start guided walkthrough');
   await expect(guide.getByRole('button', { name: 'Next: First signal', exact: true })).toBeEnabled();
   await expect(chrome).toBeInViewport(); check('guided_camera_preserves_native_chrome', true);
@@ -58,6 +61,9 @@ try {
   await guide.getByRole('button', { name: 'Next: Business impact', exact: true }).click();
   await expect(guide).toContainText('2,286/2,472');
   check('business_impact_from_returned_data', true);
+  const canvasBounds = await root.locator('#facility-operations-main').boundingBox();
+  const guideBounds = await guide.boundingBox();
+  check('desktop_guide_has_reserved_column', guideBounds.x >= canvasBounds.x + canvasBounds.width - 2);
   check('highlight_and_arrow_visible', await root.locator('.fo-guide-highlight').isVisible() && await root.locator('.fo-guide-arrow').isVisible());
   await page.screenshot({ path: output + '/guided-impact.png', fullPage: false });
   await guide.getByRole('button', { name: 'Next: Dependency', exact: true }).click();
@@ -79,20 +85,46 @@ try {
     check('assistant_chronology_bounded', evidence.results.some(result => result.kind === 'timeline' && result.rows.every(row => Number(row.phase) <= 3)));
     receipt.provider = evidence.provider; receipt.model = evidence.model;
     check('completed_investigation_reenables_navigation', await guide.getByRole('button', { name: 'Next: Decision', exact: true }).isEnabled());
+    await expect.poll(() => root.locator('.fo-guide-arrow>path').evaluate(path => path.getBBox().y >= document.getElementById('facility-operations-main').getBoundingClientRect().top - 2)).toBe(true);
+    check('long_response_arrow_stays_below_native_chrome', true);
+    await guide.getByRole('button', { name: 'Show highlighted evidence', exact: true }).click();
     await page.screenshot({ path: output + '/guided-assistant.png', fullPage: false });
   }
   await guide.getByRole('button', { name: 'Next: Decision', exact: true }).click();
   await expect(guide.getByRole('button', { name: 'Next: Recover', exact: true })).toBeEnabled();
+  check('audience_decision_has_relevant_evidence', (await root.getByLabel('Audience decision evidence').innerText()).includes('executive situation brief'));
   check('decision_is_review_not_approval', (await guide.innerText()).includes('without approving or executing') && (await root.locator('.fo-guide-highlight').innerText()).includes('Confirm rollback'));
   await guide.getByRole('button', { name: 'Next: Recover', exact: true }).click();
   await expect(guide).toContainText('98.18%'); check('partial_recovery_distinguished', true);
   await guide.getByRole('button', { name: 'Next: Verify', exact: true }).click();
   await expect(guide).toContainText('99.92%');
+  const briefDownload = page.waitForEvent('download'); await guide.getByRole('button', { name: 'Download customer brief', exact: true }).click();
+  const brief = readFileSync(await (await briefDownload).path(), 'utf8');
+  check('readable_customer_brief_and_poc_requirements', brief.includes('99.92%') && brief.includes('Customer proof-of-concept requirements') && brief.includes('before measuring improvement'));
+  if (!connected || inference) check('brief_retains_frozen_earlier_investigation', brief.includes('frozen earlier evidence') && brief.includes('replay clock 135'));
   const downloading = page.waitForEvent('download'); await guide.getByRole('button', { name: 'Download story evidence', exact: true }).click();
   const story = JSON.parse(readFileSync(await (await downloading).path(), 'utf8'));
   check('story_export_retains_eight_visited_stages', story.synthetic && story.visited_steps.length === 8 && story.visited_steps.every(step => step.signals.length === 10 && step.signals.every(row => row.phase === step.phase)));
   await guide.getByRole('button', { name: 'Finish walkthrough', exact: true }).click();
   check('finish_removes_highlight_and_holds_stage', await guide.count() === 0 && await root.locator('.fo-guide-highlight,.fo-guide-arrow').count() === 0 && await root.getByRole('button', { name: '7 Verify', exact: true }).getAttribute('aria-pressed') === 'true');
+  if (!connected || inference) {
+    await click('Return to investigation');
+    const retainedDownload = page.waitForEvent('download'); await click('Export evidence');
+    const retained = JSON.parse(readFileSync(await (await retainedDownload).path(), 'utf8'));
+    check('investigation_export_survives_recovery_navigation', retained.scope.clock === 135);
+  }
+  const startsBeforeOverview = receipt.submitted_investigations;
+  await click('Start three-minute overview');
+  for (const label of ['Business impact', 'Dependency', 'Decision', 'Verify']) {
+    await expect(guide.getByRole('button', { name: 'Next: ' + label, exact: true })).toBeEnabled();
+    await guide.getByRole('button', { name: 'Next: ' + label, exact: true }).click();
+  }
+  await expect(guide.getByRole('button', { name: 'Finish walkthrough', exact: true })).toBeEnabled();
+  check('short_overview_without_inference', (await guide.innerText()).includes('STEP 5 OF 5') && receipt.submitted_investigations === startsBeforeOverview);
+  const overviewDownload = page.waitForEvent('download'); await guide.getByRole('button', { name: 'Download story evidence', exact: true }).click();
+  const overview = JSON.parse(readFileSync(await (await overviewDownload).path(), 'utf8'));
+  check('new_case_clears_old_findings_and_skipped_stages', overview.investigation === null && overview.decisions.length === 0 && overview.visited_steps.length === 5);
+  await guide.getByRole('button', { name: 'Finish walkthrough', exact: true }).click();
   await click('Play continuous loop'); check('continuous_loop_still_available', await root.getByRole('button', { name: 'Pause', exact: true }).isVisible());
   check('candidate_asset_verified', receipt.candidate_bundle_in_served_asset);
   check('no_application_errors', receipt.page_error_count === 0);

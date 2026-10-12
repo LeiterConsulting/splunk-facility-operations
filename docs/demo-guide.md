@@ -1,10 +1,30 @@
 # Facility Operations presentation guide
 
-Start with **Start guided walkthrough**. The app opens at a paused business baseline, and eight steps bring each change into view. A pinned guide explains the current evidence, highlights the relevant area and supplies Next/Back controls. Presenters do not need to memorize which panel changes or scroll ahead of the replay.
+Start in **Operations story**, then choose **Start guided walkthrough** or **Start three-minute overview**. The app opens at a paused business baseline, and eight steps bring each change into view. A dedicated desktop guide column explains the current evidence, highlights the relevant area and supplies Next/Back controls. Presenters do not need to memorize which panel changes or scroll ahead of the replay.
 
 For business value and evaluation measures, use [operations value](operations-value.md). For concrete clinical, manufacturing and retail examples, use [industry scenarios](industry-scenarios.md).
 
-![Guided impact step with highlighted evidence and native Splunk chrome](images/guided-demo.png)
+![Guided impact step with highlighted evidence and native Splunk chrome](images/case-walkthrough.png)
+
+## Choose the presentation length
+
+- **Start three-minute overview** visits baseline, business impact, dependency, decision and verification. Its five stages skip the assistant and partial recovery; it never invents snapshots from skipped stages.
+- **Start guided walkthrough** visits all eight stages. The assistant step prepares a question and waits for an explicit submission.
+- **Explore freely** keeps the current phase and lets the visitor choose a question or workspace. **Play continuous loop** remains available for an unattended replay.
+
+Use **Presentation readiness** to check returned observation coverage and the selected provider configuration. Saved configuration is not a connectivity test; use Provider settings to test a connected model before presenting. The deterministic assistant requires no external model.
+
+## One case, several disciplines
+
+The current case ID identifies a browser-page session, not a durable incident-management record. The case’s completed investigation remains mounted when you navigate to evidence, change review or the Operations story. **Return to investigation** restores its citations and exports. Navigating during an investigation does not cancel it; use **Stop** explicitly. Guide step changes still wait for completion or Stop.
+
+The finding summary is computed from the frozen returned snapshot and presents Finding, Supporting evidence, Uncertainty and Next check. It is labeled separately from provider-generated narrative. **Inspect retrieved scope and evidence** expands the factual receipt. Changing focus prepares another question while preserving earlier answers in the same case.
+
+Audience selection stays in **Settings → Presentation setup**. Operations emphasizes an incident handoff; Engineering compares diagnostics; Security/CISO examines access evidence and continuity; ISSO/Audit prioritizes unverified provenance; CCB prioritizes change records and rollback; Facilities emphasizes equipment and site evidence. The decision view selects relevant returned observations and names the corresponding deliverable. These lenses do not grant permissions.
+
+**Download customer brief** produces a readable Markdown document with current workflow measures, the latest frozen investigation and its capture time/audience, recorded local decisions, uncertainties, source reconciliation and customer proof-of-concept requirements. It separates current recovery observations from the earlier investigation. The final guide step also offers this download. Advancing the replay does not record approval or prove recovery.
+
+Starting or restarting a guide, applying a presentation or changing Demo/Live begins a new case; export needed findings first. Refreshing the page also clears case conversations and decisions. They are not persisted to a server case database. The separate live path never substitutes synthetic measurements for missing data.
 
 ## Prepare and rehearse
 
@@ -13,7 +33,7 @@ For business value and evaluation measures, use [operations value](operations-va
 3. Select **Demo**, then **Start guided walkthrough**. The guide starts at Normal, pauses the scenario and brings the relevant business card into view. It uses an observe/recommend policy and clears a prior demo approval; it does not change the configured model connection.
 4. Advance with **Next**. **Back** and the numbered steps let you revisit a point. **Show highlighted evidence** returns the camera to its target after you explore or scroll away. The workspace scrolls inside the installed Splunk frame while the guide is active.
 5. The assistant step prepares a question for review. Choose **Investigate** to use the saved provider. With the deterministic provider, no external model is needed. With a connected provider, this is the explicit point at which inference starts. Use **Next: Decision** to skip an investigation you do not want to run.
-6. Rehearse the final **Download story evidence**. It contains the normalized observations and SPL from stages actually visited. Download an assistant report/evidence separately before leaving its step.
+6. Rehearse the final **Download story evidence**. It contains the normalized observations and SPL from stages actually visited. Completed assistant findings, citations and exports remain available across workspaces. Use Return to investigation to reopen them.
 
 Opening statement: “This is a native Splunk proof of concept using synthetic operating evidence. We will follow one business interruption from its first signal to its consequences, an investigation, a decision and the checks needed for recovery.”
 
@@ -37,10 +57,10 @@ The guide advances only after all expected demo entities have returned the selec
 Complete the eight steps and spend more time on the assistant and decision:
 
 1. In Investigate, review the prepared audience question and submit it. The guide moves the highlight to actual activity and the response. Next/Back/step jumping stay disabled while the investigation runs. Wait for completion or use **Stop**. No query or model request starts merely because you entered the step.
-2. Inspect a returned component citation, chronology and tool searches. Discuss healthy counter-evidence and missing observations before asserting cause. Use **Export report**, **Export evidence** and **Export searches** before advancing.
+2. Inspect a returned component citation, chronology and tool searches. Discuss healthy counter-evidence and missing observations before asserting cause. Use **Export report**, **Export evidence** and **Export searches** in the assistant. They remain available after navigating to another workspace and returning.
 3. In Decision, review the runbook with the audience. The default guide previews authored recovery when you choose Next. To demonstrate a recorded simulation, deliberately select the supervised policy, review its gate, record demo approval and run the simulation. Successful simulation advances the guide to Recover; no external infrastructure changes.
 4. In Verify, discuss the independent source reconciliation needed for a real incident. Queue entries may overlap and a workflow acknowledgement is not final settlement, fulfillment or a clinical outcome.
-5. Download **operations-guided-story.json**. It records visited stage IDs, phase clocks, capture times, normalized observations and executed dashboard SPL. Skipped stages are not fabricated; restarting clears the previous walkthrough's stage snapshots. Assistant narratives are separate downloads.
+5. Download **operations-guided-story.json**. It records visited stage IDs, phase clocks, capture times, normalized observations and executed dashboard SPL. Skipped stages are not fabricated; restarting clears the previous walkthrough's stage snapshots. The story download also retains the latest completed investigation. A readable customer brief is a separate download.
 
 Time-to-innocence, recovery speed and financial savings require a [customer evaluation](operations-value.md#plan-a-customer-proof-of-concept). Replay duration and authored phase transitions are not measured improvements.
 

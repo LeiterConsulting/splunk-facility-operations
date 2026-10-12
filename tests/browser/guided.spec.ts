@@ -22,6 +22,7 @@ test('The default demo holds its baseline and walks through visible evidence, as
   await guide.getByRole('button', { name: 'Next: Business impact', exact: true }).click();
   await expect(guide).toContainText('2,286/2,472');
   await expect(page.locator('.fo-guide-highlight')).toBeInViewport({ ratio: 0.5 });
+  await page.screenshot({ path: 'artifacts/browser-tests/story-guide-impact.png', fullPage: false });
   await guide.getByRole('button', { name: 'Next: Dependency', exact: true }).click();
   await expect(page).toHaveURL(/#dependencies$/);
   await expect(page.locator('.fo-guide-highlight').getByRole('button', { name: 'Commerce access broker, Critical, inspect evidence', exact: true })).toBeVisible();
@@ -32,6 +33,8 @@ test('The default demo holds its baseline and walks through visible evidence, as
   await page.getByRole('button', { name: 'Investigate', exact: true }).click();
   await expect(page.getByText('Investigation steps', { exact: true })).toBeVisible();
   await expect(page.locator('.fo-guide-highlight')).toHaveAttribute('data-demo-target', 'assistant-activity');
+  await page.getByRole('button', { name: 'Export evidence', exact: true }).scrollIntoViewIfNeeded();
+  await expect.poll(() => page.locator('.fo-guide-arrow>path').evaluate(path => (path as SVGGraphicsElement).getBBox().y >= document.getElementById('facility-operations-main')!.getBoundingClientRect().top - 2)).toBe(true);
   await guide.getByRole('button', { name: 'Next: Decision', exact: true }).click();
   await expect(page.locator('.fo-guide-highlight')).toContainText('Confirm rollback');
   await expect(guide).toContainText('without approving or executing');
@@ -68,7 +71,7 @@ test('The guide survives exploration, stays usable on mobile, and exits when swi
   await page.getByRole('combobox', { name: 'Workspace view', exact: true }).selectOption('evidence');
   await expect(guide.getByRole('button', { name: 'Return to this step', exact: true })).toBeVisible();
   await guide.getByRole('button', { name: 'Return to this step', exact: true }).click();
-  await expect(page).toHaveURL(/#situation$/);
+  await expect(page).toHaveURL(/#story$/);
   await expect(page.locator('.fo-guide-highlight')).toContainText('Clinical orders and results');
   await page.getByRole('button', { name: 'Live', exact: true }).click();
   await expect(guide).toHaveCount(0);

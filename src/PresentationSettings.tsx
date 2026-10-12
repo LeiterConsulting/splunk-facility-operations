@@ -18,6 +18,7 @@ export function PresentationSettings({ value, onApply }: { value: Presentation; 
     <form onSubmit={(event) => { event.preventDefault(); onApply(draft); }}>
       <div className={uiClass('presentation-fields')}>
         <p className={uiClass('panel-description')}>Choose the audience, industry and incident story before presenting. Apply them together to update the workspace. These preferences are remembered in this browser.</p>
+        <fieldset className={uiClass('recommended-stories')}><legend>Suggested starting stories</legend><Button type="button" onClick={() => setDraft({ vertical: 'distributed_care', audience: 'operations', usecase: 'dependency' })}>Clinical service interruption</Button><Button type="button" onClick={() => setDraft({ vertical: 'manufacturing', audience: 'ccb', usecase: 'change' })}>Manufacturing quality release</Button><Button type="button" onClick={() => setDraft({ vertical: 'retail', audience: 'executive', usecase: 'dependency' })}>Retail checkout and fulfillment</Button><p>These set the draft below. Review the context, then Apply presentation.</p></fieldset>
         <Picker label="Audience" value={draft.audience} options={audiences} onChange={(audience) => setDraft({ ...draft, audience })} />
         <Picker label="Industry / vertical" value={draft.vertical} options={verticals} onChange={(vertical) => setDraft({ ...draft, vertical })} />
         <Picker label="Use case" value={draft.usecase} options={usecasesFor(draft.vertical)} onChange={(usecase) => setDraft({ ...draft, usecase })} />

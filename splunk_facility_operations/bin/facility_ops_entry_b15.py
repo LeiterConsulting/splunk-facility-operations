@@ -9,7 +9,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-RUNTIME_NAMESPACE = 'facility_ops_runtime_b14'
+RUNTIME_NAMESPACE = 'facility_ops_runtime_b15'
 runtime = Path(__file__).resolve().parent / 'facility_ops_runtime'
 if RUNTIME_NAMESPACE not in sys.modules:
     spec = importlib.util.spec_from_file_location(

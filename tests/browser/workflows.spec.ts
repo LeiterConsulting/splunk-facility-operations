@@ -19,6 +19,7 @@ test('Operational briefing hands a component to the assistant and keeps receipt 
   await expect(page.getByText('Focused on Production and quality store [database]', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Ask about the current operational context')).toHaveValue(/Production and quality store \[database\]/);
   await page.getByRole('button', { name: 'Investigate', exact: true }).click();
+  await page.getByText('Inspect retrieved scope and evidence', { exact: true }).click();
   const receipt = page.getByRole('region', { name: 'Retrieved evidence summary', exact: true });
   await expect(receipt).toContainText('2 affected functions');
   await expect(receipt).toContainText('61 reported waiting work');
@@ -149,7 +150,8 @@ test('Verticals and audience workflows adapt, including compact navigation', asy
   await page.getByRole('combobox', { name: /Audience/ }).selectOption('isso');
   await expect(page.getByRole('heading', { name: 'Presentation setup', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Apply presentation', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Current evidence and accountability', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Operational story' })).toBeVisible();
+  await page.getByRole('button', { name: 'Evidence and controls', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Operational evidence ledger' }).getByRole('button', { name: 'Clinical orders and results', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 750, height: 1000 });
   await page.getByRole('combobox', { name: /Workspace view/ }).selectOption('investigate');
@@ -174,6 +176,7 @@ test('Commercial presentation setup applies atomically, remembers context and ke
   await expect(page.getByLabel('Current presentation context')).toContainText('Retail and Commerce');
   await expect(page.getByLabel('Current presentation context')).toContainText('Executive');
   await expect(page.getByRole('heading', { name: 'Online checkout', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Open detailed situation room', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Platform diagnostic comparison' })).toContainText('TOKEN_EXCHANGE_TIMEOUT');
   await expect(page.getByRole('combobox', { name: 'Audience', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Investigation assistant', exact: true }).click();
@@ -195,6 +198,7 @@ test('Commercial presentation setup applies atomically, remembers context and ke
   await page.getByRole('combobox', { name: 'Use case', exact: true }).selectOption('facility');
   await page.getByRole('combobox', { name: 'Audience', exact: true }).selectOption('facilities');
   await page.getByRole('button', { name: 'Apply presentation', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Workspace view', exact: true }).selectOption('facility');
   await expect(page.getByRole('heading', { name: 'Manufacturing plant', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Central campus', exact: true })).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });

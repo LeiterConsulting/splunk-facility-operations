@@ -2,6 +2,24 @@
 
 Native app validation began on October 4, 2026. Validation covers the repeating synthetic evidence, packaged interface, authenticated investigation service, and permission boundaries. It does not establish qualification for every Splunk release or a production deployment.
 
+## Case presentations 0.1.7 (build 15)
+
+October 12, 2026. Operations story opens with the business problem and supporting measurements. A page-session case retains completed investigations, citations, exports and local decisions across navigation. Audience decisions select relevant source evidence and deliverables. Presenters can choose a five-stage overview or the full eight-stage investigation; a reserved desktop reading column keeps the guide clear of evidence.
+
+| Check | Result |
+| --- | --- |
+| Types and local tests | 27 TypeScript and 56 Python tests passed; includes all industry/use-case case findings, stale/missing evidence, audience priorities and current-versus-frozen customer briefs |
+| Final browser workflows | All 19 passed together, including left alignment, retained running jobs and citations, readable briefs, new-case resets, five visited stages, compact layout and long-response arrow bounds |
+| Enterprise 10.4.0 | 30 guided, 28 free-exploration UI and 8 service checks passed |
+| Enterprise 10.0.1 / OpenAI | 31 guided checks passed with a real explicitly submitted gpt-6-luna investigation against synthetic data |
+| Native experience | Chrome remains visible; desktop guide reserves its own column, and long-response arrows stay below native chrome; both final guided checks verify the served candidate bundle and report zero application errors |
+| Exact installer | 27 regular files, 463,735 bytes; reproducible and byte-identical formats; empty release inventory; no local overrides |
+| AppInspect 4.2.1 precertification | 0 errors, failures or future failures; four warnings and one skipped check |
+
+Installer SHA-256: `f5c46cc6e8b9f8c0261417d629d39bd11e620d0b9b97120b213e9001baec606e`. See the [manifest](validation/release-v0.1.7.json), [guided 10.4 receipt](validation/release-v0.1.7-guided-10.4.json), [guided OpenAI 10.0 receipt](validation/release-v0.1.7-guided-openai-10.0.json), [free-exploration receipt](validation/release-v0.1.7-ui-10.4.json) and [inspection findings](validation/release-v0.1.7-appinspect.json). Saved provider settings were preserved on both labs. The 10.0 qualification records a browser-only certificate exception without changing provider TLS configuration.
+
+The four inspection warnings concern SplunkJS telemetry, Python migration, cluster replication and Cloud roles; package identity is skipped. Cases are held in the current page and clear on restart, setup change, Demo/Live change or refresh. This is not qualification of a durable incident system, production/customer sources, formal accessibility, Cloud/GovCloud, clusters, scale or real Ollama/AI Toolkit inference. Synthetic replay timing is not measured time-to-innocence or recovery improvement.
+
 ## Guided presentation 0.1.6 (build 14)
 
 October 12, 2026. The default demo starts paused at Normal. Eight click-through stages select the replay phase and workspace, reveal the relevant evidence, and explain its operating meaning through a pinned nonmodal guide. Scrolling stays inside the app canvas, retaining native Splunk chrome. The assistant requires an explicit submission and blocks guide step changes while running.
